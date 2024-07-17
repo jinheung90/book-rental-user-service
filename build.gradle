@@ -1,40 +1,125 @@
-plugins {
-    id 'java'
-    id 'org.springframework.boot' version '3.3.1'
-    id 'io.spring.dependency-management' version '1.1.5'
-}
+buildscript {
+    ext {
+        springBootVersion = '3.3.1'
+        springCloudVersion = '2022.0.3'
+    }
 
-group = 'com.undefind'
-version = '0.0.1-SNAPSHOT'
+    repositories {
+        mavenCentral()
+    }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "io.spring.gradle:dependency-management-plugin:1.1.5"
     }
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
+
+
+allprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'jacoco'
+    apply plugin: 'java-test-fixtures'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '2.7.7'
+        implementation 'org.projectlombok:lombok'
+        implementation 'io.awspring.cloud:spring-cloud-aws-parameter-store'
+        annotationProcessor 'org.projectlombok:lombok'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testImplementation 'org.springframework.security:spring-security-test'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+            mavenBom "io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1"
+        }
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    jacoco {
+        toolVersion = '0.8.7'
+    }
+
+    task integration(type: Test, group : 'verification') {
+        useJUnitPlatform() {
+            includeTags 'integration'
+        }
+        finalizedBy jacocoTestReport
+    }
+
+    task unit(type: Test, group: 'verification') {
+        useJUnitPlatform() {
+            includeTags 'unit'
+        }
+        finalizedBy jacocoTestReport
+    }
+
+    jacocoTestReport {
+        dependsOn integration, unit
+        finalizedBy 'jacocoTestCoverageVerification'
+
+        reports {
+            xml.required = false
+            csv.required = false
+            html.required = true
+        }
+    }
+
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                enabled = true
+                element = 'CLASS'
+
+                limit {
+                    counter = 'BRANCH'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.80
+                }
+
+                limit {
+                    counter = 'LINE'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.70
+                }
+
+                limit {
+                    counter = 'METHOD'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.60
+                }
+            }
+        }
     }
 }
 
-repositories {
-    mavenCentral()
+
+bootJar {
+    enabled = false
 }
 
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+jar {
+    enabled = true
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}

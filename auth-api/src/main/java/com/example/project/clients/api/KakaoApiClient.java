@@ -25,26 +25,32 @@ public class KakaoApiClient {
     private String restApiKey;
     @Value("${kakao-auth.redirect-uri}")
     private String redirectUri;
+    @Value("${kakao-auth.client-secret}")
+    private String clientSecret;
 
-    private final String contentType = "application/x-www-form-urlencoded;charset=utf-8";
+    private static final String CONTENT_TYPE = "application/x-www-form-urlencoded;charset=utf-8";
 
     public KakaoToken getKakaoTokenFromAuthorizationCode(String authorizationCode) {
+
         UriComponents uri = UriComponentsBuilder
                 .fromUriString("https://kauth.kakao.com")
                 .path("/oauth/token")
                 .queryParam("grant_type", "authorization_code")
                 .queryParam("client_id", restApiKey)
                 .queryParam("redirect_uri", redirectUri)
+                .queryParam("client_secret", clientSecret)
                 .queryParam("code", authorizationCode)
                 .build();
 
-        return restTemplate.postForObject(uri.toUri(), null, KakaoToken.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
+        return restTemplate.postForObject(uri.toUri(), new HttpEntity<>(headers), KakaoToken.class);
     }
 
     public KakaoProfile fetchUserProfile(String bearerToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken);
-        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        headers.add(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         ResponseEntity<KakaoProfile> profile = restTemplate.exchange("https://kapi.kakao.com/v2/user/me", HttpMethod.GET, new HttpEntity<>(headers), KakaoProfile.class);
         return profile.getBody();
     }
@@ -52,7 +58,7 @@ public class KakaoApiClient {
     public KakaoTerm getKakaoTerms(String bearerToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken);
-        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        headers.add(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
         ResponseEntity<KakaoTerm> terms = restTemplate.exchange("https://kapi.kakao.com/v1/user/service/terms", HttpMethod.GET, new HttpEntity<>(headers), KakaoTerm.class);
         return terms.getBody();
     }

@@ -31,23 +31,14 @@ public class AuthController {
 
     @PostMapping("/login/kakao")
     public ResponseEntity<SocialLoginResponse> kakaoLogin(@RequestBody KakaoLoginRequest kakaoLoginRequest) {
-        KakaoToken kakaoToken = kakaoApiClient.getKakaoTokenFromAuthorizationCode(kakaoLoginRequest.getAuthorizationCode());
-        KakaoProfile kakaoProfile = kakaoApiClient.fetchUserProfile(kakaoToken.getAccess_token());
-        Optional<UserSecurity> optionalUserSecurity = userService.findUserBySocialLogin(kakaoProfile.getId().toString(), LoginProvider.kakao);
-        UserSecurity userSecurity = null;
-
-        if(optionalUserSecurity.isEmpty()) {
-            // signup
-
-        } else {
-            // signin
-            userSecurity = optionalUserSecurity.get();
-        }
-
+        final KakaoToken kakaoToken = kakaoApiClient.getKakaoTokenFromAuthorizationCode(kakaoLoginRequest.getAuthorizationCode());
+        final KakaoProfile kakaoProfile = kakaoApiClient.fetchUserProfile(kakaoToken.getAccess_token());
+        final Optional<UserSecurity> optionalUserSecurity = userService.findUserBySocialLogin(kakaoProfile.getId().toString(), LoginProvider.KAKAO);
+        UserSecurity userSecurity = optionalUserSecurity.orElseGet(() -> userService.signIn(kakaoProfile.getKakao_account().getEmail(), kakaoProfile.getId().toString(), LoginProvider.KAKAO));
         User user = userSecurity.getUser();
         customAuthenticationProvider.setAuthentication(user.getId(), userSecurity.getEmail(), user.getAuthorityNames());
-        String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
-        SocialLoginResponse response = SocialLoginResponse.from(accessToken, LoginProvider.kakao, userSecurity.getEmail(), userSecurity.getSocialMemberId(), user.getId());
+        final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
+        final SocialLoginResponse response = SocialLoginResponse.from(accessToken, LoginProvider.KAKAO, userSecurity.getEmail(), userSecurity.getSocialMemberId(), user.getId());
         return ResponseEntity.ok().body(response);
     }
 }
