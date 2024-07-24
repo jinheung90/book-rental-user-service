@@ -1,9 +1,5 @@
 version: "3.9"
 services:
-  #  redis:
-  #    image: library/redis:6.2
-  #    ports:
-  #    - 6379:6379
   mysql:
     image: library/mysql:8.0.38
     command:
