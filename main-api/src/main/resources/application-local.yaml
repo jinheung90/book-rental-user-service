@@ -12,8 +12,17 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
-
-server:
+  cloud:
+    aws:
+      credentials:
+        access-key:
+        secret-key:
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket:
+          user: local-user-service
+          book: local-book-bucket
   tomcat:
     access-log:
       enabled: true

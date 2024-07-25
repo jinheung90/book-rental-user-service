@@ -12,7 +12,10 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
-
+  cloud:
+    aws:
+      region:
+        instance-profile: true
 server:
   tomcat:
     access-log:

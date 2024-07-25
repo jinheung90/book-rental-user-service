@@ -27,7 +27,7 @@ sequenceDiagram
     서버 ->> 카카오서버: 카카오 프로필 요청
     카카오서버 ->> 서버: 카카오 프로필 전송 scope [email, kakao_member_id]
     서버 ->> 서버: kakao_member_id 유저 정보 확인
-    alt 유저 정보가 있으면 
+    alt 유저 정보가 없으면 
         서버 ->> 서버: 회원가입
     end
     서버 ->> 시작화면: 유저 정보, jwt 토큰
