@@ -1,21 +1,12 @@
 spring:
-  datasource:
-    username: root
-    password: 1234
-    url: jdbc:mysql://localhost:3306/side_user
-  jpa:
-    hibernate:
-      ddl-auto: update
-    #      ddl-auto: none
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
-    show-sql: true
   cloud:
     aws:
       region:
-        instance-profile: true
+        static: ap-northeast-2
+      s3:
+        bucket:
+          user: local-user-service
+          book: local-book-bucket
 server:
   tomcat:
     access-log:
@@ -23,11 +14,11 @@ server:
       directory: logs
     basedir: .
 kakao-auth:
-  rest-api-key: c387fbf404982b87db2040c2898d96a9
-  client-secret: vdLEOsu2ruHZUzUAOb0q2LUetlzH3gpy
-  redirect-uri: http://localhost:3000/auth
+  rest-api-key:
+  client-secret:
+  redirect-uri:
 token:
-  access-token-secret: awey34634561235GWSDGVdsgvdsfhyfasdzehgysurhrt232t6347yetseryesrytasrgdasdrgvbasdfgbaedsfrghaewrgaewrghaerghaerha34qw67abcd
+  access-token-secret:
   refresh-token-expired: 1209600
   access-token-expired: 1209600
   issuer: team

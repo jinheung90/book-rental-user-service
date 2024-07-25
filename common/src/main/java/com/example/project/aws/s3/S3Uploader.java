@@ -37,16 +37,7 @@ public class S3Uploader {
     @Value("${spring.profiles.active}")
     private String profile;
 
-//    @PostConstruct
-//    void init() {
-//        this.amazonS3Client = AmazonS3Client
-//                .builder()
-//                .withCredentials((AWSCredentialsProvider) awsCredentialsProvider)
-//                .withRegion(region)
-//                .build();
-//    }
-
-    private String getBucketRealName(BucketType bucketType) {
+    public String getBucketRealName(BucketType bucketType) {
         return profile + '-' + bucketType.getName();
     }
 
@@ -74,9 +65,16 @@ public class S3Uploader {
     }
 
     public void createBucket(String bucketName) {
-        if (!amazonS3Client.doesBucketExistV2(bucketName)) {
+        if (existsBucket(bucketName)) {
             amazonS3Client.createBucket(bucketName);
         }
+    }
+
+    public boolean existsBucket(String bucketName) {
+        if(amazonS3Client.doesBucketExistV2(bucketName)) {
+            return true;
+        }
+        return false;
     }
 
 
@@ -130,26 +128,6 @@ public class S3Uploader {
         throw new IllegalArgumentException(String.format("파일 변환이 실패했습니다. 파일 이름: %s", file.getName()));
     }
 
-
-//    public BufferedImage drawingCenterPosImg(BufferedImage origin, int width, int height, CustomRectangle customRectangle) {
-//        BufferedImage bufferedImage =
-//                new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-//        Graphics2D g = bufferedImage.createGraphics();
-////        public abstract boolean drawImage(Image img,
-////        int dx1, int dy1, int dx2, int dy2,
-////        int sx1, int sy1, int sx2, int sy2,
-////        ImageObserver observer);
-//        int cropX = customRectangle.getCenterX() - width / 2;
-//        int cropY = customRectangle.getCenterY() - height / 2;
-//        g.drawImage(origin,
-//                0,0, width ,height,
-//                cropX, cropY,
-//                cropX + width,cropY + height,
-//                null);
-//        g.dispose();
-//        return bufferedImage;
-//    }
-
     public BufferedImage drawingReductionCenterPosImg(BufferedImage detail, int width, int height) {
         BufferedImage bufferedImage =
                 new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
@@ -161,5 +139,4 @@ public class S3Uploader {
         g.dispose();
         return bufferedImage;
     }
-
 }

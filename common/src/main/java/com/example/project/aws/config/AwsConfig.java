@@ -11,12 +11,7 @@ import org.springframework.core.env.Environment;
 
 @Configuration
 class AwsConfig {
-//    cloud:
-//    aws:
-//    credentials:
-//    access-key:
-//    secret-key:
-//
+
     @Value("${spring.profiles.active}")
     private String profile;
 

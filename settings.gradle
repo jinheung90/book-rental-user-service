@@ -1,6 +1,4 @@
 rootProject.name = 'side-proejct'
-include(':auth-core')
-
-
+include(':user-core')
 include(':common')
 include(':main-api')

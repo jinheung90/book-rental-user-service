@@ -35,4 +35,7 @@ out/
 
 ### VS Code ###
 .vscode/
-/logs/
+/logs/**
+/common/src/main/resources/application-local.yml
+/user-core/src/main/resources/application-local.yml
+/main-api/src/main/resources/application-local.yml
