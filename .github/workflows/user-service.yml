@@ -10,7 +10,7 @@ env:
   ECS_SERVICE: book-rental-service
   ECS_CLUSTER: book-rental-user-cluster
   SPRING_PROFILE: dev # 스프링 프로필
-  MODULE_ROOT_PATH: ./jinheung_eureka # 해당 모듈의 루트
+  MODULE_ROOT_PATH: ./main-api # 해당 모듈의 루트
   MODULE_JAR: /main-api/build/libs/main-api.jar # 해당 모듈의 jar
   MODULE_DEPLOY_PATH: ./main-api/deploy # 해당 모듈의 deploy 디렉토리
   ECS_TASK_DEFINITION: task_definition.json
