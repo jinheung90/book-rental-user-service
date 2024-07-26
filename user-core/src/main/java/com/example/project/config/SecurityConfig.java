@@ -56,9 +56,10 @@ public class SecurityConfig {
             throw new RuntimeException("allow origins is empty");
         }
 
-        if(!environment.matchesProfiles("prod")) {
-            whiteList = DEV_WHITELIST;
-        }
+//        if(!environment.matchesProfiles("prod")) {
+//            whiteList = DEV_WHITELIST;
+//        }
+        whiteList = DEV_WHITELIST;
 
     }
 

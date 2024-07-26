@@ -8,9 +8,9 @@ spring:
       on-profile: prod
     import: 'aws-parameterstore:'
   datasource:
-    username: ${mysql.name}
-    password: ${mysql.password}
-    url: ${mysql.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    url: ${spring.datasource.url}
   jpa:
     hibernate:
       ddl-auto: none
@@ -20,3 +20,18 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
+  data:
+    redis:
+      port: 6379
+      host: book-rental-cache-ro.v6ojg2.ng.0001.apn2.cache.amazonaws.com
+kakao-auth:
+  rest-api-key: ${kakao-auth.rest-api-key}
+  client-secret: ${kakao-auth.client-secret}
+  redirect-uri: ${kakao-auth.redirect-uri}
+token:
+  access-token-secret: ${token.access-token-secret}
+  refresh-token-expired: 1209600
+  access-token-expired: 1209600
+  issuer: team
+cors:
+  allow-origins: ${cors.allow-origins}

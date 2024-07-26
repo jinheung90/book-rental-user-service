@@ -3,17 +3,6 @@ spring:
     aws:
       region:
         static: ap-northeast-2
-kakao-auth:
-  rest-api-key:
-  client-secret:
-  redirect-uri:
-token:
-  access-token-secret:
-  refresh-token-expired: 1209600
-  access-token-expired: 1209600
-  issuer: team
-cors:
-  allow-origins: http://localhost:8080,http://localhost:3000
 springdoc:
   swagger-ui:
     groups-order: DESC
@@ -33,11 +22,6 @@ springdoc:
   model-and-view-allowed: true
   paths-to-match:
     - /api/**
-logging:
-  level:
-    # Set environment together: AWS_EC2_METADATA_DISABLED=true
-    # ref: https://lannstark.tistory.com/71
-    com.amazonaws.util.EC2MetadataUtils: error
 server:
   servlet:
     context-path: /api
