@@ -3,10 +3,6 @@ spring:
     aws:
       region:
         static: ap-northeast-2
-      s3:
-        bucket:
-          user: local-user-service
-          book: local-book-bucket
 server:
   tomcat:
     access-log:

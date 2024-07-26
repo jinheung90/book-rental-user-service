@@ -1,16 +1,17 @@
 package com.example.project.aws.s3;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSCredentialsProviderChain;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.*;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,25 +21,48 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Arrays;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class S3Uploader {
-    private static final String TEMP_FILE_PATH = "src/main/resources/";
-
-    private final AwsCredentialsProvider awsCredentialsProvider;
 
     private AmazonS3Client amazonS3Client;
 
     @Value("${spring.cloud.aws.region.static}")
     private String region;
 
-    @Value("${spring.profiles.active}")
-    private String profile;
+    @Value("${spring.cloud.aws.credentials.access-key}")
+    private String accessKey;
+
+    @Value("${spring.cloud.aws.credentials.secret-key}")
+    private String secretKey;
+
+    private final ApplicationContext context;
+
+    private String env;
+    @PostConstruct
+    public void init() {
+        env = Arrays.stream(context.getEnvironment().getActiveProfiles()).findFirst().get();
+        if(env.equals("local")) {
+            BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+            this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
+                    .withRegion(region).enablePathStyleAccess()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                    .build();
+        } else {
+            this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
+                    .withRegion(region).enablePathStyleAccess()
+                    .withCredentials(new DefaultAWSCredentialsProviderChain())
+                    .build();
+
+        }
+    }
 
     public String getBucketRealName(BucketType bucketType) {
-        return profile + '-' + bucketType.getName();
+        return env + '-' + bucketType.getName();
     }
 
     public void deleteS3ByKey(String fileName, BucketType bucket) {
@@ -64,11 +88,22 @@ public class S3Uploader {
         return objectMetadata;
     }
 
-    public void createBucket(String bucketName) {
-        if (existsBucket(bucketName)) {
-            amazonS3Client.createBucket(bucketName);
-        }
+//    public void createBucket(String bucketName) {
+//        if (!existsBucket(bucketName)) {
+//            amazonS3Client.createBucket(bucketName);
+//            AccessControlList list = new AccessControlList();
+//            list.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+//            amazonS3Client.setBucketAcl(bucketName, list);
+//        }
+//    }
+
+    public void setAcl(String bucketName) {
+        AccessControlList list = new AccessControlList();
+        list.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+        list.setOwner(new Owner());
+        amazonS3Client.setBucketAcl(bucketName, list);
     }
+
 
     public boolean existsBucket(String bucketName) {
         if(amazonS3Client.doesBucketExistV2(bucketName)) {
@@ -77,11 +112,7 @@ public class S3Uploader {
         return false;
     }
 
-
-
-
     public String putImage(MultipartFile multipartFile, BucketType bucketType) throws Exception {
-        createBucket(this.getBucketRealName(bucketType));
         File convertedFile;
         try {
             String key = multipartFile.getOriginalFilename();
@@ -118,7 +149,7 @@ public class S3Uploader {
     }
 
     private File convert(MultipartFile file) throws IOException {
-        File convertFile = new File(file.getOriginalFilename());//TEMP_FILE_PATH +
+        File convertFile = new File(Objects.requireNonNull(file.getOriginalFilename()));//TEMP_FILE_PATH +
         if (convertFile.createNewFile()) {
             try (FileOutputStream fos = new FileOutputStream(convertFile)) {
                 fos.write(file.getBytes());

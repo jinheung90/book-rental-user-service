@@ -4,8 +4,14 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.Assert;
+import org.springframework.web.multipart.MultipartFile;
+
+
+import java.nio.charset.StandardCharsets;
+
 
 @SpringBootTest
 @Tag("integration")
@@ -15,10 +21,15 @@ class S3UploaderTest {
     @Autowired
     private S3Uploader s3Uploader;
 
+    private MultipartFile mockFile;
+
+
+
     @Test
-    void createS3BucketTest() {
-        final String realName = s3Uploader.getBucketRealName(BucketType.BOOK);
-        s3Uploader.createBucket(realName);
-        Assert.isTrue(s3Uploader.existsBucket(realName), "not created");
+    void uploadS3BucketTest() throws Exception {
+        String testData = "abcd";
+        mockFile = new MockMultipartFile("test5", "test5.txt", "text/plain", testData.getBytes(StandardCharsets.UTF_8));
+        s3Uploader.putImage(mockFile, BucketType.BOOK);
+
     }
 }
