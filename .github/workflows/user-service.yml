@@ -45,8 +45,8 @@ jobs:
 #      - name: Copy agent json
 #        run: cp $MODULE_DEPLOY_PATH/cloud_watch_log_config.json agent_config.json
 
-#      - name: Copy docker file
-#        run: cp $MODULE_DEPLOY_PATH/Dockerfile_$SPRING_PROFILE Dockerfile
+      - name: Copy docker file
+        run: cp $MODULE_DEPLOY_PATH/Dockerfile_$SPRING_PROFILE Dockerfile
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
