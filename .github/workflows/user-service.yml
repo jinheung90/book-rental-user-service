@@ -1,4 +1,4 @@
-name: eureka
+name: user-service-prod
 on:
   workflow_dispatch:
     inputs:
