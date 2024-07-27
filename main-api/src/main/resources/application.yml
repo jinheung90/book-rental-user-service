@@ -7,7 +7,7 @@ spring:
   config:
     activate:
       on-profile: prod
-    import: 'aws-parameterstore:'
+    import: aws-parameterstore:/config/bookRental/user_${spring.profiles.active}/
   datasource:
     username: ${spring.datasource.username}
     password: ${spring.datasource.password}
@@ -36,9 +36,3 @@ token:
   issuer: team
 cors:
   allow-origins: ${cors.allow-origins}
-aws:
-  paramstore:
-    enabled: true
-    prefix: /config/bookRental
-    profile-separator: _
-    name: user

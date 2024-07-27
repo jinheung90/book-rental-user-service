@@ -38,7 +38,7 @@ allprojects {
         implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '2.7.7'
         implementation group: 'org.springframework.data', name: 'spring-data-commons', version: '3.3.2'
         implementation 'org.projectlombok:lombok'
-        implementation group: 'io.awspring.cloud', name: 'spring-cloud-aws-parameter-store-config', version: '2.4.4'
+        implementation group: 'io.awspring.cloud', name: 'spring-cloud-aws-parameter-store', version: '3.2.0-M1'
         annotationProcessor 'org.projectlombok:lombok'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.springframework.security:spring-security-test'
