@@ -2,6 +2,7 @@ spring:
   profiles:
     active: local
 ---
+
 spring:
   config:
     activate:
@@ -35,3 +36,9 @@ token:
   issuer: team
 cors:
   allow-origins: ${cors.allow-origins}
+aws:
+  paramstore:
+    enabled: true
+    prefix: /bookRental
+    profile-separator: _
+    name: user
