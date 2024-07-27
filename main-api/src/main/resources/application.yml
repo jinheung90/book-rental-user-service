@@ -39,6 +39,6 @@ cors:
 aws:
   paramstore:
     enabled: true
-    prefix: /bookRental
+    prefix: /config/bookRental
     profile-separator: _
     name: user
