@@ -2,19 +2,22 @@ spring:
   profiles:
     active: local
 ---
-
 spring:
+  cloud:
+    aws:
+      parameterstore:
+        region: ap-northeast-2
   config:
     activate:
       on-profile: prod
     import: aws-parameterstore:/config/bookRental/user_${spring.profiles.active}/
   datasource:
-    username: ${spring.datasource.username}
-    password: ${spring.datasource.password}
-    url: ${spring.datasource.url}
+    username: ${db-name}
+    password: ${db-password}
+    url: ${db-url}
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     #      ddl-auto: none
     properties:
       hibernate:
@@ -26,13 +29,13 @@ spring:
       port: 6379
       host: book-rental-cache-ro.v6ojg2.ng.0001.apn2.cache.amazonaws.com
 kakao-auth:
-  rest-api-key: ${kakao-auth.rest-api-key}
-  client-secret: ${kakao-auth.client-secret}
-  redirect-uri: ${kakao-auth.redirect-uri}
+  rest-api-key: ${kakao-auth-rest-api-key}
+  client-secret: ${kakao-auth-secret}
+  redirect-uri: ${kakao-auth-redirect-uri}
 token:
-  access-token-secret: ${token.access-token-secret}
+  access-token-secret: ${taccess-token-secret}
   refresh-token-expired: 1209600
   access-token-expired: 1209600
   issuer: team
 cors:
-  allow-origins: ${cors.allow-origins}
+  allow-origins: ${cors-allow-origins}
