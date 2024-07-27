@@ -7,6 +7,8 @@ spring:
     aws:
       parameterstore:
         region: ap-northeast-2
+      region:
+        instance-profile: true
   config:
     activate:
       on-profile: prod
@@ -33,7 +35,7 @@ kakao-auth:
   client-secret: ${kakao-auth-secret}
   redirect-uri: ${kakao-auth-redirect-uri}
 token:
-  access-token-secret: ${taccess-token-secret}
+  access-token-secret: ${access-token-secret}
   refresh-token-expired: 1209600
   access-token-expired: 1209600
   issuer: team
