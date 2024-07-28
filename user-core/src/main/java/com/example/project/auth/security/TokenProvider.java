@@ -39,6 +39,7 @@ public class TokenProvider {
     public void afterPropertiesSet() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+
     }
 
     public String createJwtAccessTokenByUser(List<String> authorityNames, Long userId) {
