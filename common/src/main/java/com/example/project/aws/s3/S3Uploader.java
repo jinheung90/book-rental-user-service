@@ -2,6 +2,7 @@ package com.example.project.aws.s3;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.*;
+import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -34,12 +35,26 @@ public class S3Uploader {
     @Value("${spring.profiles.active}")
     private String profile;
 
+    private final Environment environment;
+
     @PostConstruct
     public void init() {
-        this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
-                .enablePathStyleAccess()
-                .withCredentials(new DefaultAWSCredentialsProviderChain())
-                .build();
+        if(!profile.equals("local")) {
+            this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
+                    .enablePathStyleAccess()
+                    .withCredentials(new DefaultAWSCredentialsProviderChain())
+                    .build();
+        } else {
+            String key = environment.getProperty("spring.cloud.aws.credentials.access-key");
+            String value = environment.getProperty("spring.cloud.aws.credentials.secret-key");
+            String region = environment.getProperty("spring.cloud.aws.region.static");
+            this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
+                    .enablePathStyleAccess()
+                    .withRegion(region)
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(key, value)))
+                    .build();
+        }
+
     }
 
     public String getBucketRealName(BucketType bucketType) {
