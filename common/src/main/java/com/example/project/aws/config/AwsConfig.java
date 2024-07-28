@@ -9,10 +9,6 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 
 @Configuration
 class AwsConfig {
-
-    @Value("${spring.profiles.active}")
-    private String profile;
-
     @Bean
     public AWSCredentialsProvider awsCredentialsProvider()  {
         return new DefaultAWSCredentialsProviderChain();
