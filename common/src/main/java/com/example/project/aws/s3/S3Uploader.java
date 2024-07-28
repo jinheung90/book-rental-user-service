@@ -31,38 +31,19 @@ public class S3Uploader {
 
     private AmazonS3Client amazonS3Client;
 
-    @Value("${spring.cloud.aws.region.static}")
-    private String region;
+    @Value("${spring.profiles.active}")
+    private String profile;
 
-    @Value("${spring.cloud.aws.credentials.access-key}")
-    private String accessKey;
-
-    @Value("${spring.cloud.aws.credentials.secret-key}")
-    private String secretKey;
-
-    private final ApplicationContext context;
-
-    private String env;
     @PostConstruct
     public void init() {
-        env = Arrays.stream(context.getEnvironment().getActiveProfiles()).findFirst().get();
-        if(env.equals("local")) {
-            BasicAWSCredentials awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-            this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
-                    .withRegion(region).enablePathStyleAccess()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                    .build();
-        } else {
-            this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
-                    .withRegion(region).enablePathStyleAccess()
-                    .withCredentials(new DefaultAWSCredentialsProviderChain())
-                    .build();
-
-        }
+        this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
+                .enablePathStyleAccess()
+                .withCredentials(new DefaultAWSCredentialsProviderChain())
+                .build();
     }
 
     public String getBucketRealName(BucketType bucketType) {
-        return env + '-' + bucketType.getName();
+        return profile + '-' + bucketType.getName();
     }
 
     public void deleteS3ByKey(String fileName, BucketType bucket) {
@@ -88,14 +69,6 @@ public class S3Uploader {
         return objectMetadata;
     }
 
-//    public void createBucket(String bucketName) {
-//        if (!existsBucket(bucketName)) {
-//            amazonS3Client.createBucket(bucketName);
-//            AccessControlList list = new AccessControlList();
-//            list.grantPermission(GroupGrantee.AllUsers, Permission.Read);
-//            amazonS3Client.setBucketAcl(bucketName, list);
-//        }
-//    }
 
     public void setAcl(String bucketName) {
         AccessControlList list = new AccessControlList();
