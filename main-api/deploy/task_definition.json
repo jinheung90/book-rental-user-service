@@ -1,9 +1,8 @@
 {
-  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:471112975229:task-definition/book-rental-service:3",
   "containerDefinitions": [
     {
       "name": "book-rental-user",
-      "image": "471112975229.dkr.ecr.ap-northeast-2.amazonaws.com/book-rental-app:lastest",
+      "image": "471112975229.dkr.ecr.ap-northeast-2.amazonaws.com/book-rental-app",
       "cpu": 0,
       "portMappings": [
         {
@@ -87,7 +86,5 @@
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"
   },
-  "registeredAt": "2024-07-28T16:48:55.243Z",
-  "registeredBy": "arn:aws:iam::471112975229:root",
   "tags": []
 }
