@@ -7,14 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+
 public class LoginResponse {
 
 
-    public static LoginResponse emptyResponse() {
-        return LoginResponse.builder().build();
-    }
 }
