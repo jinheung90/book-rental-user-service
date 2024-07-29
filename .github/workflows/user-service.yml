@@ -13,7 +13,7 @@ env:
   MODULE_ROOT_PATH: ./main-api # 해당 모듈의 루트
   MODULE_JAR: ./main-api/build/libs/main-api.jar # 해당 모듈의 jar
   MODULE_DEPLOY_PATH: ./main-api/deploy # 해당 모듈의 deploy 디렉토리
-  ECS_TASK_DEFINITION: $MODULE_DEPLOY_PATH/task_definition.json
+  ECS_TASK_DEFINITION: ./main-api/deploy/task_definition.json
   CONTAINER_NAME: book-rental-user
   AWS_REGION: ap-northeast-2 # aws 리전
   ECR_IMAGE_TAG: ${{inputs.tags}}
