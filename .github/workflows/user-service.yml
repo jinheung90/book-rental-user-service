@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 env:
   ECR_REPOSITORY: book-rental-app
-  ECS_SERVICE: book-rental-service
+  ECS_SERVICE: book-rental-user
   ECS_CLUSTER: book-rental-user-cluster
   SPRING_PROFILE: prod # 스프링 프로필
   MODULE_ROOT_PATH: ./main-api # 해당 모듈의 루트
