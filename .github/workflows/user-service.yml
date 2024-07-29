@@ -13,7 +13,7 @@ env:
   MODULE_ROOT_PATH: ./main-api # 해당 모듈의 루트
   MODULE_JAR: ./main-api/build/libs/main-api.jar # 해당 모듈의 jar
   MODULE_DEPLOY_PATH: ./main-api/deploy # 해당 모듈의 deploy 디렉토리
-  ECS_TASK_DEFINITION: task_definition.json
+  ECS_TASK_DEFINITION: $MODULE_DEPLOY_PATH/task_definition.json
   CONTAINER_NAME: book-rental-user
   AWS_REGION: ap-northeast-2 # aws 리전
   ECR_IMAGE_TAG: ${{inputs.tags}}
@@ -50,9 +50,6 @@ jobs:
       - name: Copy docker file
         run: cp $MODULE_DEPLOY_PATH/Dockerfile_$SPRING_PROFILE Dockerfile
 
-      - name: Copy task-definition
-        run: cp $MODULE_DEPLOY_PATH/$ECS_TASK_DEFINITION $ECS_TASK_DEFINITION
-
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -76,6 +73,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$ECR_IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$ECR_IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$ECR_IMAGE_TAG" >> $GITHUB_OUTPUT
+
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
@@ -83,6 +81,13 @@ jobs:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
+
+      - name: test print
+        run:  echo ${{ steps.task-def.outputs.task-definition }}
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition book-rental-service --query ${{ steps.task-def.outputs.task-definition }} > task-definition.json
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
