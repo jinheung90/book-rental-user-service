@@ -1,0 +1,93 @@
+{
+  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:471112975229:task-definition/book-rental-service:3",
+  "containerDefinitions": [
+    {
+      "name": "book-rental-user",
+      "image": "471112975229.dkr.ecr.ap-northeast-2.amazonaws.com/book-rental-app:lastest",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "name": "spring",
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/book-rental-service",
+          "awslogs-create-group": "true",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "book-rental-service",
+  "taskRoleArn": "arn:aws:iam::471112975229:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::471112975229:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "revision": 3,
+  "volumes": [],
+  "status": "ACTIVE",
+  "requiresAttributes": [
+    {
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "name": "ecs.capability.execution-role-ecr-pull"
+    },
+    {
+      "name": "ecs.capability.extensible-ephemeral-storage"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+    },
+    {
+      "name": "ecs.capability.task-eni"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+    }
+  ],
+  "placementConstraints": [],
+  "compatibilities": [
+    "EC2",
+    "FARGATE"
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "2048",
+  "memory": "4096",
+  "ephemeralStorage": {
+    "sizeInGiB": 21
+  },
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "registeredAt": "2024-07-28T16:48:55.243Z",
+  "registeredBy": "arn:aws:iam::471112975229:root",
+  "tags": []
+}

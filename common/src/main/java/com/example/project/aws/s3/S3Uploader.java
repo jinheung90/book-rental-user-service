@@ -114,10 +114,24 @@ public class S3Uploader {
         }
     }
 
-    private String putS3(InputStream is, String fileName,ObjectMetadata meta, BucketType bucketType) {
-        amazonS3Client.putObject(new PutObjectRequest(this.getBucketRealName(bucketType), fileName, is, meta)
+    public String putImage(MultipartFile multipartFile, BucketType bucketType, String key) throws Exception {
+        File convertedFile;
+        try {
+            String path = key + "/profile_image";
+            convertedFile = convert(multipartFile);
+            String url = putS3(convertedFile, path, bucketType);
+            removeNewFile(convertedFile);
+            return url;
+        } catch (AmazonS3Exception e) {
+            System.err.println(e.getErrorMessage());
+            throw e;
+        }
+    }
+
+    private String putS3(InputStream is, String key, ObjectMetadata meta, BucketType bucketType) {
+        amazonS3Client.putObject(new PutObjectRequest(this.getBucketRealName(bucketType), key, is, meta)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
-        return amazonS3Client.getUrl(this.getBucketRealName(bucketType), fileName).toString();
+        return amazonS3Client.getUrl(this.getBucketRealName(bucketType), key).toString();
     }
 
     public String putS3ByBufferImage(BufferedImage bufferedImage, String key, BucketType bucketType) throws IOException {

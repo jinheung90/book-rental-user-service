@@ -6,4 +6,6 @@ public enum LoginProvider {
     KAKAO,
     GOOGLE,
     APPLE,
+    EMAIL,
+    ;
 }

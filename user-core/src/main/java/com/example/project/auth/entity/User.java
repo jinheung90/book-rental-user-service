@@ -27,20 +27,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id = null;
 
-    @Column
+    @Column(nullable = false)
     private String phone = "";
 
-    @Column
-    private String name = "";
+    @Column(name = "nick_name", nullable = false, unique = true)
+    private String nickName = "";
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String email = "";
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @Column(name = "star_rating")
-    private float starRating;
+    @Column(name = "address")
+    private String address;
 
     @Column(name = "user_role")
     private Integer userRole = 1;
@@ -63,24 +63,15 @@ public class User {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_authorities",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT)
-            )},
-            inverseJoinColumns = {
-                @JoinColumn(name = "authority_name", referencedColumnName = "authority_name",
-                    foreignKey =  @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))})
-    private List<Authority>  authorities;
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
+    private List<Authority> authorities;
 
-    public List<String> getAuthorityNames() {
-        return this.authorities.stream().map(Authority::getAuthorityName).toList();
-    }
-
-    public void updateUserProfile(String profileImageUrl, String name) {
-        this.name = name;
+    public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
 
-    public void addStarRating(float starRating) {
-        this.starRating += starRating;
+    public List<String> getAuthorityNames() {
+        return authorities.stream().map(Authority::getAuthorityName).toList();
     }
 }

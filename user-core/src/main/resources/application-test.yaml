@@ -1,17 +1,19 @@
-#spring:
-#  datasource:
-#    username:
-#    password:
-#    url:
-#  jpa:
-#    hibernate:
-#      ddl-auto: update
-#    #      ddl-auto: none
-#    properties:
-#      hibernate:
-#        format_sql: true
-#        dialect: org.hibernate.dialect.MySQL57Dialect
-#    show-sql: true
+spring:
+  profiles:
+    active: test
+  datasource:
+    username: root
+    password: 1234
+    url: jdbc:mysql://localhost:3306/side_user_test
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    #      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: true
 
 server:
   tomcat:

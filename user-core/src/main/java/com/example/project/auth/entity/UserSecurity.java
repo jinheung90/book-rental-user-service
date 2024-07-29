@@ -26,16 +26,16 @@ public class UserSecurity  {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "none", value = ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @Column
+    @Column(nullable = false)
     private String email;
 
     @Column
     private String password;
 
-    @Column(name = "provider", length = 15)
+    @Column(name = "provider", length = 15, nullable = false)
     @Enumerated(EnumType.STRING)
     private LoginProvider provider;
 
