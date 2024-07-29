@@ -82,13 +82,6 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: test print
-        run:  echo ${{ steps.task-def.outputs.task-definition }}
-
-      - name: Download task definition
-        run: |
-          aws ecs describe-task-definition --task-definition book-rental-service --query ${{ steps.task-def.outputs.task-definition }} > task-definition.json
-
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
@@ -96,6 +89,7 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+
 
 
 
