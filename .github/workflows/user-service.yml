@@ -1,6 +1,10 @@
 name: user-service-prod
 on:
   workflow_dispatch:
+    inputs:
+      tags:
+        description:
+        required: true
 env:
   ECR_REPOSITORY: book-rental-app
   ECS_SERVICE: book-rental-user
@@ -12,7 +16,7 @@ env:
   ECS_TASK_DEFINITION: ./main-api/deploy/task_definition.json
   CONTAINER_NAME: book-rental-user
   AWS_REGION: ap-northeast-2 # aws 리전
-  ECR_IMAGE_TAG: latest
+  ECR_IMAGE_TAG: ${{inputs.tags}}
 #  ECR_ACCOUNT_ID:
 jobs:
   build:
@@ -85,7 +89,7 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
-          codedeploy-appspec: false
+
 
 
 
