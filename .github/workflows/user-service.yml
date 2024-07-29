@@ -82,18 +82,18 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
-          container-name: ${{ env.CONTAINER_NAME }}
+          container-name: book-rental-user
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: test
-        run: echo $(<${{ steps.task-def.outputs.task-definition }})
+      - name: copy task_def
+        run: cat ${{ steps.task-def.outputs.task-definition }} > $ECS_TASK_DEFINITION
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: book-rental-user
-          cluster: book-rental-user-cluster
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
 
 
