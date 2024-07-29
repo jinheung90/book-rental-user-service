@@ -86,7 +86,7 @@ jobs:
           image: ${{ steps.build-image.outputs.image }}
 
       - name: test
-        run: echo ${{ steps.task-def.outputs.task-definition }}
+        run: echo $(<${{ steps.task-def.outputs.task-definition }})
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
