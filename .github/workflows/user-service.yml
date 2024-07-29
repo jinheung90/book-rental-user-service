@@ -17,6 +17,8 @@ env:
   CONTAINER_NAME: book-rental-user
   AWS_REGION: ap-northeast-2 # aws 리전
   ECR_IMAGE_TAG: ${{inputs.tags}}
+  CODE_DEPLOY_APP: AppECS-book-rental-user-cluster-book-rental-user
+  CODE_DEPLOY_APP_GROUP: DgpECS-book-rental-user-cluster-book-rental-user
 #  ECR_ACCOUNT_ID:
 jobs:
   build:
@@ -48,8 +50,8 @@ jobs:
       - name: Copy docker file
         run: cp $MODULE_DEPLOY_PATH/Dockerfile_$SPRING_PROFILE Dockerfile
 
-#      - name: copy appspec.yml
-#        run: cp $MODULE_DEPLOY_PATH/appspec.yml appspec.yml
+      - name: copy appspec.yml
+        run: cp $MODULE_DEPLOY_PATH/appspec.yml appspec.yml
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -89,6 +91,9 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+          codedeploy-appspec: appspec.yml
+          codedeploy-application: ${{ env.CODE_DEPLOY_APP }}
+          codedeploy-deployment-group: ${{ env.CODE_DEPLOY_APP_GROUP }}
 
 
 
