@@ -93,8 +93,8 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
           codedeploy-appspec: appspec.yml
-          codedeploy-application: $CODE_DEPLOY_APP
-          codedeploy-deployment-group: $CODE_DEPLOY_APP_GROUP
+          codedeploy-application: ${{ env.CODE_DEPLOY_APP }}
+          codedeploy-deployment-group: ${{ env.CODE_DEPLOY_GROUP }}
 
 
 
