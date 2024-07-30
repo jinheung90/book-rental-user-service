@@ -44,8 +44,8 @@ jobs:
       - name: Copy Jar
         run: cp $MODULE_JAR deploy.jar
 
-#      - name: Copy agent json
-#        run: cp $MODULE_DEPLOY_PATH/cloud_watch_log_config.json agent_config.json
+      - name: Copy task-def
+        run: cp $MODULE_DEPLOY_PATH/$ECS_TASK_DEFINITION $ECS_TASK_DEFINITION
 
       - name: Copy docker file
         run: cp $MODULE_DEPLOY_PATH/Dockerfile_$SPRING_PROFILE Dockerfile
