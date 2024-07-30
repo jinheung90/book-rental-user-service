@@ -85,16 +85,16 @@ jobs:
           container-name: book-rental-user
           image: ${{ steps.build-image.outputs.image }}
 
-      - name: copy task_def
-        run: cat ${{ steps.task-def.outputs.task-definition }} > $ECS_TASK_DEFINITION
-
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
+          codedeploy-appspec: appspec.yml
+          codedeploy-application: $CODE_DEPLOY_APP
+          codedeploy-deployment-group: $CODE_DEPLOY_APP_GROUP
 
 
 

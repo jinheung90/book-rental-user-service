@@ -1,0 +1,9 @@
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: "arn:aws:ecs:ap-northeast-2:471112975229:task-definition/book-rental-service"
+        LoadBalancerInfo:
+          ContainerName: "book-rental-user"
+          ContainerPort: 8080
