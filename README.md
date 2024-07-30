@@ -7,6 +7,19 @@ https://github.com/jinheung90/chatting-base
 ### 기술 스택
 spring boot, jpa, querydsl, redis, flyway etc...
 
+### AWS
+https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/networking-inbound.html
+![ecs.png](ecs.png)
+
+### deploy
+![deploy.png](..%2F..%2FDesktop%2Fdeploy.png)
+
+추가 설명
+
+배포하는 중 테스트를 하기 위한 대기 시간을 설정할 수 있으며 8080으로 테스트 한 후에 
+교체가 되면 기존 연결을 바꾼다.
+
+
 ## sequenceDiagram
 
 ### 카카오 로그인 
@@ -31,26 +44,5 @@ sequenceDiagram
         서버 ->> 서버: 회원가입
     end
     서버 ->> 시작화면: 유저 정보, jwt 토큰
-```
-
-### 책 대여 시스템
-
-```mermaid
-sequenceDiagram
-    actor borrower as 빌리는사람
-
-    participant bookList as 책 목록
-    participant bookDetail as 책 상세 페이지
-    participant rental as 대여 페이지
-    participant lenderAccept as 판매자 수락 페이지
-
-    actor lender as 대여해주는사람
-
-    borrower ->> bookList: 책 전체 목록 (모든 책 목록) /api/books
-    bookList ->> bookDetail: 상세 페이지 클릭 /api/book/{id}
-    bookDetail->> rental: 대여 요청 /api/book/{id}/rental
-    rental ->> lender: 문자 메세지 보내기 
-    lender ->> lenderAccept: 판매자 수락페이지에 접근 및 수락/api/user/
-    lenderAccept ->> borrower: 매칭 성사 알림 메세지 (양쪽에 채팅방 링크 포함)
 ```
 
