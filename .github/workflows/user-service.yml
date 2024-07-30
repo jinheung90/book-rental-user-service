@@ -50,8 +50,8 @@ jobs:
       - name: Copy docker file
         run: cp $MODULE_DEPLOY_PATH/Dockerfile_$SPRING_PROFILE Dockerfile
 
-      - name: Copy task-def
-        run: cp $MODULE_DEPLOY_PATH/$ECS_TASK_DEFINITION $ECS_TASK_DEFINITION
+      - name: Copy appspec.yml
+        run: cp $MODULE_DEPLOY_PATH/appspec.yml appspec.yml
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
