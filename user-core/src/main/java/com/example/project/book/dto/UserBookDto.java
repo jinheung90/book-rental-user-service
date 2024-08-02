@@ -16,7 +16,7 @@ public class UserBookDto {
     private Long id;
     private String name;
     private String detail;
-    private List<UserBookImage> userBookImages;
+    private List<UserBookImageDto> userBookImageDtos;
 
     @QueryProjection
     public UserBookDto(
@@ -28,6 +28,6 @@ public class UserBookDto {
         this.id = id;
         this.name = name;
         this.detail = detail;
-        this.userBookImages = userBookImages;
+        this.userBookImageDtos = userBookImages.stream().map(UserBookImageDto::fromEntity).toList();
     }
 }

@@ -53,11 +53,12 @@ public class UserService {
     }
 
     public UserSecurity signin(SigninRequest signinRequest) {
-        final LoginProvider loginProvider = signinRequest.getLoginProvider();
+        final UserSecurityDto userSecurityDto = signinRequest.getUserSecurityDto();
+        final LoginProvider loginProvider = userSecurityDto.getProvider();
         if(loginProvider.equals(LoginProvider.EMAIL)) {
-            return this.signinByEmail(signinRequest.getEmail(), signinRequest.getPassword());
+            return this.signinByEmail(userSecurityDto.getEmail(), userSecurityDto.getPassword());
         } else if(loginProvider.equals(LoginProvider.KAKAO)) {
-            return this.signinByKakao(signinRequest.getSocialId());
+            return this.signinByKakao(userSecurityDto.getSocialId());
         } else {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.NOT_SUPPORT_LOGIN_PROVIDER);
         }

@@ -1,7 +1,7 @@
 package com.example.project.book.entity;
 
 import com.example.project.auth.entity.User;
-import com.example.project.book.enums.BookRentalStateType;
+import com.example.project.enums.BookRentalStateType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

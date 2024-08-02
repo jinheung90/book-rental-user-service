@@ -1,20 +1,9 @@
 package com.example.project.book.repository;
 
-import com.example.project.book.dto.QUserBookDto;
-import com.example.project.book.dto.UserBookDto;
-import com.example.project.book.entity.QBookRentalState;
-import com.example.project.book.enums.BookRentalStateType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
-import static com.example.project.book.entity.QUserBook.userBook;
-import static com.example.project.book.entity.QBookRentalState.bookRentalState;
 @Repository
 @RequiredArgsConstructor
 public class BookRentalStateQuery {

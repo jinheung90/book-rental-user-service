@@ -10,9 +10,13 @@ import com.example.project.auth.service.UserService;
 import com.example.project.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
 import com.example.project.errorHandling.errorEnums.GlobalErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +25,7 @@ import java.util.ArrayList;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class AuthController {
+public class UserController {
 
     private final PhoneAuthService phoneAuthService;
     private final TokenProvider tokenProvider;
@@ -29,15 +33,15 @@ public class AuthController {
 
     @PostMapping(
         name = "/signup",
-        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     @Operation(summary = "회원가입")
     public ResponseEntity<LoginResponse> signup(
-        @RequestPart(name = "userDto") UserDto userDto,
-        @RequestPart(name = "file", required = false) MultipartFile multipartFile,
-        @RequestPart(name = "userSecurityDto") UserSecurityDto userSecurityDto,
-        @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
-        @RequestPart(name = "phoneDto") PhoneDto phoneDto
+        @Parameter(description = "유저 정보", required = true) @RequestPart(name = "userDto") UserDto userDto,
+        @Parameter(description = "프로필 이미지 파일") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
+        @Parameter(description = "유저 비밀 정보", required = true) @RequestPart(name = "userSecurityDto") UserSecurityDto userSecurityDto,
+        @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
+        @Parameter(description = "휴대폰 정보", required = true) @RequestPart(name = "phoneDto") PhoneDto phoneDto
     ) {
         phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
         final UserSecurity userSecurity = userService.signup(userDto,multipartFile,userSecurityDto,userProfileDto,phoneDto.getPhone());
@@ -49,6 +53,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
+    @Operation(summary = "로그인")
     public ResponseEntity<LoginResponse> signup(
             @RequestBody SigninRequest signinRequest
     ) {
@@ -66,6 +71,7 @@ public class AuthController {
     }
 
     @PostMapping("/phone")
+    @Operation(summary = "휴대폰 인증번호 보내기")
     public ResponseEntity<PhoneDto> sendSnsPhoneAuthNumber(
             @RequestBody PhoneDto phoneDto
     ) {
@@ -75,6 +81,7 @@ public class AuthController {
     }
 
     @PostMapping("/phone/verify")
+    @Operation(summary = "휴대폰 인증번호 검증")
     public ResponseEntity<PhoneDto> verifyPhoneAuthNumber(
             @RequestBody PhoneDto phoneDto
     ) {
@@ -101,6 +108,7 @@ public class AuthController {
     @PutMapping(name = "/profile",
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "회원 정보 수정")
     public ResponseEntity<UserProfileDto> updateUserProfile(
         @RequestPart(name = "file", required = false) MultipartFile multipartFile,

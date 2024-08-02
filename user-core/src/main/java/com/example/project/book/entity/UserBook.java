@@ -1,6 +1,7 @@
 package com.example.project.book.entity;
 
 import com.example.project.auth.entity.User;
+import com.example.project.enums.BookRentalStateType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,10 @@ public class UserBook {
 
     @Column
     private String detail;
+
+    @Column(name = "state", length = 15, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private BookRentalStateType state;
 
     @CreationTimestamp
     @Column(name = "created_at")

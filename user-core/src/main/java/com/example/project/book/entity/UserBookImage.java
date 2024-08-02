@@ -24,5 +24,6 @@ public class UserBookImage {
     private String imageUrl;
 
     @ManyToOne
+    @JoinColumn(name = "user_book_id")
     private UserBook userBook;
 }
