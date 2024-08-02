@@ -7,7 +7,7 @@ on:
         required: true
 env:
   ECR_REPOSITORY: book-rental-app
-  ECS_SERVICE: book-rental-user
+  ECS_SERVICE: book-rental-user-service
   ECS_CLUSTER: book-rental-user-cluster
   SPRING_PROFILE: prod # 스프링 프로필
   MODULE_ROOT_PATH: ./main-api # 해당 모듈의 루트
@@ -17,8 +17,8 @@ env:
   CONTAINER_NAME: book-rental-user
   AWS_REGION: ap-northeast-2 # aws 리전
   ECR_IMAGE_TAG: ${{inputs.tags}}
-  CODE_DEPLOY_APP: AppECS-book-rental-user-cluster-book-rental-user
-  CODE_DEPLOY_APP_GROUP: DgpECS-book-rental-user-cluster-book-rental-user
+  CODE_DEPLOY_APP: book-rental-app
+  CODE_DEPLOY_APP_GROUP: book-rental-user-app
 #  ECR_ACCOUNT_ID:
 jobs:
   build:
