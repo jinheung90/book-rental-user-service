@@ -116,4 +116,15 @@ public class UserController {
     ) {
         return ResponseEntity.ok(new UserProfileDto("","", ""));
     }
+
+    @GetMapping("/test/load")
+    public ResponseEntity<String> test() {
+
+        long a= 1;
+        for (int i = 1; i < 100000; i++) {
+            a *= i;
+        }
+
+        return ResponseEntity.ok("s");
+    }
 }
