@@ -31,8 +31,8 @@ public class CacheManagerConfig {
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return (builder) -> builder
-                .withCacheConfiguration("book", this.redisCacheConfiguration().entryTtl(Duration.ofHours(12)))
-                .withCacheConfiguration("user", this.redisCacheConfiguration().entryTtl(Duration.ofHours(12)))
+                .withCacheConfiguration("book", this.redisCacheConfiguration())
+                .withCacheConfiguration("user", this.redisCacheConfiguration())
                 .build();
     }
 }

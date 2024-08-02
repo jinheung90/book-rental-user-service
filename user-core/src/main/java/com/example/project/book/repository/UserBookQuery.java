@@ -2,16 +2,11 @@ package com.example.project.book.repository;
 
 import com.example.project.book.dto.QUserBookDto;
 import com.example.project.book.dto.UserBookDto;
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 import static com.example.project.book.entity.QUserBook.userBook;
@@ -27,16 +22,15 @@ public class UserBookQuery {
                 userBook.id,
                 userBook.name,
                 userBook.detail,
-                userBook.imageUrl
+                userBook.images
                 )).from(userBook)
                 .offset(pageRequest.getOffset())
                 .limit(pageRequest.getPageSize()).fetch();
     }
 
-    public long countUserBook() {
+    public Long countUserBook() {
         return jpaQueryFactory.select(userBook.count())
                 .from(userBook)
                 .fetchFirst();
-
     }
 }

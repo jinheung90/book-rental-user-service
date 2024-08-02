@@ -22,6 +22,10 @@ public enum GlobalErrorCode implements IErrorCode {
     NOT_ALLOW_USER("not allow user", 400),
     NOT_VALID_TOKEN("not valid access token", 400),
     S3_IMAGE_UPLOAD_ERROR("s3 upload error", 400),
+    PHONE_AUTH_NUM_EXPIRED("phone auth expired", 400),
+    PHONE_AUTH_NUM_NOT_MATCH("phone auth not match",400),
+    NOT_SUPPORT_LOGIN_PROVIDER("not support provider", 400),
+    SEVER_ERROR("server error", 500),
     ;
 
     private String message;

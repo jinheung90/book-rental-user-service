@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.util.Assert;
+
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -23,13 +23,10 @@ class S3UploaderTest {
 
     private MultipartFile mockFile;
 
-
-
     @Test
     void uploadS3BucketTest() throws Exception {
         String testData = "abcd";
         mockFile = new MockMultipartFile("test5", "test5.txt", "text/plain", testData.getBytes(StandardCharsets.UTF_8));
         s3Uploader.putImage(mockFile, BucketType.BOOK);
-
     }
 }

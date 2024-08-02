@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+
 @SpringBootTest
 @Tag("unit")
 class CommonFunctionTest {
@@ -25,5 +26,13 @@ class CommonFunctionTest {
                 () -> Assertions.assertThrows(RuntimeExceptionWithCode.class, () ->  CommonFunction.matchPasswordRegex("aaaa12bbbbccasdf")),
                 () -> Assertions.assertDoesNotThrow(() -> CommonFunction.matchPasswordRegex("as12gdv4!!"))
         );
+    }
+
+    @Test
+    void getNumberTest() {
+        for (int i = 0; i < 100; i++) {
+            final int value = CommonFunction.getRandomNumber6Digit();
+            Assertions.assertFalse(value < 100000 || value > 999999);
+        }
     }
 }

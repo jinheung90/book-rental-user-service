@@ -37,6 +37,11 @@ allprojects {
     dependencies {
         implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: '2.7.7'
         implementation group: 'org.springframework.data', name: 'spring-data-commons', version: '3.3.2'
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation ('org.springframework.boot:spring-boot-starter-web') {
+            exclude(module: 'spring-boot-starter-tomcat')
+        }
+        implementation group: 'org.springframework.boot', name: 'spring-boot-starter-undertow', version: '3.3.2'
         implementation 'org.projectlombok:lombok'
         implementation group: 'io.awspring.cloud', name: 'spring-cloud-aws-parameter-store', version: '3.1.1'
         annotationProcessor 'org.projectlombok:lombok'
@@ -57,6 +62,7 @@ allprojects {
         compileOnly {
             extendsFrom annotationProcessor
         }
+
     }
 
     jacoco {
@@ -129,6 +135,7 @@ jar {
 project(":main-api") {
     dependencies {
         implementation project(':user-core')
+        implementation project(':user-cache-core')
         implementation project(':common')
     }
 }

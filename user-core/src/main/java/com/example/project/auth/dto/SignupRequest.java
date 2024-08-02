@@ -8,4 +8,5 @@ import lombok.NoArgsConstructor;
 public class SignupRequest {
     private UserDto userDto;
     private UserSecurityDto userSecurityDto;
+    private PhoneDto phoneDto;
 }

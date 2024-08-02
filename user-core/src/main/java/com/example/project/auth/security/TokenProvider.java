@@ -39,7 +39,6 @@ public class TokenProvider {
     public void afterPropertiesSet() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-
     }
 
     public String createJwtAccessTokenByUser(List<String> authorityNames, Long userId) {
@@ -48,7 +47,7 @@ public class TokenProvider {
                 .setSubject(userId.toString())
                 .setIssuer(issuer)
                 .claim(AUTHORITIES_KEY, authorityNames)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .setExpiration(validity)
                 .compact();
     }

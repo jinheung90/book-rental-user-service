@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -49,7 +50,11 @@ public class JwtFilter extends GenericFilterBean {
     }
 
     private void setAuthentication(ParsedJwtInfo userIdAndAuthorities, String jwt) {
-        org.springframework.security.core.userdetails.User principal = new org.springframework.security.core.userdetails.User(userIdAndAuthorities.getUserId().toString(), "", userIdAndAuthorities.getAuthorities());
+        CustomUserDetail principal = new CustomUserDetail(
+                userIdAndAuthorities.getAuthorities().stream().map(a -> new SimpleGrantedAuthority(a.getAuthority())).toList(),
+                "",
+                "",
+                userIdAndAuthorities.getUserId());
         Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, jwt, userIdAndAuthorities.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }

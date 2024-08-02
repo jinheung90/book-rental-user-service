@@ -6,10 +6,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.core.annotation.Order;
 
 import java.time.Instant;
+import java.util.List;
 
 @Table(name = "user_books")
 @Getter
@@ -28,9 +31,6 @@ public class UserBook {
     @Column
     private String detail;
 
-    @Column(name = "image_url", length = 1023)
-    private String imageUrl;
-
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
@@ -42,4 +42,9 @@ public class UserBook {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @OneToMany(mappedBy = "userBook", fetch = FetchType.EAGER)
+    @BatchSize(size = 3)
+    @OrderBy("order asc")
+    private List<UserBookImage> images;
 }
