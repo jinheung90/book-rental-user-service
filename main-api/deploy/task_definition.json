@@ -1,5 +1,5 @@
 {
-  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:471112975229:task-definition/book-rental-service",
+  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:471112975229:task-definition/book-rental-user-task",
   "containerDefinitions": [
     {
       "name": "book-rental-user-container",
@@ -23,7 +23,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/book-rental-service",
+          "awslogs-group": "/ecs/book-rental-user-task",
           "awslogs-create-group": "true",
           "awslogs-region": "ap-northeast-2",
           "awslogs-stream-prefix": "ecs"
@@ -33,11 +33,11 @@
       "systemControls": []
     }
   ],
-  "family": "book-rental-service",
+  "family": "book-rental-user-task",
   "taskRoleArn": "arn:aws:iam::471112975229:role/ecsTaskExecutionRole",
   "executionRoleArn": "arn:aws:iam::471112975229:role/ecsTaskExecutionRole",
   "networkMode": "awsvpc",
-  "revision": 32,
+  "revision": 1,
   "volumes": [],
   "status": "ACTIVE",
   "requiresAttributes": [
@@ -78,10 +78,12 @@
     "FARGATE"
   ],
   "cpu": "1024",
-  "memory": "3072",
+  "memory": "2048",
   "runtimePlatform": {
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"
-  }
-
+  },
+  "registeredAt": "2024-08-03T12:08:57.277Z",
+  "registeredBy": "arn:aws:iam::471112975229:root",
+  "tags": []
 }
