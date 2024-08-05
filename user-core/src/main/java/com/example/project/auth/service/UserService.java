@@ -1,7 +1,7 @@
 package com.example.project.auth.service;
 
 
-import com.example.project.auth.dto.SigninRequest;
+import com.example.project.auth.dto.EmailSignInRequest;
 import com.example.project.auth.dto.UserDto;
 import com.example.project.auth.dto.UserProfileDto;
 import com.example.project.auth.dto.UserSecurityDto;
@@ -52,17 +52,6 @@ public class UserService {
         return this.saveUserSecurityWithEmail(user, userSecurityDto.getPassword());
     }
 
-    public UserSecurity signin(SigninRequest signinRequest) {
-        final UserSecurityDto userSecurityDto = signinRequest.getUserSecurityDto();
-        final LoginProvider loginProvider = userSecurityDto.getProvider();
-        if(loginProvider.equals(LoginProvider.EMAIL)) {
-            return this.signinByEmail(userSecurityDto.getEmail(), userSecurityDto.getPassword());
-        } else if(loginProvider.equals(LoginProvider.KAKAO)) {
-            return this.signinByKakao(userSecurityDto.getSocialId());
-        } else {
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.NOT_SUPPORT_LOGIN_PROVIDER);
-        }
-    }
 
     public UserSecurity signinByEmail(String email, String password) {
         final UserSecurity userSecurity = this.userSecurityRepository.findByEmailAndProvider(email, LoginProvider.EMAIL)

@@ -11,8 +11,6 @@ import com.example.project.errorHandling.customRuntimeException.RuntimeException
 import com.example.project.errorHandling.errorEnums.GlobalErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +30,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping(
-        name = "/signup",
+        name = "/signUp/email",
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @Operation(summary = "회원가입")
@@ -44,7 +42,7 @@ public class UserController {
         @Parameter(description = "휴대폰 정보", required = true) @RequestPart(name = "phoneDto") PhoneDto phoneDto
     ) {
         phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
-        final UserSecurity userSecurity = userService.signup(userDto,multipartFile,userSecurityDto,userProfileDto,phoneDto.getPhone());
+        final UserSecurity userSecurity = userService.signupByEmail(userDto, multipartFile, userSecurityDto, userProfileDto, phoneDto.getPhone());
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         return ResponseEntity.ok(
@@ -52,12 +50,12 @@ public class UserController {
         );
     }
 
-    @PostMapping("/signin")
+    @PostMapping("/signIn/email")
     @Operation(summary = "로그인")
-    public ResponseEntity<LoginResponse> signup(
-            @RequestBody SigninRequest signinRequest
+    public ResponseEntity<LoginResponse> signIn(
+            @RequestBody EmailSignInRequest emailSignInRequest
     ) {
-        final UserSecurity userSecurity = this.userService.signin(signinRequest);
+        final UserSecurity userSecurity = this.userService.signinByEmail(emailSignInRequest.getEmail(), emailSignInRequest.getPassword());
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(userSecurity.getUser().getAuthorityNames(), userSecurity.getUser().getId());
         return ResponseEntity.ok(
