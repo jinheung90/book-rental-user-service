@@ -51,5 +51,6 @@ public class UserBook {
     @OneToMany(mappedBy = "userBook", fetch = FetchType.EAGER)
     @BatchSize(size = 3)
     @OrderBy("order asc")
+
     private List<UserBookImage> images;
 }

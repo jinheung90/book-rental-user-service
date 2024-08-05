@@ -3,6 +3,7 @@ package com.example.project.auth.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
@@ -21,6 +22,7 @@ import java.util.Set;
 @Getter
 @Table(name = "users")
 @Entity
+@SQLRestriction("where is_deleted = 0")
 public class User {
 
     @Id
@@ -41,9 +43,6 @@ public class User {
 
     @Column(name = "address")
     private String address;
-
-    @Column(name = "user_role")
-    private Integer userRole = 1;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default private Set<UserSecurity> userSecurities = new HashSet<>();

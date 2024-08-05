@@ -25,9 +25,8 @@ public class BookService {
     private final UserBookQuery userBookQuery;
 
 
-    public Page<UserBookDto> pageBooks(int page, int size) {
-        PageRequest pageable = PageRequest.of(page, size);
-        List<UserBookDto> userBooks = userBookQuery.findAllUserBook(pageable, "");
-        return new PageImpl<>(userBooks,pageable, userBookQuery.countUserBook());
+    public Page<UserBookDto> pageBooks(PageRequest pageRequest, String name, Long userId) {
+        List<UserBookDto> userBooks = userBookQuery.searchUserBook(pageRequest, name, userId);
+        return new PageImpl<>(userBooks, pageRequest, userBookQuery.countSearchUserBook(name, userId));
     }
 }
