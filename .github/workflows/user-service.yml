@@ -94,7 +94,14 @@ jobs:
           wait-for-service-stability: true
           codedeploy-appspec: appspec.yml
           codedeploy-application: ${{ env.CODE_DEPLOY_APP }}
-          codedeploy-deployment-group: ${{ env.CODE_DEPLOY_GROUP }}
+          codedeploy-deployment-group: ${{ env.CODE_DEPLOY_APP_GROUP }}
+
+
+
+
+
+
+
 
 
 
