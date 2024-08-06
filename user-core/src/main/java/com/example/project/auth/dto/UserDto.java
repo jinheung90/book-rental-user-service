@@ -17,7 +17,7 @@ import java.time.Instant;
 public class UserDto {
 
     @Schema(description = "유저 아이디")
-    private Long userId;
+    private Long id;
     @Schema(description = "이메일")
     @NotEmpty
     private String email;
@@ -26,7 +26,7 @@ public class UserDto {
 
     public static UserDto fromEntity(User user) {
         return UserDto.builder()
-                .userId(user.getId())
+                .id(user.getId())
                 .email(user.getEmail())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
