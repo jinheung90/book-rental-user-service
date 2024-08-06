@@ -1,7 +1,7 @@
 package com.example.project.auth.repository;
 
 import com.example.project.auth.entity.UserSecurity;
-import com.example.project.enums.LoginProvider;
+import com.example.project.common.enums.LoginProvider;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 

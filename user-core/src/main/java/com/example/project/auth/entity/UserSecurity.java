@@ -1,6 +1,6 @@
 package com.example.project.auth.entity;
 
-import com.example.project.enums.LoginProvider;
+import com.example.project.common.enums.LoginProvider;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

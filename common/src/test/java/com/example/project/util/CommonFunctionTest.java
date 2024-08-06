@@ -1,6 +1,7 @@
 package com.example.project.util;
 
-import com.example.project.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
+import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
+import com.example.project.common.util.CommonFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

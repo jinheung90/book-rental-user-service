@@ -1,8 +1,8 @@
 package com.example.project.auth.service;
 
-import com.example.project.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
-import com.example.project.errorHandling.errorEnums.GlobalErrorCode;
-import com.example.project.util.CommonFunction;
+import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
+import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
+import com.example.project.common.util.CommonFunction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -31,9 +31,10 @@ public class PhoneAuthService {
         return redisTemplateForString.opsForValue().get(PHONE_AUTH_KEY + phone);
     }
 
-    public void setPhoneAuthTempToken(String phone) {
+    public String setPhoneAuthTempToken(String phone) {
         String tempToken = CommonFunction.generateUpperLettersAndNum(10);
         redisTemplateForString.opsForValue().set(PHONE_AUTH_TEMP_KEY + phone, tempToken);
+        return tempToken;
     }
 
     public void matchPhoneAuthTempToken(String phone, String token) {

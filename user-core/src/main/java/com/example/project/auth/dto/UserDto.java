@@ -26,6 +26,7 @@ public class UserDto {
 
     public static UserDto fromEntity(User user) {
         return UserDto.builder()
+                .userId(user.getId())
                 .email(user.getEmail())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())

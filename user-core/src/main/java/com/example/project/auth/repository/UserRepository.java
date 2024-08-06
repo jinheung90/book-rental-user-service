@@ -4,6 +4,7 @@ import com.example.project.auth.entity.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -16,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     long countByDeleted(Integer deleted);
 
     boolean existsByPhone(String phone);
+
+    List<User> findByIdIn(List<Long> ids);
 }

@@ -1,7 +1,7 @@
 package com.example.project.auth.dto;
 
 import com.example.project.auth.entity.UserSecurity;
-import com.example.project.enums.LoginProvider;
+import com.example.project.common.enums.LoginProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

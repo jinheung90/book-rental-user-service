@@ -1,5 +1,7 @@
 package com.example.project.aws.s3;
 
+import com.example.project.common.aws.s3.BucketType;
+import com.example.project.common.aws.s3.S3Uploader;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

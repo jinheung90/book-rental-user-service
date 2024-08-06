@@ -1,8 +1,8 @@
 package com.example.project.auth.security;
 
-import com.example.project.errorHandling.ErrorResponse;
-import com.example.project.errorHandling.errorEnums.GlobalErrorCode;
-import com.example.project.errorHandling.errorEnums.IErrorCode;
+import com.example.project.common.errorHandling.ErrorResponse;
+import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
+import com.example.project.common.errorHandling.errorEnums.IErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;

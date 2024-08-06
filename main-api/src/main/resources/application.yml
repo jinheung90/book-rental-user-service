@@ -9,6 +9,8 @@ spring:
         region: ap-northeast-2
       region:
         instance-profile: true
+    s3:
+      region: ap-northeast-2
   config:
     activate:
       on-profile: prod
@@ -34,6 +36,9 @@ kakao-auth:
   rest-api-key: ${kakao-auth-rest-api-key}
   client-secret: ${kakao-auth-secret}
   redirect-uri: ${kakao-auth-redirect-uri}
+naver:
+  client-id: ${naver-client-id}
+  client-secret: ${naver-client-secret}
 token:
   access-token-secret: ${access-token-secret}
   refresh-token-expired: 1209600

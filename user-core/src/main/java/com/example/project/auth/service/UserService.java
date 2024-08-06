@@ -1,7 +1,6 @@
 package com.example.project.auth.service;
 
 
-import com.example.project.auth.dto.EmailSignInRequest;
 import com.example.project.auth.dto.UserDto;
 import com.example.project.auth.dto.UserProfileDto;
 import com.example.project.auth.dto.UserSecurityDto;
@@ -9,14 +8,14 @@ import com.example.project.auth.entity.Authority;
 import com.example.project.auth.entity.User;
 
 import com.example.project.auth.entity.UserSecurity;
-import com.example.project.aws.s3.BucketType;
-import com.example.project.aws.s3.S3Uploader;
-import com.example.project.enums.LoginProvider;
+import com.example.project.common.aws.s3.BucketType;
+import com.example.project.common.aws.s3.S3Uploader;
+import com.example.project.common.enums.LoginProvider;
 import com.example.project.auth.repository.UserRepository;
 import com.example.project.auth.repository.UserSecurityRepository;
-import com.example.project.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
-import com.example.project.errorHandling.errorEnums.GlobalErrorCode;
-import com.example.project.util.CommonFunction;
+import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
+import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
+import com.example.project.common.util.CommonFunction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,14 +45,15 @@ public class UserService {
         return userRepository.existsByPhone(phone);
     }
 
-    public UserSecurity signupByEmail(UserDto userDto, MultipartFile file, UserSecurityDto userSecurityDto, UserProfileDto userProfileDto, String phoneNumber) {
+    @Transactional
+    public UserSecurity signupByEmail(MultipartFile file, UserSecurityDto userSecurityDto, UserProfileDto userProfileDto, String phoneNumber) {
         this.verifyPassword(userSecurityDto.getPassword());
         this.verifyEmail(userSecurityDto.getEmail());
-        final User user = this.saveUser(userDto,userProfileDto, file);
+        final User user = this.saveUser(userSecurityDto, userProfileDto, file, phoneNumber);
         return this.saveUserSecurityWithEmail(user, userSecurityDto.getPassword());
     }
 
-
+    @Transactional
     public UserSecurity signinByEmail(String email, String password) {
         final UserSecurity userSecurity = this.userSecurityRepository.findByEmailAndProvider(email, LoginProvider.EMAIL)
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER));
@@ -61,12 +62,9 @@ public class UserService {
     }
 
     public UserSecurity signinByKakao(String socialId) {
-        final UserSecurity userSecurity = this.userSecurityRepository.findBySocialMemberIdAndProvider(socialId, LoginProvider.KAKAO)
+        return this.userSecurityRepository.findBySocialMemberIdAndProvider(socialId, LoginProvider.KAKAO)
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER));
-        return userSecurity;
     }
-
-
 
     public void matchPassword(String password, String encodedPassword) {
         if(!this.passwordEncoder.matches(password, encodedPassword)) {
@@ -74,23 +72,14 @@ public class UserService {
         }
     }
 
-    @Transactional
-    public UserSecurity signup(UserDto userDto, MultipartFile file, UserSecurityDto userSecurityDto, UserProfileDto userProfileDto, String phoneNumber) {
-        if(userSecurityDto.getProvider().equals(LoginProvider.EMAIL)) {
-            return this.signupByEmail(userDto, file, userSecurityDto,userProfileDto, phoneNumber);
-        }
-        return this.signupBySocial(userDto, file, userSecurityDto, userProfileDto, phoneNumber);
-    }
-
-    public UserSecurity signupBySocial(UserDto userDto, MultipartFile file, UserSecurityDto userSecurityDto, UserProfileDto userProfileDto, String phoneNumber) {
+    public UserSecurity signupBySocial(MultipartFile file, UserSecurityDto userSecurityDto, UserProfileDto userProfileDto, String phoneNumber) {
         this.findUserBySocialLogin(userSecurityDto.getSocialId(), userSecurityDto.getProvider())
                 .ifPresent(((userSecurity) -> {
                     throw new RuntimeExceptionWithCode(GlobalErrorCode.EXISTS_USER);
                 }));
-        final User user = this.saveUser(userDto,userProfileDto, file);
+        final User user = this.saveUser(userSecurityDto, userProfileDto, file, phoneNumber);
         return this.saveUserSecurityWithSocial(user, userSecurityDto);
     }
-
 
     public void verifyEmail(String email) {
         CommonFunction.matchEmailRegex(email);
@@ -100,29 +89,28 @@ public class UserService {
         CommonFunction.matchPasswordRegex(password);
     }
 
-    public User saveUser(UserDto userDto, UserProfileDto userProfileDto, MultipartFile profileImage) {
+    public User saveUser(UserSecurityDto userSecurityDto, UserProfileDto userProfileDto, MultipartFile profileImage, String phoneNumber) {
         List<Authority> authorities = new ArrayList<>();
         authorities.add(new Authority("ROLE_USER"));
         User user = User.builder()
                 .authorities(authorities)
-                .email(userDto.getEmail())
+                .email(userSecurityDto.getEmail())
                 .nickName(userProfileDto.getNickName())
+                .phone(phoneNumber)
                 .build();
         user = userRepository.save(user);
-        String url = this.uploadProfileImage(profileImage, user.getId());
-        user.updateProfileImageUrl(url);
+
+        if(profileImage != null && !profileImage.isEmpty()) {
+            String url = this.uploadProfileImage(profileImage, user.getId());
+            user.updateProfileImageUrl(url);
+        }
+
         return user;
     }
 
     public String uploadProfileImage(MultipartFile multipartFile, Long userId) {
-        if(multipartFile.isEmpty()) {
-           return "";
-        }
-        try {
-            return s3Uploader.putImage(multipartFile, BucketType.USER, userId.toString());
-        } catch (Exception e) {
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.S3_IMAGE_UPLOAD_ERROR);
-        }
+
+        return s3Uploader.putImage(multipartFile, BucketType.USER, userId.toString());
     }
 
     public UserSecurity saveUserSecurityWithSocial(User user, UserSecurityDto userSecurityDto) {
@@ -145,5 +133,12 @@ public class UserService {
                 .build();
         return userSecurityRepository.save(userSecurity);
     }
+
+    public Map<Long, UserProfileDto> getUserProfilesByUserIds(List<Long> ids) {
+        return userRepository.findByIdIn(ids)
+                .stream().map(UserProfileDto::fromEntity)
+                .collect(Collectors.toMap(UserProfileDto::getId, userProfileDto -> userProfileDto));
+    }
+
 
 }
