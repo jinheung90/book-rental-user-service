@@ -1,6 +1,7 @@
 package com.example.project.auth.security;
 
 import com.example.project.AuthCoreApplication;
+import com.example.project.user.security.TokenProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

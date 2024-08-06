@@ -1,9 +1,13 @@
 package com.example.project.book.api;
 
 
-import com.example.project.auth.dto.UserProfileDto;
+import com.example.project.book.entity.Book;
+import com.example.project.book.entity.BookLikeCache;
+import com.example.project.book.service.BookLikeCacheService;
+import com.example.project.user.dto.UserProfileDto;
 
-import com.example.project.auth.service.UserService;
+import com.example.project.user.security.CustomUserDetail;
+import com.example.project.user.service.UserService;
 import com.example.project.book.client.api.NaverBookSearchClient;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.dto.SearchBookDto;
@@ -21,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +38,9 @@ public class BookController {
     private final BookService bookService;
     private final NaverBookSearchClient naverBookSearchClient;
     private final UserService userService;
+    private final BookLikeCacheService bookLikeCacheService;
 
-    @GetMapping("/books")
+    @GetMapping("/books/search")
     public ResponseEntity<Page<SearchBookDto>> searchBooks(
             @Parameter(description = "페이지")
             @RequestParam(name = "page") int page,
@@ -61,13 +67,12 @@ public class BookController {
         return ResponseEntity.ok(new PageImpl<>(result, pageRequest, searchResult.getTotalElements()));
     }
 
-    @GetMapping("/books/naver")
-    public ResponseEntity<NaverBookSearchDto> getBooksFromNaver(
-            @Parameter(description = "오프셋") @RequestParam(name = "start") int start,
-            @Parameter(description = "보여주는 개수") @RequestParam(name = "display") int display,
-            @RequestParam(name = "name") String name
-    ) {
-       final NaverBookSearchDto result = naverBookSearchClient.getBooksFromName(start, display, name);
-       return ResponseEntity.ok(result);
+
+    @GetMapping("/book/like")
+    public ResponseEntity<BookLikeCache> setBookLike(
+            @RequestParam(name = "user_book_id") Long userBookId,
+            @AuthenticationPrincipal CustomUserDetail customUserDetail) {
+        final BookLikeCache bookLikeCache = bookLikeCacheService.setBookLike(customUserDetail.getPK(), userBookId);
+        return ResponseEntity.ok(bookLikeCache);
     }
 }

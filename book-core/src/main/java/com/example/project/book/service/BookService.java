@@ -2,6 +2,7 @@ package com.example.project.book.service;
 
 import com.example.project.book.dto.UserBookDto;
 
+import com.example.project.book.entity.BookLike;
 import com.example.project.book.repository.UserBookQuery;
 import com.example.project.book.repository.UserBookRepository;
 
@@ -23,7 +24,6 @@ public class BookService {
 
     private final UserBookRepository usedBookRepository;
     private final UserBookQuery userBookQuery;
-
 
     public Page<UserBookDto> pageBooks(PageRequest pageRequest, String name, Long userId) {
         List<UserBookDto> userBooks = userBookQuery.searchUserBook(pageRequest, name, userId);
