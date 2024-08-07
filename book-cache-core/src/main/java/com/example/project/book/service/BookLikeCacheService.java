@@ -19,7 +19,7 @@ import java.util.Set;
 public class BookLikeCacheService {
 
     private final RedisTemplate<String, BookLikeCache> bookLikeCacheRedisTemplate;
-    private final RedisTemplate<String, String> stringRestTemplate;
+    private final RedisTemplate<String, String> stringRedisTemplate;
     private static final String BOOK_LIKE_KEY_PREFIX = "book-like:";
     private static final String BOOK_LIKE_SYNC_KEY = "book-like-sync";
 
@@ -43,15 +43,15 @@ public class BookLikeCacheService {
     }
 
     public void setBookLikeSync(String bookLikeKey) {
-        stringRestTemplate.opsForList().leftPush(BOOK_LIKE_SYNC_KEY, bookLikeKey);
+        stringRedisTemplate.opsForList().leftPush(BOOK_LIKE_SYNC_KEY, bookLikeKey);
     }
 
     public List<BookLikeCache> getBookLikeForSync() {
-        Long size = stringRestTemplate.opsForList().size(BOOK_LIKE_SYNC_KEY);
+        Long size = stringRedisTemplate.opsForList().size(BOOK_LIKE_SYNC_KEY);
         if(size == null || size == 0) {
             return new ArrayList<>();
         }
-        List<String> keys = stringRestTemplate.opsForList().leftPop(BOOK_LIKE_SYNC_KEY, size);
+        List<String> keys = stringRedisTemplate.opsForList().leftPop(BOOK_LIKE_SYNC_KEY, size);
         return bookLikeCacheRedisTemplate.opsForValue().multiGet(keys);
     }
 

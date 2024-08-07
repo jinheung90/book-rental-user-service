@@ -14,13 +14,13 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class PhoneAuthService {
 
-    private final RedisTemplate<String,String> redisTemplateForString;
+    private final RedisTemplate<String,String> stringRedisTemplate;
 
     private static final String PHONE_AUTH_KEY = "auth-phone:";
     private static final String PHONE_AUTH_TEMP_KEY = "auth-phone-temp:";
     public String setPhoneAuthNumber(String phone) {
         String authNumber = String.valueOf(CommonFunction.getRandomNumber6Digit());
-        redisTemplateForString.opsForValue().set(
+        stringRedisTemplate.opsForValue().set(
                 PHONE_AUTH_KEY + phone,
                 authNumber,
                 Duration.ofMinutes(3));
@@ -28,17 +28,17 @@ public class PhoneAuthService {
     }
 
     public String getPhoneAuthNumber(String phone) {
-        return redisTemplateForString.opsForValue().get(PHONE_AUTH_KEY + phone);
+        return stringRedisTemplate.opsForValue().get(PHONE_AUTH_KEY + phone);
     }
 
     public String setPhoneAuthTempToken(String phone) {
         String tempToken = CommonFunction.generateUpperLettersAndNum(10);
-        redisTemplateForString.opsForValue().set(PHONE_AUTH_TEMP_KEY + phone, tempToken);
+        stringRedisTemplate.opsForValue().set(PHONE_AUTH_TEMP_KEY + phone, tempToken);
         return tempToken;
     }
 
     public void matchPhoneAuthTempToken(String phone, String token) {
-        String tempToken = redisTemplateForString.opsForValue().get(PHONE_AUTH_TEMP_KEY + phone);
+        String tempToken = stringRedisTemplate.opsForValue().get(PHONE_AUTH_TEMP_KEY + phone);
         if(!token.equals(tempToken)) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "phone auth error");
         }
