@@ -9,9 +9,10 @@ import java.util.Optional;
 
 public interface UserSecurityRepository extends JpaRepository<UserSecurity, Long> {
 
-    @EntityGraph(attributePaths = {"user", "user.authorities", "user.profile"})
+    @EntityGraph(attributePaths = {"user", "user.authorities", "user.userProfile"})
     Optional<UserSecurity> findBySocialMemberIdAndProvider(String socialMemberId, LoginProvider provider);
 
+    @EntityGraph(attributePaths = {"user", "user.authorities", "user.userProfile"})
     Optional<UserSecurity> findByEmailAndProvider(String email, LoginProvider loginProvider);
 
     Optional<UserSecurity> findByEmail(String email);
