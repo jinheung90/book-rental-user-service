@@ -1,7 +1,7 @@
 package com.example.project.book.api;
 
 
-import com.example.project.book.entity.Book;
+
 import com.example.project.book.entity.BookLikeCache;
 import com.example.project.book.service.BookLikeCacheService;
 import com.example.project.user.dto.UserProfileDto;
@@ -9,7 +9,7 @@ import com.example.project.user.dto.UserProfileDto;
 import com.example.project.user.security.CustomUserDetail;
 import com.example.project.user.service.UserService;
 import com.example.project.book.client.api.NaverBookSearchClient;
-import com.example.project.book.client.dto.NaverBookSearchDto;
+
 import com.example.project.book.dto.SearchBookDto;
 import com.example.project.book.dto.UserBookDto;
 import com.example.project.book.service.BookService;
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,9 +43,9 @@ public class BookController {
     @GetMapping("/books/search")
     public ResponseEntity<Page<SearchBookDto>> searchBooks(
             @Parameter(description = "페이지")
-            @RequestParam(name = "page") int page,
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @Parameter(description = "사이즈")
-            @RequestParam(name = "size") int size,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size,
             @Parameter(description = "정렬 (DESC, ASC)")
             @RequestParam(name = "direction", defaultValue = "DESC", required = false) String direction,
             @Parameter(description = "정렬 키워드 (updatedAt) 추가 가능")
@@ -56,7 +56,7 @@ public class BookController {
             @RequestParam(name = "userId", required = false) Long userId
     ) {
         // TODO 검색 엔진으로 변경
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.valueOf(direction), sortKey);
+        PageRequest pageRequest = PageRequest.of(page, size);
         final Page<UserBookDto> searchResult = bookService.pageBooks(pageRequest, name, userId);
 
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();

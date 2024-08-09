@@ -1,46 +1,45 @@
 package com.example.project.book.repository;
 
-import com.example.project.book.dto.QUserBookDto;
-import com.example.project.book.dto.UserBookDto;
 
+import com.example.project.book.entity.UserBook;
 import com.example.project.common.enums.BookRentalStateType;
+
+
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Objects;
 
 import static com.example.project.book.entity.QUserBook.userBook;
 import static com.example.project.book.entity.QBook.book;
+
+
+
 @Repository
 @RequiredArgsConstructor
 public class UserBookQuery {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<UserBookDto> searchUserBook(PageRequest pageRequest, String name, Long userId) {
-        JPAQuery<UserBookDto> query = jpaQueryFactory.select(new QUserBookDto(
-                userBook.id,
-                book.name,
-                userBook.detail,
-                userBook.images,
-                userBook.state,
-                userBook.userId
-                )).from(userBook)
-                .join(userBook.book, book)
+    public List<UserBook> searchUserBook(PageRequest pageRequest, String name, Long userId) {
+        JPAQuery<UserBook> query = jpaQueryFactory.selectFrom(userBook)
+                .innerJoin(userBook.book, book)
                 .fetchJoin()
                 .where(userBook.state.eq(BookRentalStateType.AVAILABLE))
                 .orderBy(userBook.updatedAt.desc())
                 .offset(pageRequest.getOffset())
                 .limit(pageRequest.getPageSize());
+
         query = this.searchName(query, name);
         query = this.searchUserId(query, userId);
         return query.fetch();
     }
 
     public <T> JPAQuery<T> searchName(JPAQuery<T> query, String name) {
-        if(!name.isBlank()) return query.where(book.name.contains(name));
+        if(Objects.nonNull(name) && !name.isBlank()) return query.where(book.name.contains(name));
         return query;
     }
 

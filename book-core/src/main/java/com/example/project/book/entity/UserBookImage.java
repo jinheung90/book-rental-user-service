@@ -24,7 +24,7 @@ public class UserBookImage {
     private Long id;
 
     @Column(name = "image_order")
-    private Integer order;
+    private Integer imageOrder;
 
     @Column(name = "image_url", length = 1023)
     private String imageUrl;

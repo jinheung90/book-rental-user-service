@@ -34,9 +34,9 @@ public class UserBook {
     @Column(name = "user_id")
     private Long userId;
 
-    @OneToMany(mappedBy = "userBook", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userBook")
     @BatchSize(size = 3)
-//    @OrderBy("order asc")
+    @OrderBy("imageOrder asc")
     private List<UserBookImage> images;
 
     @CreationTimestamp
