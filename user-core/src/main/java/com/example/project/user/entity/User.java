@@ -31,17 +31,12 @@ public class User {
     @Column(nullable = false)
     private String phone = "";
 
-    @Column(name = "nick_name", nullable = false, unique = true)
-    private String nickName = "";
-
     @Column(nullable = false, unique = true)
     private String email = "";
 
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
-
-    @Column(name = "address")
-    private String address;
+    @OneToOne(mappedBy = "user")
+    @OrderBy("createdAt asc")
+    private UserProfile userProfile;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default private Set<UserSecurity> userSecurities = new HashSet<>();
@@ -65,11 +60,11 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
     private List<Authority> authorities;
 
-    public void updateProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
-    }
-
     public List<String> getAuthorityNames() {
         return authorities.stream().map(Authority::getAuthorityName).toList();
+    }
+
+    public void setUserProfile(UserProfile userProfile) {
+        this.userProfile = userProfile;
     }
 }

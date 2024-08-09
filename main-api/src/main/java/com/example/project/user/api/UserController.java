@@ -41,16 +41,16 @@ public class UserController {
     @Operation(summary = "회원가입")
     public ResponseEntity<LoginResponse> signup(
         @Parameter(description = "프로필 이미지 파일") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
-        @Parameter(description = "유저 비밀 정보", required = true) @RequestPart(name = "userSecurityDto") UserSecurityDto userSecurityDto,
+        @Parameter(description = "유저 비밀 정보", required = true) @RequestPart(name = "emailSignInRequest") EmailSignInRequest emailSignInRequest,
         @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
         @Parameter(description = "휴대폰 정보", required = true) @RequestPart(name = "phoneDto") PhoneDto phoneDto
     ) {
         phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
-        final UserSecurity userSecurity = userService.signupByEmail(multipartFile, userSecurityDto, userProfileDto, phoneDto.getPhone());
+        final UserSecurity userSecurity = userService.signupByEmail(multipartFile, emailSignInRequest.getEmail(), emailSignInRequest.getPassword(), userProfileDto, phoneDto.getPhone());
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         return ResponseEntity.ok(
-            new LoginResponse(accessToken, new UserAuthorityDto(user.getAuthorityNames()), UserProfileDto.fromEntity(user), UserDto.fromEntity(user))
+            new LoginResponse(accessToken, new UserAuthorityDto(user.getAuthorityNames()), UserProfileDto.fromEntity(user.getUserProfile()), UserDto.fromEntity(user))
         );
     }
 
@@ -66,7 +66,7 @@ public class UserController {
                 new LoginResponse(
                     accessToken,
                     new UserAuthorityDto(user.getAuthorityNames()),
-                    UserProfileDto.fromEntity(user),
+                    UserProfileDto.fromEntity(user.getUserProfile()),
                     UserDto.fromEntity(user)
                 )
         );

@@ -6,10 +6,12 @@ import com.example.project.user.dto.UserSecurityDto;
 import com.example.project.user.entity.Authority;
 import com.example.project.user.entity.User;
 
+import com.example.project.user.entity.UserProfile;
 import com.example.project.user.entity.UserSecurity;
 import com.example.project.common.aws.s3.BucketType;
 import com.example.project.common.aws.s3.S3Uploader;
 import com.example.project.common.enums.LoginProvider;
+import com.example.project.user.repository.UserProfileRepository;
 import com.example.project.user.repository.UserRepository;
 import com.example.project.user.repository.UserSecurityRepository;
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
@@ -35,6 +37,7 @@ public class UserService {
     private final UserSecurityRepository userSecurityRepository;
     private final PasswordEncoder passwordEncoder;
     private final S3Uploader s3Uploader;
+    private final UserProfileRepository userProfileRepository;
 
     public Optional<UserSecurity> findUserBySocialLogin(String socialId, LoginProvider loginProvider) {
         return userSecurityRepository.findBySocialMemberIdAndProvider(socialId, loginProvider);
@@ -45,11 +48,13 @@ public class UserService {
     }
 
     @Transactional
-    public UserSecurity signupByEmail(MultipartFile file, UserSecurityDto userSecurityDto, UserProfileDto userProfileDto, String phoneNumber) {
-        this.verifyPassword(userSecurityDto.getPassword());
-        this.verifyEmail(userSecurityDto.getEmail());
-        final User user = this.saveUser(userSecurityDto, userProfileDto, file, phoneNumber);
-        return this.saveUserSecurityWithEmail(user, userSecurityDto.getPassword());
+    public UserSecurity signupByEmail(MultipartFile file, String email, String password, UserProfileDto userProfileDto, String phoneNumber) {
+        this.verifyPassword(password);
+        this.verifyEmail(email);
+        final User user = this.saveUser(email, phoneNumber);
+        final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
+        user.setUserProfile(userProfile);
+        return this.saveUserSecurityWithEmail(user, password);
     }
 
     @Transactional
@@ -71,13 +76,15 @@ public class UserService {
         }
     }
 
-    public UserSecurity signupBySocial(MultipartFile file, UserSecurityDto userSecurityDto, UserProfileDto userProfileDto, String phoneNumber) {
-        this.findUserBySocialLogin(userSecurityDto.getSocialId(), userSecurityDto.getProvider())
+    public UserSecurity signupBySocial(MultipartFile file, String email, String socialId, LoginProvider loginProvider, UserProfileDto userProfileDto, String phoneNumber) {
+        this.findUserBySocialLogin(socialId,loginProvider)
                 .ifPresent(((userSecurity) -> {
                     throw new RuntimeExceptionWithCode(GlobalErrorCode.EXISTS_USER);
                 }));
-        final User user = this.saveUser(userSecurityDto, userProfileDto, file, phoneNumber);
-        return this.saveUserSecurityWithSocial(user, userSecurityDto);
+        final User user = this.saveUser(email, phoneNumber);
+        final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
+        user.setUserProfile(userProfile);
+        return this.saveUserSecurityWithSocial(user, socialId, loginProvider);
     }
 
     public void verifyEmail(String email) {
@@ -88,37 +95,46 @@ public class UserService {
         CommonFunction.matchPasswordRegex(password);
     }
 
-    public User saveUser(UserSecurityDto userSecurityDto, UserProfileDto userProfileDto, MultipartFile profileImage, String phoneNumber) {
+    public User saveUser(String email, String phoneNumber) {
         List<Authority> authorities = new ArrayList<>();
         authorities.add(new Authority("ROLE_USER"));
         User user = User.builder()
                 .authorities(authorities)
-                .email(userSecurityDto.getEmail())
-                .nickName(userProfileDto.getNickName())
+                .email(email)
                 .phone(phoneNumber)
                 .build();
         user = userRepository.save(user);
-
-        if(profileImage != null && !profileImage.isEmpty()) {
-            String url = this.uploadProfileImage(profileImage, user.getId());
-            user.updateProfileImageUrl(url);
-        }
-
         return user;
     }
 
-    public String uploadProfileImage(MultipartFile multipartFile, Long userId) {
+    public UserProfile saveUserProfile(UserProfileDto userProfileDto, MultipartFile profileImage, User user) {
 
+        UserProfile userProfile = UserProfile.builder()
+                .user(user)
+                .address(userProfileDto.getAddress())
+                .nickName(userProfileDto.getNickName())
+                .profileImageUrl("")
+                .build();
+
+        if(profileImage != null && !profileImage.isEmpty()) {
+            String url = this.uploadProfileImage(profileImage, user.getId());
+            userProfile.updateProfileImageUrl(url);
+        }
+
+        return userProfileRepository.save(userProfile);
+    }
+
+    public String uploadProfileImage(MultipartFile multipartFile, Long userId) {
         return s3Uploader.putImage(multipartFile, BucketType.USER, userId.toString());
     }
 
-    public UserSecurity saveUserSecurityWithSocial(User user, UserSecurityDto userSecurityDto) {
+    public UserSecurity saveUserSecurityWithSocial(User user, String socialId, LoginProvider loginProvider) {
         final UserSecurity userSecurity = UserSecurity.builder()
                 .user(user)
-                .email(userSecurityDto.getEmail())
+                .email(user.getEmail())
                 .password("empty")
-                .provider(userSecurityDto.getProvider())
-                .socialMemberId(userSecurityDto.getSocialId())
+                .provider(loginProvider)
+                .socialMemberId(socialId)
                 .build();
          return userSecurityRepository.save(userSecurity);
     }
@@ -134,7 +150,7 @@ public class UserService {
     }
 
     public Map<Long, UserProfileDto> getUserProfilesByUserIds(List<Long> ids) {
-        return userRepository.findByIdIn(ids)
+        return userProfileRepository.findAllByUserIdIn(ids)
                 .stream().map(UserProfileDto::fromEntity)
                 .collect(Collectors.toMap(UserProfileDto::getId, userProfileDto -> userProfileDto));
     }

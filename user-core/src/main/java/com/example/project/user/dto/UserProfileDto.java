@@ -1,6 +1,7 @@
 package com.example.project.user.dto;
 
 import com.example.project.user.entity.User;
+import com.example.project.user.entity.UserProfile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class UserProfileDto {
     @Schema(description = "주소")
     private String address;
 
-    public static UserProfileDto fromEntity(User user) {
+    public static UserProfileDto fromEntity(UserProfile user) {
         return UserProfileDto.builder()
                 .id(user.getId())
                 .profileImageUrl(user.getProfileImageUrl())
