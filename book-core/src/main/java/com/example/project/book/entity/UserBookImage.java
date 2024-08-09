@@ -17,7 +17,6 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-//@SQLRestriction("where order > 0")
 public class UserBookImage {
 
     @Id

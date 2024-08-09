@@ -1,5 +1,6 @@
 package com.example.project.config;
 
+import com.example.project.user.entity.UserProfileCache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,4 +29,14 @@ public class UserRedisConfig {
         return redisTemplate;
     }
 
+    @Bean
+    public RedisTemplate<String, UserProfileCache> userProfileCacheRedisTemplate(LettuceConnectionFactory connectionFactory) {
+        RedisTemplate<String, UserProfileCache> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(UserProfileCache.class));
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(UserProfileCache.class));
+        return redisTemplate;
+    }
 }

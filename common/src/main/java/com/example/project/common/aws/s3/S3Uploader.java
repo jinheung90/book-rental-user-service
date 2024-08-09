@@ -36,12 +36,7 @@ public class S3Uploader {
 
     @PostConstruct
     public void init() {
-        if(!profile.equals("local")) {
-            this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
-                    .enablePathStyleAccess()
-                    .withCredentials(new DefaultAWSCredentialsProviderChain())
-                    .build();
-        } else {
+        if(profile.equals("local")) {
             String key = environment.getProperty("spring.cloud.aws.credentials.access-key");
             String value = environment.getProperty("spring.cloud.aws.credentials.secret-key");
             String region = environment.getProperty("spring.cloud.aws.region.static");
@@ -50,8 +45,13 @@ public class S3Uploader {
                     .withRegion(region)
                     .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(key, value)))
                     .build();
+            return;
         }
 
+        this.amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
+                .enablePathStyleAccess()
+                .withCredentials(new DefaultAWSCredentialsProviderChain())
+                .build();
     }
 
     public String getBucketRealName(BucketType bucketType) {

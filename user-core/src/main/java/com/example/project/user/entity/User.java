@@ -22,7 +22,6 @@ import java.util.Set;
 @Getter
 @Table(name = "users")
 @Entity
-@SQLRestriction("where is_deleted = 0")
 public class User {
 
     @Id

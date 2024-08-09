@@ -1,6 +1,7 @@
 package com.example.project.user.api;
 
 
+import com.example.project.common.aws.sns.SnsSender;
 import com.example.project.user.dto.LoginResponse;
 import com.example.project.user.dto.*;
 
@@ -30,6 +31,7 @@ public class UserController {
     private final PhoneAuthService phoneAuthService;
     private final TokenProvider tokenProvider;
     private final UserService userService;
+    private final SnsSender snsSender;
 
     @PostMapping(
         value = "/signUp/email",
@@ -70,7 +72,7 @@ public class UserController {
         );
     }
 
-    @PostMapping("/phone")
+    @PostMapping("/phone/auth")
     @Operation(summary = "휴대폰 인증번호 보내기")
     public ResponseEntity<PhoneDto> sendSnsPhoneAuthNumber(
             @RequestBody PhoneDto phoneDto
@@ -78,19 +80,13 @@ public class UserController {
         if(userService.existsUserByPhone(phoneDto.getPhone())) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "exists phone");
         }
-        phoneAuthService.setPhoneAuthNumber(phoneDto.getPhone());
+        final String authNumber = phoneAuthService.setPhoneAuthNumber(phoneDto.getPhone());
+        this.snsSender.sendPhoneAuthNumberMessage(phoneDto.getPhone(), authNumber);
         return ResponseEntity.ok().body(phoneDto);
     }
 
-    @PostMapping(value = "/test/image",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "테스트 업로드")
-    public ResponseEntity<String> testFileUpload(@RequestPart(name = "file1") MultipartFile file) {
-        userService.uploadProfileImage(file, 1L);
-        return ResponseEntity.ok().body("a");
-    }
 
-    @PostMapping("/phone/verify")
+    @PostMapping("/phone/auth/verify")
     @Operation(summary = "휴대폰 인증번호 검증")
     public ResponseEntity<PhoneDto> verifyPhoneAuthNumber(
             @RequestBody PhoneDto phoneDto
