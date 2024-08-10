@@ -39,6 +39,9 @@ public class UserBook {
     @OrderBy("imageOrder asc")
     private List<UserBookImage> images;
 
+    @Column(columnDefinition = "integer DEFAULT 0")
+    private boolean activity = true;
+
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
@@ -50,4 +53,8 @@ public class UserBook {
     @ManyToOne
     @JoinColumn(name = "book_id")
     private Book book;
+
+    public void inactive() {
+        activity = false;
+    }
 }

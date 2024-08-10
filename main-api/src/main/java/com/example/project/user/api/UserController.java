@@ -1,6 +1,7 @@
 package com.example.project.user.api;
 
 
+import com.example.project.book.service.BookService;
 import com.example.project.common.aws.sns.SnsSender;
 import com.example.project.user.dto.LoginResponse;
 import com.example.project.user.dto.*;
@@ -38,6 +39,7 @@ public class UserController {
     private final TokenProvider tokenProvider;
     private final UserService userService;
     private final SnsSender snsSender;
+    private final BookService bookService;
 
     @PostMapping(
         value = "/signUp/email",
@@ -131,6 +133,7 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         userService.withdrawUser(emailSignInRequest.getPassword(), customUserDetail.getPK());
+        bookService.inactiveUserBooksByUser(customUserDetail.getPK());
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         return ResponseEntity.ok(res);

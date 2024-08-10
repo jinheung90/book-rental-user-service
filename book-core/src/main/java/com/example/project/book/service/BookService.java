@@ -27,10 +27,21 @@ public class BookService {
     private final UserBookRepository usedBookRepository;
     private final UserBookQuery userBookQuery;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<UserBookDto> pageBooks(PageRequest pageRequest, String name, Long userId) {
         List<UserBook> userBooks = userBookQuery.searchUserBook(pageRequest, name, userId);
         List<UserBookDto> userBookDtos = userBooks.stream().map(UserBookDto::fromEntity).toList();
         return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, userId));
     }
+
+    @Transactional
+    public void inactiveUserBooksByUser(Long userId) {
+        List<UserBook> userBooks = findAllByUser(userId);
+        userBooks.forEach(UserBook::inactive);
+    }
+
+    public List<UserBook> findAllByUser(Long userId) {
+        return usedBookRepository.findAllByUserId(userId);
+    }
+
 }

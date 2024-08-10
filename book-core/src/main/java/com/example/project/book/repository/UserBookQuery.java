@@ -29,6 +29,7 @@ public class UserBookQuery {
                 .innerJoin(userBook.book, book)
                 .fetchJoin()
                 .where(userBook.state.eq(BookRentalStateType.AVAILABLE))
+                .where(userBook.activity.isTrue())
                 .orderBy(userBook.updatedAt.desc())
                 .offset(pageRequest.getOffset())
                 .limit(pageRequest.getPageSize());
