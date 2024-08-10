@@ -55,7 +55,12 @@ public class UserController {
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         return ResponseEntity.ok(
-            new LoginResponse(accessToken, new UserAuthorityDto(user.getAuthorityNames()), UserProfileDto.fromEntity(user.getUserProfile()), UserDto.fromEntity(user))
+            new LoginResponse(
+                accessToken,
+                new UserAuthorityDto(user.getAuthorityNames()),
+                UserProfileDto.fromEntity(user.getUserProfile()),
+                UserDto.fromEntity(user)
+            )
         );
     }
 
@@ -68,12 +73,12 @@ public class UserController {
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(userSecurity.getUser().getAuthorityNames(), userSecurity.getUser().getId());
         return ResponseEntity.ok(
-                new LoginResponse(
-                    accessToken,
-                    new UserAuthorityDto(user.getAuthorityNames()),
-                    UserProfileDto.fromEntity(user.getUserProfile()),
-                    UserDto.fromEntity(user)
-                )
+            new LoginResponse(
+                accessToken,
+                new UserAuthorityDto(user.getAuthorityNames()),
+                UserProfileDto.fromEntity(user.getUserProfile()),
+                UserDto.fromEntity(user)
+            )
         );
     }
 
@@ -134,16 +139,5 @@ public class UserController {
         Map<String, Object> res = new HashMap<>();
         res.put("success", true);
         return ResponseEntity.ok(res);
-    }
-
-    @GetMapping("/test/load")
-    public ResponseEntity<String> test() {
-
-        long a= 1;
-        for (int i = 1; i < 100000; i++) {
-            a *= i;
-        }
-
-        return ResponseEntity.ok("s");
     }
 }

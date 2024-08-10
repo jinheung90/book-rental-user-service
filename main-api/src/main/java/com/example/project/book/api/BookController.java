@@ -58,7 +58,6 @@ public class BookController {
         // TODO 검색 엔진으로 변경
         PageRequest pageRequest = PageRequest.of(page, size);
         final Page<UserBookDto> searchResult = bookService.pageBooks(pageRequest, name, userId);
-
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
         final List<SearchBookDto> result = searchResult.getContent().stream()
