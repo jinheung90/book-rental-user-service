@@ -15,6 +15,7 @@ public enum GlobalErrorCode implements IErrorCode {
     IO_ERROR("io error", 500),
     ALREADY_USER_NICK("already exist nickname",  400),
     EXIST_EMAIL("already exist email",  400),
+    EXIST_NICKNAME("already exists nickname", 400),
     EMAIL_REGEX_NOT_MATCH("email regex not match", 400),
     PASSWORD_NOT_MATCH("password not match", 400),
     NOT_EXISTS_USER("not exists user", 400),

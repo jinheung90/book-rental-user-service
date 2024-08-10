@@ -6,7 +6,9 @@ import com.example.project.user.dto.LoginResponse;
 import com.example.project.user.dto.*;
 
 import com.example.project.user.entity.User;
+import com.example.project.user.entity.UserProfile;
 import com.example.project.user.entity.UserSecurity;
+import com.example.project.user.security.CustomUserDetail;
 import com.example.project.user.security.TokenProvider;
 import com.example.project.user.service.PhoneAuthService;
 import com.example.project.user.service.UserService;
@@ -18,10 +20,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -37,7 +43,6 @@ public class UserController {
         value = "/signUp/email",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-
     @Operation(summary = "회원가입")
     public ResponseEntity<LoginResponse> signup(
         @Parameter(description = "프로필 이미지 파일") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
@@ -104,30 +109,32 @@ public class UserController {
         return ResponseEntity.ok().body(new PhoneDto(phoneDto.getPhone(), "" , tempToken));
     }
 
-    @GetMapping("/test/token")
-    public ResponseEntity<String> testTokenProvider() {
-        ArrayList<String> auth = new ArrayList<>();
-        auth.add("ROLE_USER");
-        return ResponseEntity.ok(tokenProvider.createJwtAccessTokenByUser(auth, 1L));
-    }
-    @GetMapping("/test/phone")
-    public ResponseEntity<String> testPhone(
-            @RequestParam(name = "phone") String phone
+    @PutMapping(value = "/profile",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @Operation(summary = "회원 정보 수정")
+    public ResponseEntity<UserProfileDto> updateUserProfile(
+            @Parameter(description = "유저 프로필 이미지") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
+            @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
+            @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
-        return ResponseEntity.ok(phoneAuthService.setPhoneAuthNumber(phone));
+        final UserProfile userProfile =
+                userService.updateUserProfile(userProfileDto, multipartFile, customUserDetail.getPK());
+        return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));
     }
 
-//    @PutMapping(name = "/profile",
-//        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-//        produces = MediaType.APPLICATION_JSON_VALUE)
-//    @PreAuthorize("hasRole('ROLE_USER')")
-//    @Operation(summary = "회원 정보 수정")
-//    public ResponseEntity<UserProfileDto> updateUserProfile(
-//        @RequestPart(name = "file", required = false) MultipartFile multipartFile,
-//        @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto
-//    ) {
-//        return ResponseEntity.ok(new UserProfileDto("","", ""));
-//    }
+    @PostMapping("/withdraw")
+    @Operation(summary = "회원 탈퇴")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<Map<String, Object>> withdrawUser(
+            @RequestBody EmailSignInRequest emailSignInRequest,
+            @AuthenticationPrincipal CustomUserDetail customUserDetail
+    ) {
+        userService.withdrawUser(emailSignInRequest.getPassword(), customUserDetail.getPK());
+        Map<String, Object> res = new HashMap<>();
+        res.put("success", true);
+        return ResponseEntity.ok(res);
+    }
 
     @GetMapping("/test/load")
     public ResponseEntity<String> test() {

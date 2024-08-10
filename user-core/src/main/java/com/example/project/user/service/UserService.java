@@ -17,6 +17,7 @@ import com.example.project.user.repository.UserSecurityRepository;
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
 import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import com.example.project.common.util.CommonFunction;
+import com.querydsl.core.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +52,7 @@ public class UserService {
     public UserSecurity signupByEmail(MultipartFile file, String email, String password, UserProfileDto userProfileDto, String phoneNumber) {
         this.verifyPassword(password);
         this.verifyEmail(email);
+        this.duplicatedNickname(userProfileDto.getNickName());
         final User user = this.saveUser(email, phoneNumber);
         final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
         user.setUserProfile(userProfile);
@@ -59,10 +61,25 @@ public class UserService {
 
     @Transactional
     public UserSecurity signinByEmail(String email, String password) {
-        final UserSecurity userSecurity = this.userSecurityRepository.findByEmailAndProvider(email, LoginProvider.EMAIL)
+        final UserSecurity userSecurity = this.userSecurityRepository.findByEmailAndProviderAndUserDeletedIsFalse(email, LoginProvider.EMAIL)
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER));
         this.matchPassword(password, userSecurity.getPassword());
         return userSecurity;
+    }
+
+    @Transactional
+    public void withdrawUser(String password, Long userId) {
+        final UserSecurity userSecurity = this.userSecurityRepository.findByUserId(userId).orElseThrow(
+                () -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER)
+        );
+        this.matchPassword(password, userSecurity.getPassword());
+        userSecurity.getUser().inactive();
+    }
+
+    public void duplicatedNickname(String nickname) {
+        if(userProfileRepository.existsByNickName(nickname)) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.EXIST_NICKNAME);
+        }
     }
 
     public UserSecurity signinByKakao(String socialId) {
@@ -77,6 +94,7 @@ public class UserService {
     }
 
     public UserSecurity signupBySocial(MultipartFile file, String email, String socialId, LoginProvider loginProvider, UserProfileDto userProfileDto, String phoneNumber) {
+        this.duplicatedNickname(userProfileDto.getNickName());
         this.findUserBySocialLogin(socialId,loginProvider)
                 .ifPresent(((userSecurity) -> {
                     throw new RuntimeExceptionWithCode(GlobalErrorCode.EXISTS_USER);
@@ -122,6 +140,29 @@ public class UserService {
         }
 
         return userProfileRepository.save(userProfile);
+    }
+
+    @Transactional
+    public UserProfile updateUserProfile(UserProfileDto userProfileDto, MultipartFile file, Long userId) {
+
+        final UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER));
+
+        if(!StringUtils.isNullOrEmpty(userProfileDto.getNickName())) {
+            this.duplicatedNickname(userProfileDto.getNickName());
+            userProfile.setNickName(userProfileDto.getNickName());
+        }
+
+        if(file != null && !file.isEmpty()) {
+            String url = this.uploadProfileImage(file, userId);
+            userProfile.updateProfileImageUrl(url);
+        }
+
+        if(!StringUtils.isNullOrEmpty(userProfileDto.getAddress())) {
+            userProfile.setAddress(userProfile.getAddress());
+        }
+
+        return userProfile;
     }
 
     public String uploadProfileImage(MultipartFile multipartFile, Long userId) {

@@ -51,7 +51,7 @@ public class User {
 
     @Column(name = "is_deleted", columnDefinition = "integer DEFAULT 0")
     @Builder.Default
-    private Integer deleted = 0;
+    private boolean deleted = false;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -66,5 +66,9 @@ public class User {
 
     public void setUserProfile(UserProfile userProfile) {
         this.userProfile = userProfile;
+    }
+
+    public void inactive() {
+        this.deleted = true;
     }
 }

@@ -43,4 +43,12 @@ public class UserProfile {
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 }
