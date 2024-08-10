@@ -109,7 +109,7 @@ public class UserController {
         return ResponseEntity.ok().body(new PhoneDto(phoneDto.getPhone(), "" , tempToken));
     }
 
-    @PutMapping(value = "/profile",
+    @PostMapping(value = "/profile",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "회원 정보 수정")
