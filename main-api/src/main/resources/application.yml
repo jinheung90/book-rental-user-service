@@ -44,5 +44,3 @@ token:
   refresh-token-expired: 1209600
   access-token-expired: 1209600
   issuer: team
-cors:
-  allow-origins: ${cors-allow-origins}
