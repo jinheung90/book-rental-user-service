@@ -2,6 +2,7 @@ package com.example.project.user.api;
 
 
 import com.example.project.common.aws.sns.SnsSender;
+import com.example.project.common.util.ResponseBody;
 import com.example.project.user.dto.LoginResponse;
 import com.example.project.user.dto.*;
 
@@ -128,16 +129,24 @@ public class UserController {
         return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));
     }
 
+    @PostMapping(value = "/profile/verify/nickname")
+    @Operation(summary = "회원 정보 수정", description = "success: true")
+    public ResponseEntity<Map<String, Object>> verifyNickname(
+            @RequestParam(name = "nickname") String nickname
+    ) {
+        userService.duplicatedNickname(nickname);
+        return ResponseEntity.ok(ResponseBody.successResponse());
+    }
+
     @PostMapping("/withdraw")
-    @Operation(summary = "회원 탈퇴")
+    @Operation(summary = "회원 탈퇴", description = "success: true")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Map<String, Object>> withdrawUser(
             @RequestBody EmailSignInRequest emailSignInRequest,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         userService.withdrawUser(emailSignInRequest.getPassword(), customUserDetail.getPK());
-        Map<String, Object> res = new HashMap<>();
-        res.put("success", true);
-        return ResponseEntity.ok(res);
+
+        return ResponseEntity.ok(ResponseBody.successResponse());
     }
 }
