@@ -68,13 +68,22 @@ public class UserService {
     }
 
     @Transactional
-    public void withdrawUser(String password, Long userId) {
+    public void withdrawUserWithMatchPassword(String password, Long userId) {
         final UserSecurity userSecurity = this.userSecurityRepository.findByUserId(userId).orElseThrow(
                 () -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER)
         );
-//        this.matchPassword(password, userSecurity.getPassword());
+        this.matchPassword(password, userSecurity.getPassword());
         userSecurity.getUser().inactive();
     }
+
+    @Transactional
+    public void withdrawUser(Long userId) {
+        final UserSecurity userSecurity = this.userSecurityRepository.findByUserId(userId).orElseThrow(
+                () -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER)
+        );
+        userSecurity.getUser().inactive();
+    }
+
 
     public boolean duplicatedNicknameNotMe(String nickname, Long userId) {
         if(userProfileRepository.existsByNickNameAndUserIdNot(nickname, userId)) {

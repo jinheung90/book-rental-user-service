@@ -196,14 +196,13 @@ public class UserController {
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
 
-    @PostMapping("/withdraw")
+    @DeleteMapping
     @Operation(summary = "회원 탈퇴", description = "success: true")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Map<String, Object>> withdrawUser(
-            @RequestBody EmailSignInRequest emailSignInRequest,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
-        userService.withdrawUser(emailSignInRequest.getPassword(), customUserDetail.getPK());
+        userService.withdrawUser(customUserDetail.getPK());
         bookService.inactiveUserBooks(customUserDetail.getPK());
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
