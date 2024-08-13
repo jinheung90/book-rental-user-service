@@ -35,7 +35,7 @@ public class BookService {
     }
 
     @Transactional
-    public void inactiveUserBooksByUser(Long userId) {
+    public void inactiveUserBooks(Long userId) {
         List<UserBook> userBooks = findAllByUser(userId);
         userBooks.forEach(UserBook::inactive);
     }

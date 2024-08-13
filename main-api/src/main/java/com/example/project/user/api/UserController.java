@@ -1,6 +1,7 @@
 package com.example.project.user.api;
 
 
+import com.example.project.book.service.BookService;
 import com.example.project.common.aws.sns.SnsSender;
 import com.example.project.common.enums.LoginProvider;
 import com.example.project.common.util.CommonFunction;
@@ -43,6 +44,7 @@ public class UserController {
     private final PhoneAuthService phoneAuthService;
     private final TokenProvider tokenProvider;
     private final KakaoAuthApiClient kakaoAuthApiClient;
+    private final BookService bookService;
     private final UserService userService;
     private final SnsSender snsSender;
 
@@ -202,6 +204,7 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         userService.withdrawUser(emailSignInRequest.getPassword(), customUserDetail.getPK());
+        bookService.inactiveUserBooks(customUserDetail.getPK());
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
 }
