@@ -38,9 +38,13 @@ public class PhoneAuthService {
     }
 
     public void matchPhoneAuthTempToken(String phone, String token) {
-        String tempToken = stringRedisTemplate.opsForValue().get(PHONE_AUTH_TEMP_KEY + phone);
+        final String key = PHONE_AUTH_TEMP_KEY + phone;
+        String tempToken = stringRedisTemplate.opsForValue().get(key);
         if(!token.equals(tempToken)) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "phone auth error");
         }
+    }
+    public void delPhoneAuthTempToken(String phone) {
+        stringRedisTemplate.delete(PHONE_AUTH_TEMP_KEY + phone);
     }
 }

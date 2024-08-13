@@ -72,14 +72,22 @@ public class UserService {
         final UserSecurity userSecurity = this.userSecurityRepository.findByUserId(userId).orElseThrow(
                 () -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER)
         );
-        this.matchPassword(password, userSecurity.getPassword());
+//        this.matchPassword(password, userSecurity.getPassword());
         userSecurity.getUser().inactive();
     }
 
-    public void duplicatedNickname(String nickname) {
+    public boolean duplicatedNicknameNotMe(String nickname, Long userId) {
+        if(userProfileRepository.existsByNickNameAndUserIdNot(nickname, userId)) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.EXIST_NICKNAME);
+        }
+        return true;
+    }
+
+    public boolean duplicatedNickname(String nickname) {
         if(userProfileRepository.existsByNickName(nickname)) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.EXIST_NICKNAME);
         }
+        return true;
     }
 
     public UserSecurity signinByKakao(String socialId) {
@@ -87,10 +95,11 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER));
     }
 
-    public void matchPassword(String password, String encodedPassword) {
+    public boolean matchPassword(String password, String encodedPassword) {
         if(!this.passwordEncoder.matches(password, encodedPassword)) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER);
         }
+        return true;
     }
 
     public UserSecurity signupBySocial(MultipartFile file, String email, String socialId, LoginProvider loginProvider, UserProfileDto userProfileDto, String phoneNumber) {
@@ -149,7 +158,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER));
 
         if(!StringUtils.isNullOrEmpty(userProfileDto.getNickName())) {
-            this.duplicatedNickname(userProfileDto.getNickName());
+            this.duplicatedNicknameNotMe(userProfileDto.getNickName(), userId);
             userProfile.setNickName(userProfileDto.getNickName());
         }
 

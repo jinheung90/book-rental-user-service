@@ -1,5 +1,4 @@
 spring:
-
   datasource:
     username: root
     password: 1234
@@ -13,7 +12,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
-
 server:
   tomcat:
     access-log:
@@ -25,7 +23,7 @@ kakao-auth:
   client-secret: ddd
   redirect-uri: fff
 token:
-  access-token-secret: 7chXhUO+kHk29rl1Ou9y6r3FFYSFj6dy123123123123
+  access-token-secret: 7chXhUO+kHk29rl1Ou9y6r3FFYSFj6dyIaT123123456
   refresh-token-expired: 1209600
   access-token-expired: 1209600
   issuer: team

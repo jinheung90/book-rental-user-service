@@ -24,6 +24,7 @@ public class SnsSender {
     private static final String PHONE_AUTH_MESSAGE_TEMPLATE = "인증 번호는 %s 입니다.";
     private static final String MESSAGE_FAIL_LOG_TEMPLATE = "실패 코드 %d, 응답 메세지: %s, 메세지 내용: %s";
     private static final Region MESSAGE_REGION = Region.AP_NORTHEAST_1;
+    private static final String KOR_PHONE_PREFIX = "+82";
     @Value("${spring.profiles.active}")
     private String profile;
     @PostConstruct
@@ -53,7 +54,7 @@ public class SnsSender {
         PublishRequest publishRequest = PublishRequest
                 .builder()
                 .message(messageContext)
-                .phoneNumber(phoneNumber)
+                .phoneNumber(KOR_PHONE_PREFIX + phoneNumber)
                 .build();
 
         PublishResponse publishResponse = this.snsClient.publish(publishRequest);

@@ -29,7 +29,6 @@ public class TokenProvider {
     private String secret;
     @Value("${token.issuer}")
     private String issuer;
-
     @Value("${token.access-token-expired}")
     private Long mAccessTokenExpiration;
 

@@ -25,3 +25,5 @@ springdoc:
 server:
   servlet:
     context-path: /api
+cors:
+  allow-origins: http://localhost:3000,https://used-book-store-frontend.vercel.app
