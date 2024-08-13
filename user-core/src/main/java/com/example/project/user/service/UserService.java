@@ -72,7 +72,7 @@ public class UserService {
         final UserSecurity userSecurity = this.userSecurityRepository.findByUserId(userId).orElseThrow(
                 () -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER)
         );
-        this.matchPassword(password, userSecurity.getPassword());
+//        this.matchPassword(password, userSecurity.getPassword());
         userSecurity.getUser().inactive();
     }
 

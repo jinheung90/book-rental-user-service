@@ -3,7 +3,6 @@ package com.example.project.user.client.dto;
 import lombok.*;
 
 @Getter
-@Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,7 +11,6 @@ public class KakaoProfile {
     private Kakao_account kakao_account;
 
     @Getter
-    @Setter
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor

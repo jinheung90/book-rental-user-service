@@ -2,7 +2,12 @@ package com.example.project.user.api;
 
 
 import com.example.project.common.aws.sns.SnsSender;
+import com.example.project.common.enums.LoginProvider;
+import com.example.project.common.util.CommonFunction;
 import com.example.project.common.util.ResponseBody;
+import com.example.project.user.client.api.KakaoAuthApiClient;
+import com.example.project.user.client.dto.KakaoProfile;
+import com.example.project.user.client.dto.KakaoToken;
 import com.example.project.user.dto.LoginResponse;
 import com.example.project.user.dto.*;
 
@@ -37,6 +42,7 @@ public class UserController {
 
     private final PhoneAuthService phoneAuthService;
     private final TokenProvider tokenProvider;
+    private final KakaoAuthApiClient kakaoAuthApiClient;
     private final UserService userService;
     private final SnsSender snsSender;
 
@@ -55,6 +61,35 @@ public class UserController {
         final UserSecurity userSecurity = userService.signupByEmail(multipartFile, emailSignInRequest.getEmail(), emailSignInRequest.getPassword(), userProfileDto, phoneDto.getPhone());
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
+        phoneAuthService.delPhoneAuthTempToken(phoneDto.getPhone());
+        return ResponseEntity.ok(
+            new LoginResponse(
+                accessToken,
+                new UserAuthorityDto(user.getAuthorityNames()),
+                UserProfileDto.fromEntity(user.getUserProfile()),
+                UserDto.fromEntity(user)
+            )
+        );
+    }
+
+    @PostMapping(
+            value = "/signUp/kakao",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    @Operation(summary = "회원가입 카카오")
+    public ResponseEntity<LoginResponse> signup(
+            @Parameter(description = "프로필 이미지 파일") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
+            @Parameter(description = "카카오 정보", required = true) @RequestPart(name = "kakaoLoginRequest") KakaoLoginRequest kakaoLoginRequest,
+            @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
+            @Parameter(description = "휴대폰 정보", required = true) @RequestPart(name = "phoneDto") PhoneDto phoneDto
+    ) {
+        phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
+        final KakaoToken kakaoToken = kakaoAuthApiClient.getKakaoTokenFromAuthorizationCode(kakaoLoginRequest.getAuthorizationCode());
+        final KakaoProfile kakaoProfile = kakaoAuthApiClient.fetchUserProfile(kakaoToken.getAccess_token());
+        final UserSecurity userSecurity = userService.signupBySocial(multipartFile, kakaoProfile.getKakao_account().getEmail(), kakaoProfile.getId().toString(), LoginProvider.KAKAO, userProfileDto, phoneDto.getPhone());
+        final User user = userSecurity.getUser();
+        final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
+        phoneAuthService.delPhoneAuthTempToken(phoneDto.getPhone());
         return ResponseEntity.ok(
             new LoginResponse(
                 accessToken,
@@ -83,11 +118,32 @@ public class UserController {
         );
     }
 
+    @PostMapping("/signIn/kakao")
+    @Operation(summary = "로그인 카카오")
+    public ResponseEntity<LoginResponse> signIn(
+            @RequestBody KakaoLoginRequest kakaoLoginRequest
+    ) {
+        final KakaoToken kakaoToken = kakaoAuthApiClient.getKakaoTokenFromAuthorizationCode(kakaoLoginRequest.getAuthorizationCode());
+        final KakaoProfile kakaoProfile = kakaoAuthApiClient.fetchUserProfile(kakaoToken.getAccess_token());
+        final UserSecurity userSecurity = this.userService.signinByKakao(kakaoProfile.getId().toString());
+        final User user = userSecurity.getUser();
+        final String accessToken = tokenProvider.createJwtAccessTokenByUser(userSecurity.getUser().getAuthorityNames(), userSecurity.getUser().getId());
+        return ResponseEntity.ok(
+            new LoginResponse(
+                accessToken,
+                new UserAuthorityDto(user.getAuthorityNames()),
+                UserProfileDto.fromEntity(user.getUserProfile()),
+                UserDto.fromEntity(user)
+            )
+        );
+    }
+
     @PostMapping("/phone/auth")
     @Operation(summary = "휴대폰 인증번호 보내기")
     public ResponseEntity<PhoneDto> sendSnsPhoneAuthNumber(
             @RequestBody PhoneDto phoneDto
     ) {
+        CommonFunction.matchPhoneRegex(phoneDto.getPhone());
         if(userService.existsUserByPhone(phoneDto.getPhone())) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "exists phone");
         }
@@ -130,7 +186,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/profile/verify/nickname")
-    @Operation(summary = "회원 정보 수정", description = "success: true")
+    @Operation(summary = "닉네임 중복 확인", description = "success: true")
     public ResponseEntity<Map<String, Object>> verifyNickname(
             @RequestParam(name = "nickname") String nickname
     ) {
@@ -146,7 +202,6 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         userService.withdrawUser(emailSignInRequest.getPassword(), customUserDetail.getPK());
-
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
 }
