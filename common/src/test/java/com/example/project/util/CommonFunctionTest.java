@@ -36,4 +36,10 @@ class CommonFunctionTest {
             Assertions.assertFalse(value < 100000 || value > 999999);
         }
     }
+
+    @Test
+    void phoneRegexTest() {
+        Assertions.assertDoesNotThrow(() -> CommonFunction.matchPhoneRegex("01031230851"));
+        Assertions.assertThrows(RuntimeExceptionWithCode.class, () -> CommonFunction.matchPhoneRegex("1231245"));
+    }
 }

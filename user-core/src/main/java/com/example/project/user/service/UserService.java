@@ -111,16 +111,16 @@ public class UserService {
         return true;
     }
 
-    public UserSecurity signupBySocial(MultipartFile file, String email, String socialId, LoginProvider loginProvider, UserProfileDto userProfileDto, String phoneNumber) {
+    public UserSecurity signupByKakao(MultipartFile file, String inputEmail, String kakaoEmail, String socialId,  UserProfileDto userProfileDto, String phoneNumber) {
         this.duplicatedNickname(userProfileDto.getNickName());
-        this.findUserBySocialLogin(socialId,loginProvider)
+        this.findUserBySocialLogin(socialId, LoginProvider.KAKAO)
                 .ifPresent(((userSecurity) -> {
                     throw new RuntimeExceptionWithCode(GlobalErrorCode.EXISTS_USER);
                 }));
-        final User user = this.saveUser(email, phoneNumber);
+        final User user = this.saveUser(inputEmail, phoneNumber);
         final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
         user.setUserProfile(userProfile);
-        return this.saveUserSecurityWithSocial(user, socialId, loginProvider);
+        return this.saveUserSecurityWithSocial(user, kakaoEmail, socialId, LoginProvider.KAKAO);
     }
 
     public void verifyEmail(String email) {
@@ -187,10 +187,10 @@ public class UserService {
         return s3Uploader.putImage(multipartFile, BucketType.USER, userId.toString());
     }
 
-    public UserSecurity saveUserSecurityWithSocial(User user, String socialId, LoginProvider loginProvider) {
+    public UserSecurity saveUserSecurityWithSocial(User user, String socialEmail, String socialId, LoginProvider loginProvider) {
         final UserSecurity userSecurity = UserSecurity.builder()
                 .user(user)
-                .email(user.getEmail())
+                .email(Objects.requireNonNullElse(socialEmail, ""))
                 .password("empty")
                 .provider(loginProvider)
                 .socialMemberId(socialId)

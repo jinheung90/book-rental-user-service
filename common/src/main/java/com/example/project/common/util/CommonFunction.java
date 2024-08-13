@@ -26,7 +26,7 @@ public class CommonFunction {
     }
 
     public static void matchPhoneRegex(String phoneNumber) {
-        if(!phoneNumber.matches(EMAIL_REGEX)) {
+        if(!phoneNumber.matches(PHONE_REGEX)) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST);
         }
     }

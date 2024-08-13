@@ -81,14 +81,14 @@ public class UserController {
     @Operation(summary = "회원가입 카카오")
     public ResponseEntity<LoginResponse> signup(
             @Parameter(description = "프로필 이미지 파일") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
-            @Parameter(description = "카카오 정보", required = true) @RequestPart(name = "kakaoLoginRequest") KakaoLoginRequest kakaoLoginRequest,
+            @Parameter(description = "카카오 정보, 이메일", required = true) @RequestPart(name = "kakaoLoginRequest") KakaoLoginRequest kakaoLoginRequest,
             @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
             @Parameter(description = "휴대폰 정보", required = true) @RequestPart(name = "phoneDto") PhoneDto phoneDto
     ) {
         phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
         final KakaoToken kakaoToken = kakaoAuthApiClient.getKakaoTokenFromAuthorizationCode(kakaoLoginRequest.getAuthorizationCode());
         final KakaoProfile kakaoProfile = kakaoAuthApiClient.fetchUserProfile(kakaoToken.getAccess_token());
-        final UserSecurity userSecurity = userService.signupBySocial(multipartFile, kakaoProfile.getKakao_account().getEmail(), kakaoProfile.getId().toString(), LoginProvider.KAKAO, userProfileDto, phoneDto.getPhone());
+        final UserSecurity userSecurity = userService.signupByKakao(multipartFile, kakaoLoginRequest.getEmail(), kakaoProfile.getKakao_account().getEmail(),  kakaoProfile.getId().toString(), userProfileDto, phoneDto.getPhone());
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         phoneAuthService.delPhoneAuthTempToken(phoneDto.getPhone());
