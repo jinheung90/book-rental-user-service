@@ -99,6 +99,7 @@ public class UserService {
         return true;
     }
 
+    @Transactional
     public UserSecurity signinByKakao(String socialId) {
         return this.userSecurityRepository.findBySocialMemberIdAndProvider(socialId, LoginProvider.KAKAO)
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER));
@@ -111,6 +112,7 @@ public class UserService {
         return true;
     }
 
+    @Transactional
     public UserSecurity signupByKakao(MultipartFile file, String inputEmail, String kakaoEmail, String socialId,  UserProfileDto userProfileDto, String phoneNumber) {
         this.duplicatedNickname(userProfileDto.getNickName());
         this.findUserBySocialLogin(socialId, LoginProvider.KAKAO)
@@ -143,6 +145,7 @@ public class UserService {
         return user;
     }
 
+    @Transactional
     public UserProfile saveUserProfile(UserProfileDto userProfileDto, MultipartFile profileImage, User user) {
 
         UserProfile userProfile = UserProfile.builder()
