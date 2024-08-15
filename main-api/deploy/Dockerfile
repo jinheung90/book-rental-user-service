@@ -15,5 +15,5 @@ ENV BASE_PORT 8080
 ENV BASE_PATH /home/ec2-user
 ENV CURRENT_DEPLOY_JAR deploy.jar
 COPY /deploy.jar /deploy.jar
-ARG APP_ENV
+ARG APP_ENV=dev
 CMD java -jar -Dspring.profiles.active=$APP_ENV deploy.jar 2>&1
