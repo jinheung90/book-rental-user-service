@@ -16,4 +16,4 @@ ENV BASE_PATH /home/ec2-user
 ENV CURRENT_DEPLOY_JAR deploy.jar
 COPY /deploy.jar /deploy.jar
 
-CMD nohup java -jar -Dspring.profiles.active=prod deploy.jar 1>>stdout.json 2>>stderr.json &
+CMD java -jar -Dspring.profiles.active=prod deploy.jar 1>>stdout.json 2>>stderr.json
