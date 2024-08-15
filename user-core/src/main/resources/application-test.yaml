@@ -1,6 +1,5 @@
 spring:
-  profiles:
-    active: test
+
   datasource:
     username: root
     password: 1234
@@ -22,10 +21,11 @@ server:
       directory: logs
     basedir: .
 kakao-auth:
-  rest-api-key: aaa
-  redirect-uri: bbb
+  rest-api-key: ccc
+  client-secret: ddd
+  redirect-uri: fff
 token:
-  access-token-secret: awey34634561235GWSDGVdsgvdsfhyfasdzehgysurhrt232t6347yetseryesrytasrgdasdrgvbasdfgbaedsfrghaewrgaewrghaerghaerha34qw67abcd
+  access-token-secret: 7chXhUO+kHk29rl1Ou9y6r3FFYSFj6dy123123123123
   refresh-token-expired: 1209600
   access-token-expired: 1209600
   issuer: team

@@ -1,6 +1,7 @@
 package com.example.project.util;
 
-import com.example.project.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
+import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
+import com.example.project.common.util.CommonFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -34,5 +35,11 @@ class CommonFunctionTest {
             final int value = CommonFunction.getRandomNumber6Digit();
             Assertions.assertFalse(value < 100000 || value > 999999);
         }
+    }
+
+    @Test
+    void phoneRegexTest() {
+        Assertions.assertDoesNotThrow(() -> CommonFunction.matchPhoneRegex("01031230851"));
+        Assertions.assertThrows(RuntimeExceptionWithCode.class, () -> CommonFunction.matchPhoneRegex("1231245"));
     }
 }
