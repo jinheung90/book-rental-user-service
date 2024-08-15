@@ -27,7 +27,7 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
-    show-sql: true
+    show-sql: false
   data:
     redis:
       port: 6379
