@@ -24,6 +24,7 @@ import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -32,8 +33,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -49,7 +48,7 @@ public class UserController {
     private final SnsSender snsSender;
 
     @PostMapping(
-        value = "/signUp/email",
+        value = "/signup/email",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @Operation(summary = "회원가입")
@@ -75,7 +74,7 @@ public class UserController {
     }
 
     @PostMapping(
-            value = "/signUp/kakao",
+            value = "/signup/kakao",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     @Operation(summary = "회원가입 카카오")
@@ -102,7 +101,7 @@ public class UserController {
         );
     }
 
-    @PostMapping("/signIn/email")
+    @PostMapping("/signin/email")
     @Operation(summary = "로그인")
     public ResponseEntity<LoginResponse> signIn(
             @RequestBody EmailSignInRequest emailSignInRequest
@@ -120,7 +119,7 @@ public class UserController {
         );
     }
 
-    @PostMapping("/signIn/kakao")
+    @PostMapping("/signin/kakao")
     @Operation(summary = "로그인 카카오")
     public ResponseEntity<LoginResponse> signIn(
             @RequestBody KakaoLoginRequest kakaoLoginRequest
