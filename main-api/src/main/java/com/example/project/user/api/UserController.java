@@ -186,7 +186,7 @@ public class UserController {
         return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));
     }
 
-    @PostMapping(value = "/profile/verify/nickname")
+    @GetMapping(value = "/profile/verify/nickname")
     @Operation(summary = "닉네임 중복 확인", description = "success: true")
     public ResponseEntity<Map<String, Object>> verifyNickname(
             @RequestParam(name = "nickname") String nickname
