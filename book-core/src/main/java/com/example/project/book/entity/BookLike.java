@@ -20,7 +20,7 @@ public class BookLike {
     @Column(name = "user_id")
     private Long userId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_book_id")
     private UserBook userBook;
 }

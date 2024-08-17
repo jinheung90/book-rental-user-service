@@ -28,7 +28,7 @@ public class BookService {
     private final UserBookQuery userBookQuery;
 
     @Transactional(readOnly = true)
-    public Page<UserBookDto> pageBooks(PageRequest pageRequest, String name, Long userId) {
+    public Page<UserBookDto> searchUserBooks(PageRequest pageRequest, String name, Long userId) {
         List<UserBook> userBooks = userBookQuery.searchUserBook(pageRequest, name, userId);
         List<UserBookDto> userBookDtos = userBooks.stream().map(UserBookDto::fromEntity).toList();
         return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, userId));

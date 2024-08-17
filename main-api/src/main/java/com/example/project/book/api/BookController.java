@@ -2,8 +2,10 @@ package com.example.project.book.api;
 
 
 
+import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.entity.BookLikeCache;
 import com.example.project.book.service.BookLikeCacheService;
+import com.example.project.common.util.ResponseBody;
 import com.example.project.user.dto.UserProfileDto;
 
 import com.example.project.user.security.CustomUserDetail;
@@ -19,6 +21,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +36,8 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping
+@Slf4j
 public class BookController {
 
     private final BookService bookService;
@@ -40,7 +45,7 @@ public class BookController {
     private final UserService userService;
     private final BookLikeCacheService bookLikeCacheService;
 
-    @GetMapping("/books/search")
+    @GetMapping("/book/search")
     public ResponseEntity<Page<SearchBookDto>> searchBooks(
             @Parameter(description = "페이지")
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
@@ -57,7 +62,7 @@ public class BookController {
     ) {
         // TODO 검색 엔진으로 변경
         PageRequest pageRequest = PageRequest.of(page, size);
-        final Page<UserBookDto> searchResult = bookService.pageBooks(pageRequest, name, userId);
+        final Page<UserBookDto> searchResult = bookService.searchUserBooks(pageRequest, name, userId);
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
         final List<SearchBookDto> result = searchResult.getContent().stream()
@@ -73,5 +78,15 @@ public class BookController {
             @AuthenticationPrincipal CustomUserDetail customUserDetail) {
         final BookLikeCache bookLikeCache = bookLikeCacheService.setBookLike(customUserDetail.getPK(), userBookId);
         return ResponseEntity.ok(bookLikeCache);
+    }
+
+    @GetMapping("/book/search/naver")
+    public ResponseEntity<NaverBookSearchDto> searchBooksFromNaver(
+            @RequestParam(name = "start", defaultValue = "1") int start,
+            @RequestParam(name = "display", defaultValue = "10") int display,
+            @RequestParam(name = "name") String name
+    ){
+        final NaverBookSearchDto result = naverBookSearchClient.getBooksFromName(start, display, name);
+        return ResponseEntity.ok(result);
     }
 }

@@ -44,7 +44,7 @@ public class UserBook {
     @OrderBy("imageOrder asc")
     private List<UserBookImage> images;
 
-    @Column(columnDefinition = "integer DEFAULT 0")
+    @Column
     private boolean activity = true;
 
     @CreationTimestamp

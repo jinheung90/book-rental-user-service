@@ -27,6 +27,7 @@ public enum GlobalErrorCode implements IErrorCode {
     PHONE_AUTH_NUM_NOT_MATCH("phone auth not match",400),
     NOT_SUPPORT_LOGIN_PROVIDER("not support provider", 400),
     SEVER_ERROR("server error", 500),
+    NAVER_API_FAIL("naver api fail", 500),
     ;
 
     private String message;
