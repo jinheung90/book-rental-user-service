@@ -31,6 +31,8 @@ public class NaverBookSearchClient {
 
     private static final String CLIENT_ID_HEADER_NAME = "X-Naver-Client-Id";
     private static final String CLIENT_SECRET_HEADER_NAME = "X-Naver-Client-Secret";
+    private static final String TITLE_START_TEXT = "<item><title>";
+    private static final String TITLE_END_TEXT = "</title>";
 
     public NaverBookSearchDto getBooksFromName(int start, int display, String name) {
 
@@ -63,5 +65,46 @@ public class NaverBookSearchClient {
             log.error(jsonStr);
             throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, "string to json parse fail");
         }
+    }
+
+    public String searchBookByIsbnAndGetTitle(Long isbn) {
+
+        UriComponents uri = UriComponentsBuilder
+                .fromUriString("https://openapi.naver.com/v1/search/book_adv.xml")
+                .queryParam("query", "")
+                .queryParam("display", 10)
+                .queryParam("start", 1)
+                .queryParam("d_isbn", String.valueOf(isbn))
+                .encode()
+                .build();
+
+        RequestEntity requestEntity = RequestEntity.get(uri.toUri())
+                .header(CLIENT_ID_HEADER_NAME, clientId)
+                .header(CLIENT_SECRET_HEADER_NAME, clientSecret)
+                .build();
+        ResponseEntity<String> response = restTemplate.exchange(requestEntity, String.class);
+        String xmlStr = response.getBody();
+
+        log.info(xmlStr);
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            log.error(response.toString());
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, xmlStr);
+        }
+
+        if(xmlStr == null || xmlStr.isBlank()) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, "body is empty");
+        }
+
+        int pos = xmlStr.indexOf(TITLE_START_TEXT);
+
+        if(pos == -1) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, "not exists item");
+        }
+
+        xmlStr = xmlStr.substring(pos + TITLE_START_TEXT.length());
+
+        int endPos = xmlStr.indexOf(TITLE_END_TEXT);
+        return xmlStr.substring(0, endPos);
     }
 }
