@@ -187,12 +187,21 @@ public class UserController {
         return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));
     }
 
-    @PostMapping(value = "/profile/verify/nickname")
+    @PostMapping(value = "/verify/nickname")
     @Operation(summary = "닉네임 중복 확인", description = "success: true")
     public ResponseEntity<Map<String, Object>> verifyNickname(
             @RequestParam(name = "nickname") String nickname
     ) {
         userService.duplicatedNickname(nickname);
+        return ResponseEntity.ok(ResponseBody.successResponse());
+    }
+
+    @PostMapping(value = "/verify/email")
+    @Operation(summary = "이메일 중복 확인", description = "success: true")
+    public ResponseEntity<Map<String, Object>> verifyEmail(
+            @RequestParam(name = "email") String email
+    ) {
+        userService.duplicatedEmail(email);
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
 

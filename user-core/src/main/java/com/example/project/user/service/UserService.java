@@ -44,14 +44,22 @@ public class UserService {
         return userSecurityRepository.findBySocialMemberIdAndProvider(socialId, loginProvider);
     }
 
+    @Transactional(readOnly = true)
     public boolean existsUserByPhone(String phone) {
         return userRepository.existsByPhone(phone);
+    }
+
+    public void duplicatedEmail(String email) {
+        this.verifyEmail(email);
+        if(userRepository.existsByEmail(email)) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.EXISTS_USER, "이메일 중복");
+        }
     }
 
     @Transactional
     public UserSecurity signupByEmail(MultipartFile file, String email, String password, UserProfileDto userProfileDto, String phoneNumber) {
         this.verifyPassword(password);
-        this.verifyEmail(email);
+        this.duplicatedEmail(email);
         this.duplicatedNickname(userProfileDto.getNickName());
         final User user = this.saveUser(email, phoneNumber);
         final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
@@ -84,13 +92,13 @@ public class UserService {
         userSecurity.getUser().inactive();
     }
 
-
     public boolean duplicatedNicknameNotMe(String nickname, Long userId) {
         if(userProfileRepository.existsByNickNameAndUserIdNot(nickname, userId)) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.EXIST_NICKNAME);
         }
         return true;
     }
+
 
     public boolean duplicatedNickname(String nickname) {
         if(userProfileRepository.existsByNickName(nickname)) {
@@ -213,6 +221,4 @@ public class UserService {
                 .stream().map(UserProfileDto::fromEntity)
                 .collect(Collectors.toMap(UserProfileDto::getId, userProfileDto -> userProfileDto));
     }
-
-
 }
