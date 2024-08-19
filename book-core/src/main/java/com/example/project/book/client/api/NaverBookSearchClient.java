@@ -2,11 +2,12 @@ package com.example.project.book.client.api;
 
 import com.example.project.book.client.dto.NaverBookSearchDto;
 
+import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
 import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,10 +54,7 @@ public class NaverBookSearchClient {
         ResponseEntity<String> response = restTemplate.exchange(requestEntity, String.class);
         String jsonStr = response.getBody();
 
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            log.error(response.toString());
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, jsonStr);
-        }
+        this.isSuccessful(response);
 
         try {
             return new ObjectMapper().readValue(response.getBody(), NaverBookSearchDto.class);
@@ -67,7 +65,7 @@ public class NaverBookSearchClient {
         }
     }
 
-    public String searchBookByIsbnAndGetTitle(Long isbn) {
+    public NaverDetailBookDto searchBookByIsbn(Long isbn) {
 
         UriComponents uri = UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com/v1/search/book_adv.xml")
@@ -87,24 +85,21 @@ public class NaverBookSearchClient {
 
         log.info(xmlStr);
 
+        this.isSuccessful(response);
+        ObjectMapper xmlMapper = new XmlMapper();
+
+        try {
+            return xmlMapper.readValue(response.getBody(), NaverDetailBookDto.class);
+        } catch (JsonProcessingException e) {
+            log.error(e.getLocalizedMessage());
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, "string to xml parse fail");
+        }
+    }
+
+    private void isSuccessful(ResponseEntity<String> response) {
         if (!response.getStatusCode().is2xxSuccessful()) {
             log.error(response.toString());
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, xmlStr);
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, response.getBody());
         }
-
-        if(xmlStr == null || xmlStr.isBlank()) {
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, "body is empty");
-        }
-
-        int pos = xmlStr.indexOf(TITLE_START_TEXT);
-
-        if(pos == -1) {
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, "not exists item");
-        }
-
-        xmlStr = xmlStr.substring(pos + TITLE_START_TEXT.length());
-
-        int endPos = xmlStr.indexOf(TITLE_END_TEXT);
-        return xmlStr.substring(0, endPos);
     }
 }

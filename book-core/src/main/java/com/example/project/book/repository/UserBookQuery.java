@@ -40,7 +40,7 @@ public class UserBookQuery {
     }
 
     public <T> JPAQuery<T> searchName(JPAQuery<T> query, String name) {
-        if(Objects.nonNull(name) && !name.isBlank()) return query.where(book.name.contains(name));
+        if(Objects.nonNull(name) && !name.isBlank()) return query.where(book.title.contains(name));
         return query;
     }
 

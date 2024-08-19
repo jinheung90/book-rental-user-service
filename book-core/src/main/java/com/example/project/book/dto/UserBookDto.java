@@ -50,7 +50,7 @@ public class UserBookDto {
                                 UserBookImageDto::fromEntity
                         ).toList()
                 ).detail(userBook.getDetail())
-                .name(userBook.getBook().getName())
+                .name(userBook.getBook().getTitle())
                 .state(userBook.getState())
                 .build();
     }

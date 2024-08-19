@@ -3,10 +3,7 @@ package com.example.project.book.entity;
 
 import com.example.project.common.enums.BookRentalStateType;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -19,6 +16,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @Entity
 public class UserBook {
 
@@ -27,6 +25,9 @@ public class UserBook {
     private Long id;
 
     @Column
+    private String title;
+
+    @Column(length = 1023)
     private String detail;
 
     @Column(name = "state", length = 15, nullable = false)
@@ -43,6 +44,9 @@ public class UserBook {
     @BatchSize(size = 3)
     @OrderBy("imageOrder asc")
     private List<UserBookImage> images;
+
+    @OneToMany(mappedBy = "userBook")
+    private List<UserBookCategory> categories;
 
     @Column
     private boolean activity = true;

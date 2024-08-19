@@ -124,6 +124,19 @@ public class S3Uploader {
         }
     }
 
+    public String putUserBookImage(MultipartFile multipartFile, BucketType bucketType, String key) {
+        File convertedFile;
+        try {
+            String path = "/user_book/" + key;
+            convertedFile = convert(multipartFile);
+            String url = putS3(convertedFile, path, bucketType);
+            removeNewFile(convertedFile);
+            return url;
+        } catch (AmazonS3Exception | IOException e) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.S3_IMAGE_UPLOAD_ERROR, e.getMessage());
+        }
+    }
+
     private String putS3(InputStream is, String key, ObjectMetadata meta, BucketType bucketType) {
         amazonS3Client.putObject(new PutObjectRequest(this.getBucketRealName(bucketType), key, is, meta)
                 .withCannedAcl(CannedAccessControlList.PublicRead));

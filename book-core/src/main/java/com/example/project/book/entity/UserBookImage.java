@@ -1,10 +1,7 @@
 package com.example.project.book.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DialectOverride;
 import org.hibernate.annotations.SQLRestriction;
@@ -16,6 +13,7 @@ import java.time.Instant;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @Entity
 public class UserBookImage {
 
@@ -40,4 +38,8 @@ public class UserBookImage {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    public void setImageOrder(Integer imageOrder) {
+        this.imageOrder = imageOrder;
+    }
 }

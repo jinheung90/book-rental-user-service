@@ -3,9 +3,11 @@ package com.example.project.book.api;
 
 
 import com.example.project.book.client.dto.NaverBookSearchDto;
+import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.entity.BookLikeCache;
+import com.example.project.book.entity.UserBook;
+import com.example.project.book.entity.UserBookImage;
 import com.example.project.book.service.BookLikeCacheService;
-import com.example.project.common.util.ResponseBody;
 import com.example.project.user.dto.UserProfileDto;
 
 import com.example.project.user.security.CustomUserDetail;
@@ -71,7 +73,6 @@ public class BookController {
         return ResponseEntity.ok(new PageImpl<>(result, pageRequest, searchResult.getTotalElements()));
     }
 
-
     @GetMapping("/book/like")
     public ResponseEntity<BookLikeCache> setBookLike(
             @RequestParam(name = "user_book_id") Long userBookId,
@@ -89,4 +90,5 @@ public class BookController {
         final NaverBookSearchDto result = naverBookSearchClient.getBooksFromName(start, display, name);
         return ResponseEntity.ok(result);
     }
+
 }
