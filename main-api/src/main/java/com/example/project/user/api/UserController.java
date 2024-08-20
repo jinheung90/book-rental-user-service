@@ -269,9 +269,6 @@ public class UserController {
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
 
-    @PostMapping(value = "/email")
-
-
     @DeleteMapping
     @Operation(summary = "회원 탈퇴", description = "success: true")
     @PreAuthorize("hasRole('ROLE_USER')")
