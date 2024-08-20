@@ -49,6 +49,31 @@ public class UserService {
         return userRepository.existsByPhone(phone);
     }
 
+    @Transactional(readOnly = true)
+    public User findUserByPhone(String phone) {
+        return userRepository.findOneWithAuthoritiesAndUserSecuritiesByPhone(phone)
+                .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER, " not exists user from phone"));
+    }
+
+    @Transactional(readOnly = true)
+    public UserSecurity findUserSecurityByPhoneAndEmailAndLoginProvider(String phone, String email, LoginProvider loginProvider) {
+        log.warn(phone, email);
+        log.warn(email);
+        return userSecurityRepository.findByUserPhoneAndEmailAndProvider(phone, email, loginProvider)
+                .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER, " not exists user from phone and email"));
+    }
+
+
+
+    @Transactional
+    public UserSecurity emailVerifyAndPasswordReset(String phone, String email, String password) {
+        CommonFunction.matchPasswordRegex(password);
+        log.info(email);
+        final UserSecurity userSecurity = findUserSecurityByPhoneAndEmailAndLoginProvider(phone, email, LoginProvider.EMAIL);
+        userSecurity.setPassword(passwordEncoder.encode(password));
+        return userSecurity;
+    }
+
     public void duplicatedEmail(String email) {
         this.verifyEmail(email);
         if(userRepository.existsByEmail(email)) {

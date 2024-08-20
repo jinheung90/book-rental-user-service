@@ -15,7 +15,7 @@ public class CommonFunction {
 
     public static void matchPasswordRegex(String password) {
         if(!password.matches(PASSWORD_REGEX)) {
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.PASSWORD_NOT_MATCH);
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.PASSWORD_NOT_MATCH, password);
         }
     }
 
