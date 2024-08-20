@@ -3,7 +3,7 @@ package com.example.project.user.api;
 
 import com.example.project.book.service.BookService;
 import com.example.project.common.aws.sns.SnsSender;
-import com.example.project.common.enums.LoginProvider;
+
 import com.example.project.common.util.CommonFunction;
 import com.example.project.common.util.ResponseBody;
 import com.example.project.user.client.api.KakaoAuthApiClient;
@@ -25,7 +25,7 @@ import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +35,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -253,7 +251,7 @@ public class UserController {
         return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));
     }
 
-    @PostMapping(value = "/verify/nickname")
+    @GetMapping(value = "/verify/nickname")
     @Operation(summary = "닉네임 중복 확인", description = "success: true")
     public ResponseEntity<Map<String, Object>> verifyNickname(
             @RequestParam(name = "nickname") String nickname
@@ -262,7 +260,7 @@ public class UserController {
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
 
-    @PostMapping(value = "/verify/email")
+    @GetMapping(value = "/verify/email")
     @Operation(summary = "이메일 중복 확인", description = "success: true")
     public ResponseEntity<Map<String, Object>> verifyEmail(
             @RequestParam(name = "email") String email
