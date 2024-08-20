@@ -44,14 +44,47 @@ public class UserService {
         return userSecurityRepository.findBySocialMemberIdAndProvider(socialId, loginProvider);
     }
 
+    @Transactional(readOnly = true)
     public boolean existsUserByPhone(String phone) {
         return userRepository.existsByPhone(phone);
+    }
+
+    @Transactional(readOnly = true)
+    public User findUserByPhone(String phone) {
+        return userRepository.findOneWithAuthoritiesAndUserSecuritiesByPhone(phone)
+                .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER, " not exists user from phone"));
+    }
+
+    @Transactional(readOnly = true)
+    public UserSecurity findUserSecurityByPhoneAndEmailAndLoginProvider(String phone, String email, LoginProvider loginProvider) {
+        log.warn(phone, email);
+        log.warn(email);
+        return userSecurityRepository.findByUserPhoneAndEmailAndProvider(phone, email, loginProvider)
+                .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER, " not exists user from phone and email"));
+    }
+
+
+
+    @Transactional
+    public UserSecurity emailVerifyAndPasswordReset(String phone, String email, String password) {
+        CommonFunction.matchPasswordRegex(password);
+        log.info(email);
+        final UserSecurity userSecurity = findUserSecurityByPhoneAndEmailAndLoginProvider(phone, email, LoginProvider.EMAIL);
+        userSecurity.setPassword(passwordEncoder.encode(password));
+        return userSecurity;
+    }
+
+    public void duplicatedEmail(String email) {
+        this.verifyEmail(email);
+        if(userRepository.existsByEmail(email)) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.EXISTS_USER, "이메일 중복");
+        }
     }
 
     @Transactional
     public UserSecurity signupByEmail(MultipartFile file, String email, String password, UserProfileDto userProfileDto, String phoneNumber) {
         this.verifyPassword(password);
-        this.verifyEmail(email);
+        this.duplicatedEmail(email);
         this.duplicatedNickname(userProfileDto.getNickName());
         final User user = this.saveUser(email, phoneNumber);
         final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
@@ -84,13 +117,13 @@ public class UserService {
         userSecurity.getUser().inactive();
     }
 
-
     public boolean duplicatedNicknameNotMe(String nickname, Long userId) {
         if(userProfileRepository.existsByNickNameAndUserIdNot(nickname, userId)) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.EXIST_NICKNAME);
         }
         return true;
     }
+
 
     public boolean duplicatedNickname(String nickname) {
         if(userProfileRepository.existsByNickName(nickname)) {
@@ -216,6 +249,4 @@ public class UserService {
                 .stream().map(UserProfileDto::fromEntity)
                 .collect(Collectors.toMap(UserProfileDto::getId, userProfileDto -> userProfileDto));
     }
-
-
 }
