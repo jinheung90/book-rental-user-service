@@ -53,4 +53,7 @@ public class UserSecurity  {
     public void setSocialMemberId(String socialMemberId) {
         this.socialMemberId = socialMemberId;
     }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
