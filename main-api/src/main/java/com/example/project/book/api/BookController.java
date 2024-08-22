@@ -5,11 +5,8 @@ package com.example.project.book.api;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.UserBookLikeDto;
-import com.example.project.book.entity.BookLikeCache;
 import com.example.project.book.entity.UserBook;
-import com.example.project.book.entity.UserBookImage;
 import com.example.project.book.entity.UserBookLike;
-import com.example.project.book.service.BookLikeCacheService;
 import com.example.project.common.enums.BookSellType;
 import com.example.project.user.dto.UserProfileDto;
 
@@ -35,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

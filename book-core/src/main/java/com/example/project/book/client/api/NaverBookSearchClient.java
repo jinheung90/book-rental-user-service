@@ -32,8 +32,6 @@ public class NaverBookSearchClient {
 
     private static final String CLIENT_ID_HEADER_NAME = "X-Naver-Client-Id";
     private static final String CLIENT_SECRET_HEADER_NAME = "X-Naver-Client-Secret";
-    private static final String TITLE_START_TEXT = "<item><title>";
-    private static final String TITLE_END_TEXT = "</title>";
 
     public NaverBookSearchDto getBooksFromName(int start, int display, String name) {
 

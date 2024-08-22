@@ -2,21 +2,20 @@ package com.example.project.book.dto;
 
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.entity.UserBook;
-import com.example.project.book.entity.UserBookImage;
+
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
-import com.querydsl.core.annotations.QueryProjection;
+
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.userdetails.User;
+
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Getter
