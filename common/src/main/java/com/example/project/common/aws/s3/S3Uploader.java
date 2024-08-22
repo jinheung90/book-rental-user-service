@@ -1,5 +1,6 @@
 package com.example.project.common.aws.s3;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.*;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -20,6 +21,9 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Objects;
 
 @Slf4j
@@ -33,6 +37,9 @@ public class S3Uploader {
     private String profile;
 
     private final Environment environment;
+
+    private static final Long PRESIGNED_EXPIRED_SEC = 60 * 30L;
+    private static final String USER_BOOK_IMAGE_KEY_PREFIX = "user_book/";
 
     @PostConstruct
     public void init() {
@@ -54,12 +61,29 @@ public class S3Uploader {
                 .build();
     }
 
+    public String createPresignedUrl(String bucketName, String keyName) {
+        try {
+            Date expired = Date.from(
+                Instant.now().plusSeconds(PRESIGNED_EXPIRED_SEC)
+                    .atZone(ZoneId.of("Asia/Seoul")).toInstant()
+            );
+            return this.amazonS3Client.generatePresignedUrl(bucketName, keyName, expired, HttpMethod.PUT).toString();
+        } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.S3_IMAGE_UPLOAD_ERROR, "can't generate url");
+        }
+    }
+
+    public String createUserBookImagePresignedUrl(String keyName) {
+        return this.createPresignedUrl(getBucketRealName(BucketType.BOOK), USER_BOOK_IMAGE_KEY_PREFIX + keyName);
+    }
+
     public String getBucketRealName(BucketType bucketType) {
         return profile + '-' + bucketType.getName();
     }
 
-    public void deleteS3ByKey(String fileName, BucketType bucket) {
-        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(this.getBucketRealName(bucket), fileName);
+    public void deleteS3ByKey(String key, BucketType bucket) {
+        DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(this.getBucketRealName(bucket), key);
         amazonS3Client.deleteObject(deleteObjectRequest);
     }
 
@@ -124,23 +148,35 @@ public class S3Uploader {
         }
     }
 
-    public String putUserBookImage(MultipartFile multipartFile, BucketType bucketType, String key) {
-        File convertedFile;
-        try {
-            String path = "/user_book/" + key;
-            convertedFile = convert(multipartFile);
-            String url = putS3(convertedFile, path, bucketType);
-            removeNewFile(convertedFile);
-            return url;
-        } catch (AmazonS3Exception | IOException e) {
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.S3_IMAGE_UPLOAD_ERROR, e.getMessage());
-        }
-    }
-
     private String putS3(InputStream is, String key, ObjectMetadata meta, BucketType bucketType) {
         amazonS3Client.putObject(new PutObjectRequest(this.getBucketRealName(bucketType), key, is, meta)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
         return amazonS3Client.getUrl(this.getBucketRealName(bucketType), key).toString();
+    }
+
+    public void deleteByKey(BucketType bucketType, String key) {
+        amazonS3Client.deleteObject(this.getBucketRealName(bucketType), key);
+    }
+
+    public void deleteByKey(String bucketRealName, String key) {
+        amazonS3Client.deleteObject(bucketRealName, key);
+    }
+
+
+    public void deleteByUrl(BucketType bucketType, String url) {
+        String bucket = this.getBucketRealName(bucketType);
+        String key = getKeyByUrl(bucket, url);
+        deleteByKey(bucket, key);
+    }
+
+    public String getKeyByUrl(String bucket, String url) {
+        int index = url.indexOf(bucket);
+
+        return url.substring(index + bucket.length());
+    }
+
+    public void deleteUserBookImage(BucketType bucketType, String key) {
+        amazonS3Client.deleteObject(this.getBucketRealName(bucketType), USER_BOOK_IMAGE_KEY_PREFIX + "/" + key);
     }
 
     public String putS3ByBufferImage(BufferedImage bufferedImage, String key, BucketType bucketType) throws IOException {

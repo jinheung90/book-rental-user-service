@@ -4,10 +4,13 @@ package com.example.project.book.api;
 
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
+import com.example.project.book.dto.UserBookLikeDto;
 import com.example.project.book.entity.BookLikeCache;
 import com.example.project.book.entity.UserBook;
 import com.example.project.book.entity.UserBookImage;
+import com.example.project.book.entity.UserBookLike;
 import com.example.project.book.service.BookLikeCacheService;
+import com.example.project.common.enums.BookSellType;
 import com.example.project.user.dto.UserProfileDto;
 
 import com.example.project.user.security.CustomUserDetail;
@@ -30,7 +33,9 @@ import org.springframework.data.domain.PageRequest;
 
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,26 +50,27 @@ public class BookController {
     private final BookService bookService;
     private final NaverBookSearchClient naverBookSearchClient;
     private final UserService userService;
-    private final BookLikeCacheService bookLikeCacheService;
 
     @GetMapping("/book/search")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Page<SearchBookDto>> searchBooks(
             @Parameter(description = "페이지")
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @Parameter(description = "사이즈")
             @RequestParam(name = "size", defaultValue = "10", required = false) int size,
-            @Parameter(description = "정렬 (DESC, ASC)")
-            @RequestParam(name = "direction", defaultValue = "DESC", required = false) String direction,
             @Parameter(description = "정렬 키워드 (updatedAt) 추가 가능")
             @RequestParam(name = "sortKey", defaultValue = "updatedAt", required = false) String sortKey,
             @Parameter(description = "이름 (나중에는 키워드 검색 예정)")
             @RequestParam(name = "name", required = false) String name,
             @Parameter(description = "유저 아이디")
-            @RequestParam(name = "userId", required = false) Long userId
+            @RequestParam(name = "userId", required = false) Long userId,
+            @Parameter(description = "판매 가능 상태")
+            @RequestParam(name = "bookSellType", required = false, defaultValue = "BOTH") BookSellType bookSellType,
+            @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         // TODO 검색 엔진으로 변경
         PageRequest pageRequest = PageRequest.of(page, size);
-        final Page<UserBookDto> searchResult = bookService.searchUserBooks(pageRequest, name, userId);
+        final Page<UserBookDto> searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK());
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
         final List<SearchBookDto> result = searchResult.getContent().stream()
@@ -73,15 +79,57 @@ public class BookController {
         return ResponseEntity.ok(new PageImpl<>(result, pageRequest, searchResult.getTotalElements()));
     }
 
-    @GetMapping("/book/like")
-    public ResponseEntity<BookLikeCache> setBookLike(
+    @PutMapping("/book/like")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<UserBookLikeDto> setBookLike(
             @RequestParam(name = "user_book_id") Long userBookId,
             @AuthenticationPrincipal CustomUserDetail customUserDetail) {
-        final BookLikeCache bookLikeCache = bookLikeCacheService.setBookLike(customUserDetail.getPK(), userBookId);
-        return ResponseEntity.ok(bookLikeCache);
+        final UserBookLike result = bookService.updateUserBookLike(customUserDetail.getPK(), userBookId);
+        return ResponseEntity.ok(new UserBookLikeDto(result.getUserId(), result.getUserBook().getId(), result.isActivity(), result.getUpdatedAt()));
+    }
+
+    @GetMapping("/book/wish")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<Page<SearchBookDto>> getWishList(
+            @Parameter(description = "페이지")
+            @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+            @Parameter(description = "사이즈")
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        final Page<UserBookDto> userBookDtos = bookService.getPageWishUserBook(pageRequest);
+        final List<Long> userIds = userBookDtos.getContent().stream().map(UserBookDto::getUserId).toList();
+        final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
+        final List<SearchBookDto> searchBookDtos = userBookDtos.getContent().stream().map(userBookDto ->
+             new SearchBookDto(userBookDto, userProfileDtoMap.get(userBookDto.getUserId()))
+        ).toList();
+        return ResponseEntity.ok(new PageImpl<>(searchBookDtos, pageRequest, userBookDtos.getTotalElements()));
+    }
+
+    @PostMapping("/book")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<UserBookDto> uploadUserBook(
+            @RequestBody UserBookDto userBookDto,
+            @AuthenticationPrincipal CustomUserDetail customUserDetail
+    ) {
+        final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn());
+        final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, customUserDetail.getPK());
+        return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
+    }
+
+    @PutMapping("/book/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<UserBookDto> update(
+            @RequestBody UserBookDto userBookDto,
+            @AuthenticationPrincipal CustomUserDetail customUserDetail,
+            @PathVariable(name = "id") Long userBookId
+    ) {
+        final UserBook userBook = bookService.updateUserBook(userBookDto, customUserDetail.getPK(), userBookId);
+        return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
     @GetMapping("/book/search/naver")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<NaverBookSearchDto> searchBooksFromNaver(
             @RequestParam(name = "start", defaultValue = "1") int start,
             @RequestParam(name = "display", defaultValue = "10") int display,
@@ -90,5 +138,15 @@ public class BookController {
         final NaverBookSearchDto result = naverBookSearchClient.getBooksFromName(start, display, name);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/book/image/url")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<String> getPresignedUrl(
+            @AuthenticationPrincipal CustomUserDetail customUserDetail
+    ) {
+        return ResponseEntity.ok(this.bookService.getUserBookImagePresignedUrl(customUserDetail.getPK().toString()));
+    }
+
+
 
 }

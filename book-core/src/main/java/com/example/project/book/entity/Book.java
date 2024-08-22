@@ -17,7 +17,7 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
     @Column(unique = true)
@@ -26,22 +26,22 @@ public class Book {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
-    @Column
+    @Column(nullable = false)
     private String author;
 
-    @Column
+    @Column(nullable = false)
     private Long pubdate;
 
-    @Column
+    @Column(nullable = false)
     private Long discount;
 
-    @Column
+    @Column(nullable = false)
     private String publisher;
 
-    @Column
+    @Column(nullable = false)
     private String description;
 
-    @Column(length = 500)
+    @Column(length = 1023, nullable = false)
     private String link;
 
     @OneToMany(mappedBy = "book")

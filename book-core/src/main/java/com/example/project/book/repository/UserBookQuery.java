@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.example.project.book.entity.QUserBook.userBook;
+import static com.example.project.book.entity.QUserBookLike.userBookLike;
 import static com.example.project.book.entity.QBook.book;
 
 
@@ -28,7 +29,7 @@ public class UserBookQuery {
         JPAQuery<UserBook> query = jpaQueryFactory.selectFrom(userBook)
                 .innerJoin(userBook.book, book)
                 .fetchJoin()
-                .where(userBook.state.eq(BookRentalStateType.AVAILABLE))
+                .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE))
                 .where(userBook.activity.isTrue())
                 .orderBy(userBook.updatedAt.desc())
                 .offset(pageRequest.getOffset())
@@ -36,6 +37,19 @@ public class UserBookQuery {
 
         query = this.searchName(query, name);
         query = this.searchUserId(query, userId);
+        return query.fetch();
+    }
+
+    public List<UserBook> getWishList(PageRequest pageRequest) {
+        JPAQuery<UserBook> query = jpaQueryFactory.selectFrom(userBook)
+                .innerJoin(userBook, userBookLike.userBook)
+                .fetchJoin()
+                .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE))
+                .where(userBookLike.activity.isTrue())
+                .where(userBook.activity.isTrue())
+                .orderBy(userBook.updatedAt.desc())
+                .offset(pageRequest.getOffset())
+                .limit(pageRequest.getPageSize());
         return query.fetch();
     }
 
@@ -52,9 +66,19 @@ public class UserBookQuery {
     public Long countSearchUserBook(String name, Long userId) {
         JPAQuery<Long> query = jpaQueryFactory.select(userBook.count())
                 .from(userBook)
-                .where(userBook.state.eq(BookRentalStateType.AVAILABLE));
+                .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE));
         query = this.searchName(query, name);
         query = this.searchUserId(query, userId);
+        return query.fetchFirst();
+    }
+
+    public Long countWishList() {
+        JPAQuery<Long> query = jpaQueryFactory.select(userBook.count())
+            .from(userBook)
+            .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE))
+            .where(userBookLike.activity.isTrue())
+            .where(userBook.activity.isTrue())
+            .orderBy(userBook.updatedAt.desc());
         return query.fetchFirst();
     }
 }

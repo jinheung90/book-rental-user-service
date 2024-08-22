@@ -3,6 +3,9 @@ spring:
     active: local
 ---
 spring:
+  config:
+    activate:
+      on-profile: prod
   cloud:
     aws:
       parameterstore:
@@ -11,9 +14,6 @@ spring:
         instance-profile: true
     s3:
       region: ap-northeast-2
-  config:
-    activate:
-      on-profile: prod
     import: aws-parameterstore:/config/bookRental/user_${spring.profiles.active}/
   datasource:
     username: ${db-name}
