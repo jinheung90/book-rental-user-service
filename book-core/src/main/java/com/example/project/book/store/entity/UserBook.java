@@ -118,22 +118,4 @@ public class UserBook {
     public void setImages(List<UserBookImage> userBookImages) {
         this.images = userBookImages;
     }
-
-    public static UserBookDto toDto(UserBook userBook) {
-        return UserBookDto.builder()
-                .id(userBook.getId())
-                .userId(userBook.getUserId())
-                .userBookImageDtos(
-                        userBook.getImages().stream().map(
-                                UserBookImageDto::fromEntity
-                        ).toList()
-                ).detail(userBook.getDetail())
-                .title(userBook.getBook().getTitle())
-                .bookInfo(userBook.getBook().)
-                .rentPrice(userBook.getRentPrice())
-                .sellPrice(userBook.getSellPrice())
-                .bookSellType(userBook.getBookSellType())
-                .rentState(userBook.getRentState())
-                .build();
-    }
 }
