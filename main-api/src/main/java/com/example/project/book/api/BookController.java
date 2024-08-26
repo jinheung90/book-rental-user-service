@@ -5,8 +5,9 @@ package com.example.project.book.api;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.UserBookLikeDto;
-import com.example.project.book.entity.UserBook;
-import com.example.project.book.entity.UserBookLike;
+import com.example.project.book.search.service.BookSearchService;
+import com.example.project.book.store.entity.UserBook;
+import com.example.project.book.store.entity.UserBookLike;
 import com.example.project.common.enums.BookSellType;
 import com.example.project.user.dto.UserProfileDto;
 
@@ -16,7 +17,7 @@ import com.example.project.book.client.api.NaverBookSearchClient;
 
 import com.example.project.book.dto.SearchBookDto;
 import com.example.project.book.dto.UserBookDto;
-import com.example.project.book.service.BookService;
+import com.example.project.book.store.service.BookService;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
@@ -46,6 +47,7 @@ public class BookController {
     private final BookService bookService;
     private final NaverBookSearchClient naverBookSearchClient;
     private final UserService userService;
+    private final BookSearchService bookSearchService;
 
     @GetMapping("/book/search")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -66,13 +68,23 @@ public class BookController {
     ) {
         // TODO 검색 엔진으로 변경
         PageRequest pageRequest = PageRequest.of(page, size);
-        final Page<UserBookDto> searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK());
+        Page<UserBookDto> searchResult = null;
+
+        try {
+            searchResult = bookSearchService.searchUserBooks();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK());
+        }
+
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
-        final List<SearchBookDto> result = searchResult.getContent().stream()
+
+        List<SearchBookDto> resultDto = searchResult.getContent().stream()
                 .map(userBookDto -> new SearchBookDto(userBookDto, userProfileDtoMap.get(userBookDto.getUserId())))
                 .toList();
-        return ResponseEntity.ok(new PageImpl<>(result, pageRequest, searchResult.getTotalElements()));
+
+        return ResponseEntity.ok(new PageImpl<>(resultDto, pageRequest, searchResult.getTotalElements()));
     }
 
     @PutMapping("/book/like")
@@ -137,12 +149,19 @@ public class BookController {
 
     @GetMapping("/book/image/url")
     @PreAuthorize("hasRole('ROLE_USER')")
+
     public ResponseEntity<String> getPresignedUrl(
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         return ResponseEntity.ok(this.bookService.getUserBookImagePresignedUrl(customUserDetail.getPK().toString()));
     }
 
-
-
+    @GetMapping("/book/naver/{id}")
+    public ResponseEntity<NaverBookSearchDto.Item> getStoredNaverBook(
+            @PathVariable(name = "id") Long bookId
+    ) {
+        return ResponseEntity.ok(
+            NaverBookSearchDto.Item.fromBook(this.bookService.findBookById(bookId))
+        );
+    }
 }

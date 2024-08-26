@@ -1,6 +1,6 @@
 package com.example.project.book.client.dto;
 
-import com.example.project.book.entity.Book;
+import com.example.project.book.store.entity.Book;
 import lombok.*;
 
 import java.util.List;
@@ -47,6 +47,4 @@ public class NaverBookSearchDto {
                     .build();
         }
     }
-
-
 }

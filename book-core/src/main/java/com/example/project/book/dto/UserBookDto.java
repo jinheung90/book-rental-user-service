@@ -1,8 +1,9 @@
 package com.example.project.book.dto;
 
 import com.example.project.book.client.dto.NaverBookSearchDto;
-import com.example.project.book.entity.UserBook;
+import com.example.project.book.store.entity.UserBook;
 
+import com.example.project.book.store.entity.UserBookLike;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
 
@@ -75,6 +76,14 @@ public class UserBookDto {
                 .bookSellType(userBook.getBookSellType())
                 .rentState(userBook.getRentState())
                 .build();
+    }
+
+    public static UserBookDto whenSearch(UserBook userBook, UserBookLike userBookLike) {
+        UserBookDto userBookDto = UserBookDto.fromEntity(userBook);
+        if(userBookLike != null && userBookLike.isActivity()) {
+            userBookDto.setBookLikeState(true);
+        }
+        return userBookDto;
     }
 
     public void setBookLikeState(boolean bookLikeState) {

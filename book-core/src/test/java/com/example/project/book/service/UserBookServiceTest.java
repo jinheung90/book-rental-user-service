@@ -1,15 +1,13 @@
 package com.example.project.book.service;
 
 
-import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.UserBookDto;
 import com.example.project.book.dto.UserBookImageDto;
-import com.example.project.book.entity.UserBook;
-import com.example.project.book.entity.UserBookImage;
-import com.example.project.book.repository.BookRepository;
-import com.example.project.book.repository.UserBookImageRepository;
-import com.example.project.book.repository.UserBookRepository;
-import com.example.project.common.aws.s3.BucketType;
+import com.example.project.book.store.entity.UserBook;
+import com.example.project.book.store.repository.BookRepository;
+import com.example.project.book.store.repository.UserBookImageRepository;
+import com.example.project.book.store.repository.UserBookRepository;
+import com.example.project.book.store.service.BookService;
 import com.example.project.common.aws.s3.S3Uploader;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
@@ -20,13 +18,10 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Optional;
 
 @Tag("unit")

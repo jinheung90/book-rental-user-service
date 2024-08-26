@@ -1,7 +1,7 @@
 package com.example.project.user.api;
 
 
-import com.example.project.book.service.BookService;
+import com.example.project.book.store.service.BookService;
 import com.example.project.common.aws.sns.SnsSender;
 
 import com.example.project.common.util.CommonFunction;

@@ -1,10 +1,8 @@
 package com.example.project.book.dto;
 
-import com.example.project.book.entity.UserBookImage;
-import com.example.project.common.enums.BookRentalStateType;
+import com.example.project.book.store.entity.UserBookImage;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,9 +13,11 @@ public class UserBookImageDto {
 
     @Schema(description = "id")
     private Long id;
+
     @Schema(description = "이미지 url")
     private String imageUrl;
-    @Schema(description = "순서 1~3")
+
+    @Schema(description = "순서 0~2")
     private Integer imageOrder;
 
     @QueryProjection
