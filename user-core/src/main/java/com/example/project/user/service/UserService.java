@@ -249,4 +249,20 @@ public class UserService {
                 .stream().map(UserProfileDto::fromEntity)
                 .collect(Collectors.toMap(UserProfileDto::getId, userProfileDto -> userProfileDto));
     }
+
+    @Transactional
+    public void dummyDataInsert() {
+        for (int i = 0; i < 500; i++) {
+            this.signupByEmail(
+                    null,
+                    "a" + i + CommonFunction.getRandomNumber6Digit() + "@gmail.com",
+                    "0890WLs03!",
+                    UserProfileDto.builder()
+                            .nickName(CommonFunction.generateUpperLettersAndNum(8))
+                            .address("test")
+                            .build(),
+                    "0101" + i + CommonFunction.getRandomNumber6Digit()
+                    );
+        }
+    }
 }

@@ -277,6 +277,14 @@ public class UserController {
     ) {
         userService.withdrawUser(customUserDetail.getPK());
         bookService.inactiveUserBooks(customUserDetail.getPK());
+
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
+
+    @GetMapping("dummy")
+    public ResponseEntity<Map> testDummyData() {
+        userService.dummyDataInsert();
+        return ResponseEntity.ok(ResponseBody.successResponse());
+    }
+
 }
