@@ -54,15 +54,15 @@ public class UserController {
         value = "/signup/email",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    @Operation(summary = "회원가입")
+    @Operation(summary = "회원가입 (이메일)")
     public ResponseEntity<LoginResponse> signup(
-        @Parameter(description = "프로필 이미지 파일") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
-        @Parameter(description = "유저 비밀 정보", required = true) @RequestPart(name = "emailSignInRequest") EmailSignInRequest emailSignInRequest,
-        @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
-        @Parameter(description = "휴대폰 정보", required = true) @RequestPart(name = "phoneDto") PhoneDto phoneDto
+        EmailSignupRequest emailSignupRequest
     ) {
+        final PhoneDto phoneDto = emailSignupRequest.getPhoneDto();
+        final EmailSignInRequest emailSignInRequest = emailSignupRequest.getEmailSignInRequest();
+        final UserProfileDto userProfileDto = emailSignupRequest.getUserProfileDto();
         phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
-        final UserSecurity userSecurity = userService.signupByEmail(multipartFile, emailSignInRequest.getEmail(), emailSignInRequest.getPassword(), userProfileDto, phoneDto.getPhone());
+        final UserSecurity userSecurity = userService.signupByEmail(emailSignInRequest.getEmail(), emailSignInRequest.getPassword(), userProfileDto,  phoneDto.getPhone());
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         phoneAuthService.delPhoneAuthTempToken(phoneDto.getPhone());
@@ -90,7 +90,7 @@ public class UserController {
         phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
         final KakaoToken kakaoToken = kakaoAuthApiClient.getKakaoTokenFromAuthorizationCode(kakaoLoginRequest.getAuthorizationCode());
         final KakaoProfile kakaoProfile = kakaoAuthApiClient.fetchUserProfile(kakaoToken.getAccess_token());
-        final UserSecurity userSecurity = userService.signupByKakao(multipartFile, kakaoLoginRequest.getEmail(), kakaoProfile.getKakao_account().getEmail(),  kakaoProfile.getId().toString(), userProfileDto, phoneDto.getPhone());
+        final UserSecurity userSecurity = userService.signupByKakao(kakaoLoginRequest.getEmail(), kakaoProfile.getKakao_account().getEmail(),  kakaoProfile.getId().toString(), userProfileDto, phoneDto.getPhone());
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         phoneAuthService.delPhoneAuthTempToken(phoneDto.getPhone());
@@ -237,17 +237,16 @@ public class UserController {
         return ResponseEntity.ok().body(ResponseBody.successResponse());
     }
 
-    @PostMapping(value = "/profile",
+    @PutMapping(value = "/profile",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "회원 정보 수정")
     public ResponseEntity<UserProfileDto> updateUserProfile(
-            @Parameter(description = "유저 프로필 이미지") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
-            @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
+            @RequestBody UserProfileDto userProfileDto,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         final UserProfile userProfile =
-                userService.updateUserProfile(userProfileDto, multipartFile, customUserDetail.getPK());
+                userService.updateUserProfile(userProfileDto, customUserDetail.getPK());
         return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));
     }
 

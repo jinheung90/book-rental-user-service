@@ -82,12 +82,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserSecurity signupByEmail(MultipartFile file, String email, String password, UserProfileDto userProfileDto, String phoneNumber) {
+    public UserSecurity signupByEmail(String email, String password, UserProfileDto userProfileDto, String phoneNumber) {
         this.verifyPassword(password);
         this.duplicatedEmail(email);
         this.duplicatedNickname(userProfileDto.getNickName());
         final User user = this.saveUser(email, phoneNumber);
-        final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
+        final UserProfile userProfile = this.saveUserProfile(userProfileDto,  user);
         user.setUserProfile(userProfile);
         return this.saveUserSecurityWithEmail(user, password);
     }
@@ -146,14 +146,14 @@ public class UserService {
     }
 
     @Transactional
-    public UserSecurity signupByKakao(MultipartFile file, String inputEmail, String kakaoEmail, String socialId,  UserProfileDto userProfileDto, String phoneNumber) {
+    public UserSecurity signupByKakao(String inputEmail, String kakaoEmail, String socialId,  UserProfileDto userProfileDto, String phoneNumber) {
         this.duplicatedNickname(userProfileDto.getNickName());
         this.findUserBySocialLogin(socialId, LoginProvider.KAKAO)
                 .ifPresent(((userSecurity) -> {
                     throw new RuntimeExceptionWithCode(GlobalErrorCode.EXISTS_USER);
                 }));
         final User user = this.saveUser(inputEmail, phoneNumber);
-        final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
+        final UserProfile userProfile = this.saveUserProfile(userProfileDto, user);
         user.setUserProfile(userProfile);
         return this.saveUserSecurityWithSocial(user, kakaoEmail, socialId, LoginProvider.KAKAO);
     }
@@ -179,25 +179,20 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfile saveUserProfile(UserProfileDto userProfileDto, MultipartFile profileImage, User user) {
+    public UserProfile saveUserProfile(UserProfileDto userProfileDto, User user) {
 
         UserProfile userProfile = UserProfile.builder()
                 .user(user)
                 .address(userProfileDto.getAddress())
                 .nickName(userProfileDto.getNickName())
-                .profileImageUrl("")
+                .profileImageUrl(userProfileDto.getProfileImageUrl())
                 .build();
-
-        if(profileImage != null && !profileImage.isEmpty()) {
-            String url = this.uploadProfileImage(profileImage, user.getId());
-            userProfile.updateProfileImageUrl(url);
-        }
 
         return userProfileRepository.save(userProfile);
     }
 
     @Transactional
-    public UserProfile updateUserProfile(UserProfileDto userProfileDto, MultipartFile file, Long userId) {
+    public UserProfile updateUserProfile(UserProfileDto userProfileDto, Long userId) {
 
         final UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER));
@@ -205,11 +200,6 @@ public class UserService {
         if(!StringUtils.isNullOrEmpty(userProfileDto.getNickName())) {
             this.duplicatedNicknameNotMe(userProfileDto.getNickName(), userId);
             userProfile.setNickName(userProfileDto.getNickName());
-        }
-
-        if(file != null && !file.isEmpty()) {
-            String url = this.uploadProfileImage(file, userId);
-            userProfile.updateProfileImageUrl(url);
         }
 
         if(!StringUtils.isNullOrEmpty(userProfileDto.getAddress())) {

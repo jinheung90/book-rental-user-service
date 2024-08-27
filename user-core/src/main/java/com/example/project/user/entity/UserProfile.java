@@ -41,6 +41,9 @@ public class UserProfile {
     private Instant updatedAt;
 
     public void updateProfileImageUrl(String profileImageUrl) {
+        if(profileImageUrl == null || profileImageUrl.isBlank()) {
+            return;
+        }
         this.profileImageUrl = profileImageUrl;
     }
 
