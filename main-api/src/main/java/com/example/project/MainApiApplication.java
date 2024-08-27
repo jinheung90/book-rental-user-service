@@ -6,15 +6,11 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @SpringBootApplication
-@OpenAPIDefinition(servers = {
-        @Server(url = "https://book-service-prod.jin900920.com/api", description = "main"),
-        @Server(url = "http://localhost:8080/api", description = "local"),
-        @Server(url = "http://book-service-prod.jin900920.com:8080/api", description = "deploy test")
-})
-
 public class MainApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(MainApiApplication.class, args);

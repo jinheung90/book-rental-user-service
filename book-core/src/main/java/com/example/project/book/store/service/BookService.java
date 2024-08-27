@@ -1,6 +1,7 @@
 package com.example.project.book.store.service;
 
 import com.example.project.book.client.dto.NaverDetailBookDto;
+import com.example.project.book.dto.UserBookClickCountDto;
 import com.example.project.book.dto.UserBookDto;
 
 
@@ -24,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,7 @@ public class BookService {
     private final UserBookCategoryRepository userBookCategoryRepository;
     private final UserBookImageRepository userBookImageRepository;
     private final UserBookLikeRepository userBookLikeRepository;
+
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)

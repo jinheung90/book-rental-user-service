@@ -1,6 +1,5 @@
 package com.example.project.book.store.repository;
 
-
 import com.example.project.book.store.entity.UserBook;
 import com.example.project.common.enums.BookRentalStateType;
 
@@ -10,12 +9,13 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Objects;
 
-import static com.example.project.book.entity.QUserBook.userBook;
-import static com.example.project.book.entity.QUserBookLike.userBookLike;
-import static com.example.project.book.entity.QBook.book;
+import static com.example.project.book.store.entity.QUserBook.userBook;
+import static com.example.project.book.store.entity.QUserBookLike.userBookLike;
+import static com.example.project.book.store.entity.QBook.book;
 
 
 

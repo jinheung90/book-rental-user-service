@@ -9,6 +9,7 @@ import com.example.project.book.search.service.BookSearchService;
 import com.example.project.book.store.entity.UserBook;
 import com.example.project.book.store.entity.UserBookLike;
 import com.example.project.common.enums.BookSellType;
+import com.example.project.common.enums.BookSortType;
 import com.example.project.user.dto.UserProfileDto;
 
 import com.example.project.user.security.CustomUserDetail;
@@ -49,6 +50,7 @@ public class BookController {
     private final UserService userService;
     private final BookSearchService bookSearchService;
 
+
     @GetMapping("/book/search")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Page<SearchBookDto>> searchBooks(
@@ -57,7 +59,7 @@ public class BookController {
             @Parameter(description = "사이즈")
             @RequestParam(name = "size", defaultValue = "10", required = false) int size,
             @Parameter(description = "정렬 키워드 (updatedAt) 추가 가능")
-            @RequestParam(name = "sortKey", defaultValue = "updatedAt", required = false) String sortKey,
+            @RequestParam(name = "sortKey", defaultValue = "updatedAt", required = false) BookSortType sortKey,
             @Parameter(description = "이름 (나중에는 키워드 검색 예정)")
             @RequestParam(name = "name", required = false) String name,
             @Parameter(description = "유저 아이디")
@@ -71,7 +73,7 @@ public class BookController {
         Page<UserBookDto> searchResult = null;
 
         try {
-            searchResult = bookSearchService.searchUserBooks();
+            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId);
         } catch (Exception e) {
             log.error(e.getMessage());
             searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK());
@@ -87,13 +89,14 @@ public class BookController {
         return ResponseEntity.ok(new PageImpl<>(resultDto, pageRequest, searchResult.getTotalElements()));
     }
 
-    @PutMapping("/book/like")
+    @PutMapping("/book/{id}/like")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<UserBookLikeDto> setBookLike(
-            @RequestParam(name = "user_book_id") Long userBookId,
+            @PathVariable(name = "id") Long userBookId,
             @AuthenticationPrincipal CustomUserDetail customUserDetail) {
-        final UserBookLike result = bookService.updateUserBookLike(customUserDetail.getPK(), userBookId);
-        return ResponseEntity.ok(new UserBookLikeDto(result.getUserId(), result.getUserBook().getId(), result.isActivity(), result.getUpdatedAt()));
+        UserBookLike userBookLike = bookService.updateUserBookLike(customUserDetail.getPK(), userBookId);
+        bookSearchService.updateBookLikeCount(userBookId, userBookLike.isActivity());
+        return ResponseEntity.ok(new UserBookLikeDto(userBookLike.getUserId(), userBookLike.getUserBook().getId(), userBookLike.isActivity(), userBookLike.getUpdatedAt()));
     }
 
     @GetMapping("/book/wish")
@@ -122,6 +125,7 @@ public class BookController {
     ) {
         final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn());
         final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, customUserDetail.getPK());
+        bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto,customUserDetail.getPK());
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
@@ -133,6 +137,7 @@ public class BookController {
             @PathVariable(name = "id") Long userBookId
     ) {
         final UserBook userBook = bookService.updateUserBook(userBookDto, customUserDetail.getPK(), userBookId);
+        bookSearchService.updateUserBook(userBook.getId(), userBookDto);
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
@@ -149,7 +154,6 @@ public class BookController {
 
     @GetMapping("/book/image/url")
     @PreAuthorize("hasRole('ROLE_USER')")
-
     public ResponseEntity<String> getPresignedUrl(
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
@@ -163,5 +167,15 @@ public class BookController {
         return ResponseEntity.ok(
             NaverBookSearchDto.Item.fromBook(this.bookService.findBookById(bookId))
         );
+    }
+
+    @GetMapping("/book/{id}/detail")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<UserBookDto> getUserBookById(
+            @PathVariable(name = "id") Long userBookId,
+            @AuthenticationPrincipal CustomUserDetail customUserDetail
+    ) {
+        bookSearchService.saveUserClick(userBookId, customUserDetail.getPK());
+        return ResponseEntity.ok(UserBookDto.fromEntity(this.bookService.findUserBookById(userBookId)));
     }
 }
