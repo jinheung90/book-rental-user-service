@@ -3,7 +3,6 @@ package com.example.project.user.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
@@ -52,7 +51,7 @@ public class User {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @Column(name = "is_deleted", columnDefinition = "integer DEFAULT 0")
+    @Column(name = "is_deleted", nullable = false)
     @Builder.Default
     private boolean deleted = false;
 
