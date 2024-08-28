@@ -137,8 +137,7 @@ public class BookController {
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         SearchAddressDto addressDto = userBookDto.getAddress();
-        final KakaoAddressSearchDto kakaoAddressSearchDto = this.kakaoAddressSearchClient.findAllByAddress(addressDto.getAddressName());
-        final KakaoAddressSearchDto.Documents document = kakaoAddressSearchDto.getSameZoneNoFromDoc(addressDto.getZoneNo(), addressDto.getAddressName());
+        final KakaoAddressSearchDto.Documents document = this.kakaoAddressSearchClient.findOneByNameAndZoneNo(addressDto.getAddressName(), addressDto.getZoneNo());
         final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn());
         final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, customUserDetail.getPK(), addressDto);
         bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto, customUserDetail.getPK(), addressDto);

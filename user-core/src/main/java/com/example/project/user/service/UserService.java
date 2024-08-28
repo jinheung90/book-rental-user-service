@@ -3,6 +3,7 @@ package com.example.project.user.service;
 
 import com.example.project.address.RoadAddress;
 import com.example.project.user.client.dto.KakaoAddressSearchDto;
+import com.example.project.user.dto.UserAddressDto;
 import com.example.project.user.dto.UserProfileDto;
 import com.example.project.user.dto.UserSecurityDto;
 import com.example.project.user.entity.*;
@@ -10,6 +11,7 @@ import com.example.project.user.entity.*;
 import com.example.project.common.aws.s3.BucketType;
 import com.example.project.common.aws.s3.S3Uploader;
 import com.example.project.common.enums.LoginProvider;
+import com.example.project.user.enums.AddressType;
 import com.example.project.user.repository.UserAddressRepository;
 import com.example.project.user.repository.UserProfileRepository;
 import com.example.project.user.repository.UserRepository;
@@ -21,6 +23,7 @@ import com.querydsl.core.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -270,19 +273,26 @@ public class UserService {
         return s3Uploader.createUserProfileImagePreSignedUrl(UUID.randomUUID().toString());
     }
 
-    @Transactional
-    public void dummyDataInsert() {
-        for (int i = 0; i < 500; i++) {
-            this.signupByEmail(
-                    null,
+    @Async
+    public void dummyDataInsert(List<KakaoAddressSearchDto.Documents> documents, int size) {
+        for (int i = 0; i < size; i++) {
+            UserSecurity userSecurity = this.signupByEmail(
                     "a" + i + CommonFunction.getRandomNumber6Digit() + "@gmail.com",
                     "0890WLs03!",
                     UserProfileDto.builder()
                             .nickName(CommonFunction.generateUpperLettersAndNum(8))
-                            .address("test")
+                            .addresses(new ArrayList<>())
                             .build(),
-                    "0101" + i + CommonFunction.getRandomNumber6Digit()
+                    "0101" + i % 10 + CommonFunction.getRandomNumber6Digit()
                     );
+
+            User user = userSecurity.getUser();
+            List<KakaoAddressSearchDto.Documents> insertDoc = new ArrayList<>();
+            insertDoc.add(documents.get(new Random().nextInt(documents.size() - 1)));
+            this.updateUserAddress(user, insertDoc);
         }
     }
+
+
+
 }
