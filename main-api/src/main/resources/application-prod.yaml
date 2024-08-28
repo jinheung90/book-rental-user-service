@@ -1,8 +1,51 @@
 spring:
   cloud:
     aws:
+      parameterstore:
+        region: ap-northeast-2
       region:
+        instance-profile: true
         static: ap-northeast-2
+    s3:
+      region: ap-northeast-2
+    import: aws-parameterstore:/config/bookRental/user_${spring.profiles.active}/
+    datasource:
+      username: ${db-name}
+      password: ${db-password}
+      url: ${db-url}
+    jpa:
+      hibernate:
+        ddl-auto: none
+      #      ddl-auto: none
+      properties:
+        hibernate:
+          format_sql: true
+          dialect: org.hibernate.dialect.MySQLDialect
+      show-sql: false
+    data:
+      redis:
+        port: 6379
+        host: book-rental-cache-ro.v6ojg2.ng.0001.apn2.cache.amazonaws.com
+  kakao-auth:
+    rest-api-key: ${kakao-auth-rest-api-key}
+    client-secret: ${kakao-auth-secret}
+    redirect-uri: ${kakao-auth-redirect-uri}
+  naver:
+    client-id: ${naver-client-id}
+    client-secret: ${naver-client-secret}
+  token:
+    access-token-secret: ${access-token-secret}
+    refresh-token-expired: 1209600
+    access-token-expired: 1209600
+    issuer: team
+  elasticsearch:
+    uris: http://localhost:9200
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 8
+        queue-capacity: 500
 springdoc:
   swagger-ui:
     groups-order: DESC

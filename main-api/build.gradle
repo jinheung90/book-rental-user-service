@@ -1,10 +1,10 @@
 
 dependencies {
-    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.14.0'
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
+    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.15.0'
+    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-redis-spring', version: '5.15.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
 }
 

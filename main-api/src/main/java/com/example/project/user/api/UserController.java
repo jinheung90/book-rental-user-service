@@ -1,7 +1,8 @@
 package com.example.project.user.api;
 
 
-import com.example.project.book.service.BookService;
+import com.example.project.book.store.service.BookService;
+
 import com.example.project.common.aws.sns.SnsSender;
 
 import com.example.project.common.util.CommonFunction;
@@ -245,6 +246,7 @@ public class UserController {
             @RequestBody UserProfileDto userProfileDto,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
+
         final UserProfile userProfile =
                 userService.updateUserProfile(userProfileDto, customUserDetail.getPK());
         return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));

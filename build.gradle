@@ -138,7 +138,7 @@ project(":main-api") {
         implementation project(':user-core')
         implementation project(':user-cache-core')
         implementation project(':book-cache-core')
-//        implementation project(':book-search-core')
+        implementation project(':address-core')
         implementation project(':book-core')
         implementation project(':common')
     }
