@@ -38,7 +38,7 @@ public class User {
     @OrderBy("createdAt asc")
     private UserProfile userProfile;
 
-    @OneToMany(mappedBy = "userProfile")
+    @OneToMany(mappedBy = "user")
     private List<UserAddress> userAddress;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
