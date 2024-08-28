@@ -2,6 +2,7 @@ package com.example.project.user.api;
 
 
 import com.example.project.book.store.service.BookService;
+
 import com.example.project.common.aws.sns.SnsSender;
 
 import com.example.project.common.util.CommonFunction;
@@ -246,6 +247,7 @@ public class UserController {
             @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
+
         final UserProfile userProfile =
                 userService.updateUserProfile(userProfileDto, multipartFile, customUserDetail.getPK());
         return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));

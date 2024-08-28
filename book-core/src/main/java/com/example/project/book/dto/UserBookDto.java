@@ -53,6 +53,9 @@ public class UserBookDto {
     @Schema(description = "유저 아이디")
     private Long userId;
 
+    @Schema(description = "address")
+    private SearchAddressDto address;
+
     @Schema(description = "네이버 책 정보")
     private NaverBookSearchDto.Item bookInfo;
 
@@ -70,6 +73,15 @@ public class UserBookDto {
                         ).toList()
                 ).detail(userBook.getDetail())
                 .title(userBook.getBook().getTitle())
+                .address(
+                        new SearchAddressDto(
+                                userBook.getAddressId(),
+                                "",
+                                "",
+                                (double) 0,
+                                (double) 0
+                        )
+                )
                 .bookInfo(NaverBookSearchDto.Item.fromBook(userBook.getBook()))
                 .rentPrice(userBook.getRentPrice())
                 .sellPrice(userBook.getSellPrice())

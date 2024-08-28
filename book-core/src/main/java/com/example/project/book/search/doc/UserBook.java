@@ -12,10 +12,8 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.DateFormat;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import software.amazon.awssdk.services.ssm.endpoints.internal.Value;
 
 import java.math.BigDecimal;
@@ -81,6 +79,17 @@ public class UserBook {
     @Field(type = FieldType.Object)
     private Book book;
 
+    @Field(type = FieldType.Long)
+    private Long addressId;
+
+    @Field(type = FieldType.Text)
+    private String addressZoneNo;
+
+    @Field(type = FieldType.Text)
+    private String addressName;
+
+    @GeoPointField
+    private GeoPoint location;
 
     public void decreaseLikeCount() {
         if(likeCount <= 0L) {

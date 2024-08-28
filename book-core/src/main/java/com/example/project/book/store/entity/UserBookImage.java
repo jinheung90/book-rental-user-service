@@ -25,6 +25,9 @@ public class UserBookImage {
     @Column(name = "image_url", length = 1023, nullable = false)
     private String imageUrl;
 
+    @Column(name = "is_main")
+    private Boolean mainImage;
+
     @ManyToOne
     @JoinColumn(name = "user_book_id", nullable = false)
     private UserBook userBook;
@@ -39,5 +42,8 @@ public class UserBookImage {
 
     public void setImageOrder(Integer imageOrder) {
         this.imageOrder = imageOrder;
+    }
+    public void setMainImage(Boolean mainImage) {
+        this.mainImage = mainImage;
     }
 }

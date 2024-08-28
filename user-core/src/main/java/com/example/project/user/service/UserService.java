@@ -183,7 +183,6 @@ public class UserService {
 
         UserProfile userProfile = UserProfile.builder()
                 .user(user)
-                .address(userProfileDto.getAddress())
                 .nickName(userProfileDto.getNickName())
                 .profileImageUrl("")
                 .build();
@@ -210,10 +209,6 @@ public class UserService {
         if(file != null && !file.isEmpty()) {
             String url = this.uploadProfileImage(file, userId);
             userProfile.updateProfileImageUrl(url);
-        }
-
-        if(!StringUtils.isNullOrEmpty(userProfileDto.getAddress())) {
-            userProfile.setAddress(userProfile.getAddress());
         }
 
         return userProfile;

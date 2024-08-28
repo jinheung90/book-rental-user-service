@@ -59,7 +59,7 @@ public class UserBookServiceTest {
                 .detail("detail")
                 .title("title")
                 .userBookImageDtos(new ArrayList<>() {{
-                    add(new UserBookImageDto(1L, "imageurl", 0));
+                    add(new UserBookImageDto(1L, "imageurl", 0, true));
                 }})
                 .build();
         userBookDtoEmpty = UserBookDto.builder()
@@ -72,7 +72,7 @@ public class UserBookServiceTest {
                 .detail("")
                 .title("")
                 .userBookImageDtos(new ArrayList<>() {{
-                    add(new UserBookImageDto(1L, "imageurl", 0));
+                    add(new UserBookImageDto(1L, "imageurl", 0, false));
                 }})
                 .build();
 

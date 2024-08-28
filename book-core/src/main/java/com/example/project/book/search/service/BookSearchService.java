@@ -3,6 +3,7 @@ package com.example.project.book.search.service;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.example.project.book.client.dto.NaverDetailBookDto;
+import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookClickCountDto;
 import com.example.project.book.dto.UserBookDto;
 
@@ -18,6 +19,7 @@ import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import com.example.project.common.util.JamoSeparate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +39,8 @@ public class BookSearchService {
         UserBookDto userBookDto,
         Long userBookId,
         NaverDetailBookDto detailBookDto,
-        Long userId
+        Long userId,
+        SearchAddressDto addressDto
     ) {
         userBookESRepository.save(
             UserBook.builder()
@@ -49,6 +52,10 @@ public class BookSearchService {
                 .sellPrice(userBookDto.getSellPrice().intValue())
                 .title(userBookDto.getTitle())
                 .images(userBookDto.getUserBookImageDtos())
+                .addressId(addressDto.getId())
+                .addressName(addressDto.getAddressName())
+                .addressZoneNo(addressDto.getZoneNo())
+                .location(new GeoPoint(addressDto.getY(), addressDto.getX()))
                 .userId(userId)
                 .likeCount(0L)
                 .titleWordUnits(JamoSeparate.separate(userBookDto.getTitle()))

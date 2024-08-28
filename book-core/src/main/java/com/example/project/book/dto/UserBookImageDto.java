@@ -20,15 +20,20 @@ public class UserBookImageDto {
     @Schema(description = "순서 0~2")
     private Integer imageOrder;
 
+    @Schema(description = "메인 이미지")
+    private Boolean mainImage;
+
     @QueryProjection
     public UserBookImageDto(
             Long id,
             String imageUrl,
-            Integer imageOrder
+            Integer imageOrder,
+            Boolean mainImage
     ) {
         this.id = id;
         this.imageUrl = imageUrl;
         this.imageOrder = imageOrder;
+        this.mainImage = mainImage;
     }
 
     public static UserBookImageDto fromEntity(UserBookImage userBookImage) {
@@ -36,6 +41,7 @@ public class UserBookImageDto {
                 .imageUrl(userBookImage.getImageUrl())
                 .id(userBookImage.getId())
                 .imageOrder(userBookImage.getImageOrder())
+                .mainImage(userBookImage.getMainImage())
                 .build();
     }
 }

@@ -74,6 +74,9 @@ public class UserBook {
     @JoinColumn(name = "book_id")
     private Book book;
 
+    @Column(name = "address_id")
+    private Long addressId;
+
     public void inactive() {
         activity = false;
     }

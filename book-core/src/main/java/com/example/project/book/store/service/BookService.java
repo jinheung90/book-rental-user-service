@@ -1,6 +1,7 @@
 package com.example.project.book.store.service;
 
 import com.example.project.book.client.dto.NaverDetailBookDto;
+import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookClickCountDto;
 import com.example.project.book.dto.UserBookDto;
 
@@ -13,6 +14,7 @@ import com.example.project.common.aws.s3.BucketType;
 import com.example.project.common.aws.s3.S3Uploader;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
+import com.example.project.common.enums.BookSortType;
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
 import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -46,23 +48,25 @@ public class BookService {
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
-    public Page<UserBookDto> searchUserBooks(PageRequest pageRequest, String name, Long searchUserId, Long myUserId) {
-        List<UserBook> userBooks = userBookQuery.searchUserBook(pageRequest, name, searchUserId);
+    public Page<UserBookDto> searchUserBooks(PageRequest pageRequest, String name, Long searchUserId, Long myUserId, BookSellType bookSellType, BookSortType bookSortType) {
+        List<UserBook> userBooks = userBookQuery.searchUserBook(pageRequest, name, searchUserId, bookSellType, bookSortType);
         Map<Long, UserBookLike> likeMap = this.getBookLikesByIdInAndUserId(userBooks.stream().map(UserBook::getId).toList(), myUserId);
         List<UserBookDto> userBookDtos = userBooks.stream().map(
                 userBook -> UserBookDto.whenSearch(userBook, likeMap.get(userBook.getId()))
         ).toList();
-        return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, searchUserId));
+        return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, searchUserId, bookSellType));
     }
 
     @Transactional
     public UserBook registerUserBook(
             UserBookDto userBookDto,
             NaverDetailBookDto item,
-            Long userId
+            Long userId,
+            SearchAddressDto addressDto
     ) {
         Book book = this.findBookByIsbnOrElseSave(item);
-        return saveUserBook(userBookDto, book, userId);
+        checkMainImageCount(userBookDto.getUserBookImageDtos());
+        return saveUserBook(userBookDto, book, userId, addressDto);
     }
 
     @Transactional
@@ -85,8 +89,21 @@ public class BookService {
 
     @Transactional
     public List<UserBookImage> updateImages(List<UserBookImageDto> userBookImages, UserBook userBook) {
+        checkMainImageCount(userBookImages);
         this.deleteUserBookImages(userBook.getImages());
         return this.saveUserBookImages(userBookImages, userBook);
+    }
+
+    public void checkMainImageCount(List<UserBookImageDto> userBookImages) {
+        int count = 0;
+        for (UserBookImageDto image : userBookImages) {
+            if(image.getMainImage()) {
+                count++;
+            }
+        }
+        if(count != 1) {
+            log.error(String.format("main image is not 1, count: %d", count));
+        }
     }
 
     @Transactional
@@ -117,7 +134,7 @@ public class BookService {
         s3Uploader.deleteByKey(BucketType.BOOK, imageUrl);
     }
 
-    public UserBook saveUserBook(UserBookDto userBookDto, Book book, Long userId) {
+    public UserBook saveUserBook(UserBookDto userBookDto, Book book, Long userId, SearchAddressDto addressDto) {
         return userBookRepository.save(
             UserBook.builder()
                 .rentPrice(userBookDto.getRentPrice())
@@ -125,6 +142,7 @@ public class BookService {
                 .sellPrice(userBookDto.getSellPrice())
                 .rentState(BookRentalStateType.AVAILABLE)
                 .bookSellType(BookSellType.BOTH)
+                .addressId(addressDto.getId())
                 .images(userBookDto.getUserBookImageDtos().stream().map(
                     userBookImageDto -> UserBookImage
                         .builder()

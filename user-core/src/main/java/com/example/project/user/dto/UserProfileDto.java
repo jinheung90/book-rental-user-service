@@ -12,12 +12,16 @@ import lombok.Getter;
 @Builder
 @Schema(description = "유저의 프로필 정보")
 public class UserProfileDto {
+
     @Schema(description = "유저 아이디")
     private Long id;
+
     @Schema(description = "프로필 이미지")
     private String profileImageUrl;
+
     @Schema(description = "닉네임")
     private String nickName;
+
     @Schema(description = "주소")
     private String address;
 
@@ -25,7 +29,6 @@ public class UserProfileDto {
         return UserProfileDto.builder()
                 .id(user.getId())
                 .profileImageUrl(user.getProfileImageUrl())
-                .address(user.getAddress())
                 .nickName(user.getNickName())
                 .build();
     }

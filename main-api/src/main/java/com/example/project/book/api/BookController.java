@@ -2,12 +2,18 @@ package com.example.project.book.api;
 
 
 
+import com.example.project.address.client.api.KakaoAddressSearchClient;
+import com.example.project.address.client.dto.KakaoAddressSearchDto;
+import com.example.project.address.entity.RoadAddress;
+import com.example.project.address.service.AddressService;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
+import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookLikeDto;
 import com.example.project.book.search.service.BookSearchService;
 import com.example.project.book.store.entity.UserBook;
 import com.example.project.book.store.entity.UserBookLike;
+
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
 import com.example.project.user.dto.UserProfileDto;
@@ -20,6 +26,7 @@ import com.example.project.book.dto.SearchBookDto;
 import com.example.project.book.dto.UserBookDto;
 import com.example.project.book.store.service.BookService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 
 import lombok.RequiredArgsConstructor;
@@ -47,18 +54,21 @@ public class BookController {
 
     private final BookService bookService;
     private final NaverBookSearchClient naverBookSearchClient;
+    private final KakaoAddressSearchClient kakaoAddressSearchClient;
+    private final AddressService addressService;
     private final UserService userService;
     private final BookSearchService bookSearchService;
 
 
     @GetMapping("/book/search")
     @PreAuthorize("hasRole('ROLE_USER')")
+    @Operation(description = "유저 책 검색")
     public ResponseEntity<Page<SearchBookDto>> searchBooks(
             @Parameter(description = "페이지")
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
             @Parameter(description = "사이즈")
             @RequestParam(name = "size", defaultValue = "10", required = false) int size,
-            @Parameter(description = "정렬 키워드 (updatedAt) 추가 가능")
+            @Parameter(description = "정렬 키워드")
             @RequestParam(name = "sortKey", defaultValue = "updatedAt", required = false) BookSortType sortKey,
             @Parameter(description = "이름 (나중에는 키워드 검색 예정)")
             @RequestParam(name = "name", required = false) String name,
@@ -66,6 +76,10 @@ public class BookController {
             @RequestParam(name = "userId", required = false) Long userId,
             @Parameter(description = "판매 가능 상태")
             @RequestParam(name = "bookSellType", required = false, defaultValue = "BOTH") BookSellType bookSellType,
+            @Parameter(description = "현재 위치 좌표 x")
+            @RequestParam(name = "pos_x") double x,
+            @Parameter(description = "현재 위치 좌표 y")
+            @RequestParam(name = "pos_y") double y,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         // TODO 검색 엔진으로 변경
@@ -76,7 +90,7 @@ public class BookController {
             searchResult = bookSearchService.searchUserBooks(name, sortKey, userId);
         } catch (Exception e) {
             log.error(e.getMessage());
-            searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK());
+            searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK(), bookSellType, sortKey);
         }
 
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
@@ -123,9 +137,14 @@ public class BookController {
             @RequestBody UserBookDto userBookDto,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
+        SearchAddressDto addressDto = userBookDto.getAddress();
+        final KakaoAddressSearchDto kakaoAddressSearchDto = this.kakaoAddressSearchClient.findAllByAddress(addressDto.getAddressName());
+        final KakaoAddressSearchDto.Documents document = kakaoAddressSearchDto.getSameZoneNoFromDoc(addressDto.getZoneNo(), addressDto.getAddressName());
+        final RoadAddress address = addressService.saveRoadAddress(document.getRoad_address());
+        addressDto = new SearchAddressDto(address.getId(), address.getAddressName(), address.getZoneNo(), address.getX(), address.getY());
         final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn());
-        final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, customUserDetail.getPK());
-        bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto,customUserDetail.getPK());
+        final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, customUserDetail.getPK(), addressDto);
+        bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto, customUserDetail.getPK(), addressDto);
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
@@ -136,6 +155,10 @@ public class BookController {
             @AuthenticationPrincipal CustomUserDetail customUserDetail,
             @PathVariable(name = "id") Long userBookId
     ) {
+        SearchAddressDto addressDto = userBookDto.getAddress();
+        if(addressDto.getAddressName() != null && !addressDto.getAddressName().isBlank()) {
+
+        }
         final UserBook userBook = bookService.updateUserBook(userBookDto, customUserDetail.getPK(), userBookId);
         bookSearchService.updateUserBook(userBook.getId(), userBookDto);
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
@@ -160,7 +183,7 @@ public class BookController {
         return ResponseEntity.ok(this.bookService.getUserBookImagePresignedUrl(customUserDetail.getPK().toString()));
     }
 
-    @GetMapping("/book/naver/{id}")
+    @GetMapping("/book/naver")
     public ResponseEntity<NaverBookSearchDto.Item> getStoredNaverBook(
             @PathVariable(name = "id") Long bookId
     ) {
