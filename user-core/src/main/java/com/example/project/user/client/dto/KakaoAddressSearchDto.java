@@ -1,4 +1,4 @@
-package com.example.project.address.client.dto;
+package com.example.project.user.client.dto;
 
 
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;

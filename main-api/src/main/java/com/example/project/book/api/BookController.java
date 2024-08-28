@@ -2,10 +2,7 @@ package com.example.project.book.api;
 
 
 
-import com.example.project.address.client.api.KakaoAddressSearchClient;
-import com.example.project.address.client.dto.KakaoAddressSearchDto;
-import com.example.project.address.entity.RoadAddress;
-import com.example.project.address.service.AddressService;
+import com.example.project.address.RoadAddress;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
@@ -16,6 +13,8 @@ import com.example.project.book.store.entity.UserBookLike;
 
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
+import com.example.project.user.client.api.KakaoAddressSearchClient;
+import com.example.project.user.client.dto.KakaoAddressSearchDto;
 import com.example.project.user.dto.UserProfileDto;
 
 import com.example.project.user.security.CustomUserDetail;
@@ -55,7 +54,7 @@ public class BookController {
     private final BookService bookService;
     private final NaverBookSearchClient naverBookSearchClient;
     private final KakaoAddressSearchClient kakaoAddressSearchClient;
-    private final AddressService addressService;
+
     private final UserService userService;
     private final BookSearchService bookSearchService;
 
@@ -140,8 +139,6 @@ public class BookController {
         SearchAddressDto addressDto = userBookDto.getAddress();
         final KakaoAddressSearchDto kakaoAddressSearchDto = this.kakaoAddressSearchClient.findAllByAddress(addressDto.getAddressName());
         final KakaoAddressSearchDto.Documents document = kakaoAddressSearchDto.getSameZoneNoFromDoc(addressDto.getZoneNo(), addressDto.getAddressName());
-        final RoadAddress address = addressService.saveRoadAddress(document.getRoad_address());
-        addressDto = new SearchAddressDto(address.getId(), address.getAddressName(), address.getZoneNo(), address.getX(), address.getY());
         final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn());
         final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, customUserDetail.getPK(), addressDto);
         bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto, customUserDetail.getPK(), addressDto);
@@ -180,7 +177,7 @@ public class BookController {
     public ResponseEntity<String> getPresignedUrl(
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
-        return ResponseEntity.ok(this.bookService.getUserBookImagePresignedUrl(customUserDetail.getPK().toString()));
+        return ResponseEntity.ok(this.bookService.getUserBookImagePreSignedUrl(customUserDetail.getPK().toString()));
     }
 
     @GetMapping("/book/naver")

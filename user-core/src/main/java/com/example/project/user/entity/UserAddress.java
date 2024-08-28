@@ -1,15 +1,19 @@
-package com.example.project.address.entity;
+package com.example.project.user.entity;
 
+import com.example.project.user.enums.AddressType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Table(name = "road_address")
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(name = "user_address")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class RoadAddress {
+public class UserAddress {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,8 +50,15 @@ public class RoadAddress {
     private String zoneNo;
 
     @Column
-    private double y;
+    private Double longitude;
 
     @Column
-    private double x;
+    private Double latitude;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column
+    private AddressType addressType;
 }

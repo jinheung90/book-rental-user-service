@@ -38,6 +38,9 @@ public class User {
     @OrderBy("createdAt asc")
     private UserProfile userProfile;
 
+    @OneToMany(mappedBy = "userProfile")
+    private List<UserAddress> userAddress;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default private Set<UserSecurity> userSecurities = new HashSet<>();
 

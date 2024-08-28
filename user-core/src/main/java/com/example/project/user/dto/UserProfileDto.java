@@ -1,11 +1,14 @@
 package com.example.project.user.dto;
 
+import com.example.project.address.RoadAddress;
 import com.example.project.user.entity.User;
 import com.example.project.user.entity.UserProfile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -23,13 +26,14 @@ public class UserProfileDto {
     private String nickName;
 
     @Schema(description = "주소")
-    private String address;
+    private List<UserAddressDto> addresses;
 
-    public static UserProfileDto fromEntity(UserProfile user) {
+    public static UserProfileDto fromEntity(UserProfile userProfile) {
         return UserProfileDto.builder()
-                .id(user.getId())
-                .profileImageUrl(user.getProfileImageUrl())
-                .nickName(user.getNickName())
-                .build();
+            .id(userProfile.getId())
+            .addresses(UserAddressDto.fromEntityList(userProfile.getUser().getUserAddress()))
+            .profileImageUrl(userProfile.getProfileImageUrl())
+            .nickName(userProfile.getNickName())
+            .build();
     }
 }

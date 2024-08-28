@@ -2,7 +2,7 @@ rootProject.name = 'side-proejct'
 include(':user-core')
 include(':user-cache-core')
 include(':book-cache-core')
-include(':address-core')
+
 include(':book-core')
 include(':common')
 include(':main-api')

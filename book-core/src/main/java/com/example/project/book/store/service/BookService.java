@@ -218,8 +218,8 @@ public class BookService {
         return userBookRepository.findAllByUserId(userId);
     }
 
-    public String getUserBookImagePresignedUrl(String userId) {
-        return s3Uploader.createUserBookImagePresignedUrl(userId + "/" + UUID.randomUUID());
+    public String getUserBookImagePreSignedUrl(String userId) {
+        return s3Uploader.createUserBookImagePreSignedUrl(userId + "/" + UUID.randomUUID());
     }
 
     @Transactional

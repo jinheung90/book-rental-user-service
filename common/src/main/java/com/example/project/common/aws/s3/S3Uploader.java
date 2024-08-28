@@ -40,6 +40,7 @@ public class S3Uploader {
 
     private static final Long PRESIGNED_EXPIRED_SEC = 60 * 30L;
     private static final String USER_BOOK_IMAGE_KEY_PREFIX = "user_book/";
+    private static final String USER_PROFILE_IMAGE_KEY_PREFIX = "user_profile/";
 
     @PostConstruct
     public void init() {
@@ -74,7 +75,11 @@ public class S3Uploader {
         }
     }
 
-    public String createUserBookImagePresignedUrl(String keyName) {
+    public String createUserBookImagePreSignedUrl(String keyName) {
+        return this.createPresignedUrl(getBucketRealName(BucketType.BOOK), USER_BOOK_IMAGE_KEY_PREFIX + keyName);
+    }
+
+    public String createUserProfileImagePreSignedUrl(String keyName) {
         return this.createPresignedUrl(getBucketRealName(BucketType.BOOK), USER_BOOK_IMAGE_KEY_PREFIX + keyName);
     }
 
