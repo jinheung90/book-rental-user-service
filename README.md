@@ -46,6 +46,9 @@ https://jinheung90.tistory.com/41
 ### 유저 서비스 README
 https://github.com/jinheung90/book-rental-user-service/blob/master/user-core/README.md
 
+### 책 서비스 README
+https://github.com/jinheung90/book-rental-user-service/tree/master/book-core
+
 ### 책 유저 서비스 링크: 
 https://book-service-prod.jin900920.com/api/swagger-ui/index.html
 
