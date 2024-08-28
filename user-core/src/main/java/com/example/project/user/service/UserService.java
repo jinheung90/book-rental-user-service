@@ -1,16 +1,16 @@
 package com.example.project.user.service;
 
 
+import com.example.project.address.RoadAddress;
+import com.example.project.user.client.dto.KakaoAddressSearchDto;
 import com.example.project.user.dto.UserProfileDto;
 import com.example.project.user.dto.UserSecurityDto;
-import com.example.project.user.entity.Authority;
-import com.example.project.user.entity.User;
+import com.example.project.user.entity.*;
 
-import com.example.project.user.entity.UserProfile;
-import com.example.project.user.entity.UserSecurity;
 import com.example.project.common.aws.s3.BucketType;
 import com.example.project.common.aws.s3.S3Uploader;
 import com.example.project.common.enums.LoginProvider;
+import com.example.project.user.repository.UserAddressRepository;
 import com.example.project.user.repository.UserProfileRepository;
 import com.example.project.user.repository.UserRepository;
 import com.example.project.user.repository.UserSecurityRepository;
@@ -39,6 +39,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final S3Uploader s3Uploader;
     private final UserProfileRepository userProfileRepository;
+    private final UserAddressRepository userAddressRepository;
 
     public Optional<UserSecurity> findUserBySocialLogin(String socialId, LoginProvider loginProvider) {
         return userSecurityRepository.findBySocialMemberIdAndProvider(socialId, loginProvider);
@@ -82,12 +83,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserSecurity signupByEmail(MultipartFile file, String email, String password, UserProfileDto userProfileDto, String phoneNumber) {
+    public UserSecurity signupByEmail(String email, String password, UserProfileDto userProfileDto, String phoneNumber) {
         this.verifyPassword(password);
         this.duplicatedEmail(email);
         this.duplicatedNickname(userProfileDto.getNickName());
         final User user = this.saveUser(email, phoneNumber);
-        final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
+        final UserProfile userProfile = this.saveUserProfile(userProfileDto,  user);
         user.setUserProfile(userProfile);
         return this.saveUserSecurityWithEmail(user, password);
     }
@@ -146,14 +147,14 @@ public class UserService {
     }
 
     @Transactional
-    public UserSecurity signupByKakao(MultipartFile file, String inputEmail, String kakaoEmail, String socialId,  UserProfileDto userProfileDto, String phoneNumber) {
+    public UserSecurity signupByKakao(String inputEmail, String kakaoEmail, String socialId,  UserProfileDto userProfileDto, String phoneNumber) {
         this.duplicatedNickname(userProfileDto.getNickName());
         this.findUserBySocialLogin(socialId, LoginProvider.KAKAO)
                 .ifPresent(((userSecurity) -> {
                     throw new RuntimeExceptionWithCode(GlobalErrorCode.EXISTS_USER);
                 }));
         final User user = this.saveUser(inputEmail, phoneNumber);
-        final UserProfile userProfile = this.saveUserProfile(userProfileDto, file, user);
+        final UserProfile userProfile = this.saveUserProfile(userProfileDto, user);
         user.setUserProfile(userProfile);
         return this.saveUserSecurityWithSocial(user, kakaoEmail, socialId, LoginProvider.KAKAO);
     }
@@ -179,25 +180,19 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfile saveUserProfile(UserProfileDto userProfileDto, MultipartFile profileImage, User user) {
+    public UserProfile saveUserProfile(UserProfileDto userProfileDto, User user) {
 
         UserProfile userProfile = UserProfile.builder()
                 .user(user)
-                .address(userProfileDto.getAddress())
                 .nickName(userProfileDto.getNickName())
-                .profileImageUrl("")
+                .profileImageUrl(userProfileDto.getProfileImageUrl())
                 .build();
-
-        if(profileImage != null && !profileImage.isEmpty()) {
-            String url = this.uploadProfileImage(profileImage, user.getId());
-            userProfile.updateProfileImageUrl(url);
-        }
 
         return userProfileRepository.save(userProfile);
     }
 
     @Transactional
-    public UserProfile updateUserProfile(UserProfileDto userProfileDto, MultipartFile file, Long userId) {
+    public UserProfile updateUserProfile(UserProfileDto userProfileDto, Long userId) {
 
         final UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER));
@@ -207,16 +202,37 @@ public class UserService {
             userProfile.setNickName(userProfileDto.getNickName());
         }
 
-        if(file != null && !file.isEmpty()) {
-            String url = this.uploadProfileImage(file, userId);
-            userProfile.updateProfileImageUrl(url);
-        }
-
-        if(!StringUtils.isNullOrEmpty(userProfileDto.getAddress())) {
-            userProfile.setAddress(userProfile.getAddress());
-        }
-
         return userProfile;
+    }
+
+    @Transactional
+    public List<UserAddress> updateUserAddress(User user, List<KakaoAddressSearchDto.Documents> address) {
+        this.deleteAllUserAddressByUserId(user.getId());
+        return userAddressRepository.saveAll(
+            address.stream().map(documents -> {
+                KakaoAddressSearchDto.RoadAddressDto roadAddressDto = documents.getRoad_address();
+                return UserAddress.builder()
+                    .addressName(roadAddressDto.getAddress_name())
+                    .buildingName(roadAddressDto.getBuilding_name())
+                    .latitude(Double.valueOf(roadAddressDto.getY()))
+                    .longitude(Double.valueOf(roadAddressDto.getX()))
+                    .region1depthName(roadAddressDto.getRegion_1depth_name())
+                    .region2depthName(roadAddressDto.getRegion_2depth_name())
+                    .region3depthName(roadAddressDto.getRegion_3depth_name())
+                    .zoneNo(roadAddressDto.getZone_no())
+                    .mainBuildingNo(roadAddressDto.getMain_building_no())
+                    .undergroundYn(roadAddressDto.getUnderground_yn())
+                    .subBuildingNo(roadAddressDto.getSub_building_no())
+                    .roadName(roadAddressDto.getRoad_name())
+                    .user(user)
+                    .build();
+            }).toList()
+        );
+    }
+
+    @Transactional
+    public void deleteAllUserAddressByUserId(Long userId) {
+        userAddressRepository.deleteAllByUserId(userId);
     }
 
     public String uploadProfileImage(MultipartFile multipartFile, Long userId) {
@@ -248,6 +264,10 @@ public class UserService {
         return userProfileRepository.findAllByUserIdIn(ids)
                 .stream().map(UserProfileDto::fromEntity)
                 .collect(Collectors.toMap(UserProfileDto::getId, userProfileDto -> userProfileDto));
+    }
+
+    public String generateS3ImageUrlForProfile() {
+        return s3Uploader.createUserProfileImagePreSignedUrl(UUID.randomUUID().toString());
     }
 
     @Transactional

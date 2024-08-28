@@ -59,7 +59,6 @@ class UserServiceTest {
     @Test
     void updateUserProfileTest() {
         final UserProfile testFixture = UserProfile.builder()
-                .address("a")
                 .nickName("b")
                 .profileImageUrl("c")
                 .build();
@@ -68,7 +67,7 @@ class UserServiceTest {
         final UserProfileDto userProfileDto = UserProfileDto.fromEntity(testFixture);
         Assertions.assertThrows(
                 RuntimeExceptionWithCode.class,
-                () -> userService.updateUserProfile(userProfileDto, null,  2L)
+                () -> userService.updateUserProfile(userProfileDto, null)
         );
     }
 }

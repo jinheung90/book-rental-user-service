@@ -1,12 +1,16 @@
 package com.example.project.user.api;
 
 
-import com.example.project.book.service.BookService;
+import com.example.project.address.RoadAddress;
+import com.example.project.book.store.service.BookService;
+
 import com.example.project.common.aws.sns.SnsSender;
 
 import com.example.project.common.util.CommonFunction;
 import com.example.project.common.util.ResponseBody;
+import com.example.project.user.client.api.KakaoAddressSearchClient;
 import com.example.project.user.client.api.KakaoAuthApiClient;
+import com.example.project.user.client.dto.KakaoAddressSearchDto;
 import com.example.project.user.client.dto.KakaoProfile;
 import com.example.project.user.client.dto.KakaoToken;
 import com.example.project.user.dto.LoginResponse;
@@ -35,6 +39,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -46,6 +52,7 @@ public class UserController {
     private final PhoneAuthService phoneAuthService;
     private final TokenProvider tokenProvider;
     private final KakaoAuthApiClient kakaoAuthApiClient;
+    private final KakaoAddressSearchClient kakaoAddressSearchClient;
     private final BookService bookService;
     private final UserService userService;
     private final SnsSender snsSender;
@@ -54,15 +61,15 @@ public class UserController {
         value = "/signup/email",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
-    @Operation(summary = "회원가입")
+    @Operation(summary = "회원가입 (이메일)")
     public ResponseEntity<LoginResponse> signup(
-        @Parameter(description = "프로필 이미지 파일") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
-        @Parameter(description = "유저 비밀 정보", required = true) @RequestPart(name = "emailSignInRequest") EmailSignInRequest emailSignInRequest,
-        @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
-        @Parameter(description = "휴대폰 정보", required = true) @RequestPart(name = "phoneDto") PhoneDto phoneDto
+        @RequestBody EmailSignupRequest emailSignupRequest
     ) {
+        final PhoneDto phoneDto = emailSignupRequest.getPhoneDto();
+        final EmailSignInRequest emailSignInRequest = emailSignupRequest.getEmailSignInRequest();
+        final UserProfileDto userProfileDto = emailSignupRequest.getUserProfileDto();
         phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
-        final UserSecurity userSecurity = userService.signupByEmail(multipartFile, emailSignInRequest.getEmail(), emailSignInRequest.getPassword(), userProfileDto, phoneDto.getPhone());
+        final UserSecurity userSecurity = userService.signupByEmail(emailSignInRequest.getEmail(), emailSignInRequest.getPassword(), userProfileDto,  phoneDto.getPhone());
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         phoneAuthService.delPhoneAuthTempToken(phoneDto.getPhone());
@@ -82,15 +89,15 @@ public class UserController {
     )
     @Operation(summary = "회원가입 카카오")
     public ResponseEntity<LoginResponse> signup(
-            @Parameter(description = "프로필 이미지 파일") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
-            @Parameter(description = "카카오 정보, 이메일", required = true) @RequestPart(name = "kakaoLoginRequest") KakaoLoginRequest kakaoLoginRequest,
-            @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
-            @Parameter(description = "휴대폰 정보", required = true) @RequestPart(name = "phoneDto") PhoneDto phoneDto
+        @RequestBody KakaoSignupRequest kakaoSignupRequest
     ) {
+        final KakaoLoginRequest kakaoLoginRequest = kakaoSignupRequest.getKakaoLoginRequest();
+        final PhoneDto phoneDto = kakaoSignupRequest.getPhoneDto();
+        final UserProfileDto userProfileDto = kakaoSignupRequest.getUserProfileDto();
         phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
         final KakaoToken kakaoToken = kakaoAuthApiClient.getKakaoTokenFromAuthorizationCode(kakaoLoginRequest.getAuthorizationCode());
         final KakaoProfile kakaoProfile = kakaoAuthApiClient.fetchUserProfile(kakaoToken.getAccess_token());
-        final UserSecurity userSecurity = userService.signupByKakao(multipartFile, kakaoLoginRequest.getEmail(), kakaoProfile.getKakao_account().getEmail(),  kakaoProfile.getId().toString(), userProfileDto, phoneDto.getPhone());
+        final UserSecurity userSecurity = userService.signupByKakao(kakaoLoginRequest.getEmail(), kakaoProfile.getKakao_account().getEmail(),  kakaoProfile.getId().toString(), userProfileDto, phoneDto.getPhone());
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         phoneAuthService.delPhoneAuthTempToken(phoneDto.getPhone());
@@ -237,17 +244,27 @@ public class UserController {
         return ResponseEntity.ok().body(ResponseBody.successResponse());
     }
 
-    @PostMapping(value = "/profile",
+    @PutMapping(value = "/profile",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "회원 정보 수정")
     public ResponseEntity<UserProfileDto> updateUserProfile(
-            @Parameter(description = "유저 프로필 이미지") @RequestPart(name = "file", required = false) MultipartFile multipartFile,
-            @Parameter(description = "유저 프로필 정보") @RequestPart(name = "userProfileDto") UserProfileDto userProfileDto,
+            @RequestBody UserProfileDto userProfileDto,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
-        final UserProfile userProfile =
-                userService.updateUserProfile(userProfileDto, multipartFile, customUserDetail.getPK());
+        List<UserAddressDto> addresses = userProfileDto.getAddresses();
+
+        final UserProfile userProfile = userService.updateUserProfile(userProfileDto, customUserDetail.getPK());
+        List<KakaoAddressSearchDto.Documents> kakaoAddress = new ArrayList<>();
+        if(addresses != null && addresses.size() > 0) {
+            for (UserAddressDto address: addresses
+                 ) {
+                KakaoAddressSearchDto.Documents documents = kakaoAddressSearchClient.findOneByNameAndZoneNo(address.getAddressName(), address.getZoneNo());
+                kakaoAddress.add(documents);
+            }
+            userService.updateUserAddress(userProfile.getUser(), kakaoAddress);
+        }
+
         return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));
     }
 
@@ -277,7 +294,6 @@ public class UserController {
     ) {
         userService.withdrawUser(customUserDetail.getPK());
         bookService.inactiveUserBooks(customUserDetail.getPK());
-
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
 
@@ -286,5 +302,12 @@ public class UserController {
         userService.dummyDataInsert();
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
+
+
+    @GetMapping("/profile/image/url")
+    public ResponseEntity<String> getPreSignedUrl() {
+        return ResponseEntity.ok(userService.generateS3ImageUrlForProfile());
+    }
+
 
 }

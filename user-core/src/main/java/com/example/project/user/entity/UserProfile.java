@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,11 +26,11 @@ public class UserProfile {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @Column(name = "address")
-    private String address;
+    @Column(name = "address_id")
+    private Long addressId;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @CreationTimestamp
@@ -41,14 +42,17 @@ public class UserProfile {
     private Instant updatedAt;
 
     public void updateProfileImageUrl(String profileImageUrl) {
+        if(profileImageUrl == null || profileImageUrl.isBlank()) {
+            return;
+        }
         this.profileImageUrl = profileImageUrl;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
+    }
+
+    public void setAddressId(Long addressId) {
+        this.addressId = addressId;
     }
 }
