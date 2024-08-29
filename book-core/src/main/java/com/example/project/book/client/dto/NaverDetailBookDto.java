@@ -23,21 +23,6 @@ public class NaverDetailBookDto {
         private int total;
         private int start;
         private int display;
-        private ChannelItem item;
-    }
-
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ChannelItem {
-        private String title;
-        private String link;
-        private String image;
-        private String author;
-        private String publisher;
-        private String description;
-        private Long discount;
-        private Long pubdate;
-        private Long isbn;
+        private NaverBookItem item;
     }
 }

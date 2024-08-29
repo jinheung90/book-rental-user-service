@@ -1,15 +1,18 @@
 package com.example.project.book.api;
 
+import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookLikeDto;
 import com.example.project.book.search.service.BookSearchService;
+import com.example.project.book.store.entity.Book;
 import com.example.project.book.store.entity.UserBook;
 import com.example.project.book.store.entity.UserBookLike;
 
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
+import com.example.project.common.util.ResponseBody;
 import com.example.project.user.client.api.KakaoAddressSearchClient;
 import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.user.dto.UserProfileDto;
@@ -35,10 +38,12 @@ import org.springframework.data.domain.PageRequest;
 
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -181,11 +186,11 @@ public class BookController {
     }
 
     @GetMapping("/book/naver")
-    public ResponseEntity<NaverBookSearchDto.Item> getStoredNaverBook(
+    public ResponseEntity<NaverBookItem> getStoredNaverBook(
             @PathVariable(name = "id") Long bookId
     ) {
         return ResponseEntity.ok(
-            NaverBookSearchDto.Item.fromBook(this.bookService.findBookById(bookId))
+                NaverBookItem.fromBook(this.bookService.findBookById(bookId))
         );
     }
 
@@ -197,5 +202,57 @@ public class BookController {
     ) {
         bookSearchService.saveUserClick(userBookId, customUserDetail.getPK());
         return ResponseEntity.ok(UserBookDto.fromEntity(this.bookService.findUserBookById(userBookId)));
+    }
+
+
+
+    @GetMapping
+    public ResponseEntity<Map> testDummyDataInsert(@RequestParam(name = "size") int size) {
+        List<KakaoAddressSearchDto.RoadAddressDto> list = testAddressData().stream()
+                .map(addressDto ->
+                        this.kakaoAddressSearchClient.findOneByNameAndZoneNo(addressDto.getAddressName(), addressDto.getZoneNo()).getRoad_address())
+                .toList();
+
+        return ResponseEntity.ok(ResponseBody.successResponse());
+    }
+
+    @GetMapping("/book/test/dummy")
+    public ResponseEntity<List<Book>> testDummyBookInsert() {
+        return ResponseEntity.ok(testSaveNaverBook());
+    }
+
+    public List<SearchAddressDto>  testAddressData() {
+        List<SearchAddressDto> testAddressDtos = new ArrayList<>();
+        testAddressDtos.add(addSignupData("13529","경기 성남시 분당구 판교역로 166 (카카오 판교 아지트)"));
+        testAddressDtos.add(addSignupData("63249","제주특별자치도 제주시 제주대학로 21-1"));
+        testAddressDtos.add(addSignupData("06035","서울 강남구 가로수길 5"));
+        testAddressDtos.add(addSignupData("04528","서울 중구 남대문로 2-1"));
+        testAddressDtos.add(addSignupData("34013","대전 유성구 갑천로 85"));
+        testAddressDtos.add(addSignupData("10544","경기 고양시 덕양구 가양대로 110"));
+        testAddressDtos.add(addSignupData("03693","서울 서대문구 가재울로 6"));
+        testAddressDtos.add(addSignupData("12178","경기 남양주시 화도읍 가구단지중앙길 2"));
+        testAddressDtos.add(addSignupData("13590","경기 성남시 분당구 분당로 17"));
+        testAddressDtos.add(addSignupData("59243","전남 강진군 강진읍 강진공단길 8"));
+        testAddressDtos.add(addSignupData("54157","전북특별자치도 군산시 개사길 54"));
+        return testAddressDtos;
+    }
+
+    public List<Book> testSaveNaverBook() {
+        List<NaverBookItem> testIsbn = new ArrayList<>();
+        NaverBookSearchDto naverBookSearchDto = naverBookSearchClient.getBooksFromName(1, 100, "교학사");
+        testIsbn.addAll(naverBookSearchDto.getItems());
+        naverBookSearchDto = naverBookSearchClient.getBooksFromName(1, 100, "문학동네");
+        testIsbn.addAll(naverBookSearchDto.getItems());
+        naverBookSearchDto = naverBookSearchClient.getBooksFromName(1, 100, "민음사");
+        testIsbn.addAll(naverBookSearchDto.getItems());
+        return bookService.saveAllBooks(testIsbn);
+    }
+
+
+    public SearchAddressDto addSignupData(String zoneNo, String addressName) {
+        return SearchAddressDto.builder()
+                .zoneNo(zoneNo)
+                .addressName(addressName)
+                .build();
     }
 }

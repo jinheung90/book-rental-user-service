@@ -1,5 +1,6 @@
 package com.example.project.book.search.doc;
 
+import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.common.util.JamoSeparate;
 import lombok.AllArgsConstructor;
@@ -23,18 +24,18 @@ public class Book {
     private Long pubdate;
     private Long isbn;
 
-    public static Book fromBook(NaverDetailBookDto.ChannelItem channelItem) {
+    public static Book fromBook(NaverBookItem item) {
         return Book.builder()
-            .author(channelItem.getAuthor())
-            .description(channelItem.getDescription())
-            .isbn(channelItem.getIsbn())
-            .discount(channelItem.getDiscount())
-            .pubdate(channelItem.getPubdate())
-            .image(channelItem.getImage())
-            .title(channelItem.getTitle())
-            .titleWordUnits(JamoSeparate.separate(channelItem.getTitle()))
-            .publisher(channelItem.getPublisher())
-            .link(channelItem.getLink())
+            .author(item.getAuthor())
+            .description(item.getDescription())
+            .isbn(item.getIsbn())
+            .discount(item.getDiscount())
+            .pubdate(item.getPubdate())
+            .image(item.getImage())
+            .title(item.getTitle())
+            .titleWordUnits(JamoSeparate.separate(item.getTitle()))
+            .publisher(item.getPublisher())
+            .link(item.getLink())
             .build();
     }
 }

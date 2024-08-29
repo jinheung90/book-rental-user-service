@@ -1,5 +1,7 @@
 package com.example.project.book.store.service;
 
+import com.example.project.book.client.dto.NaverBookItem;
+import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookClickCountDto;
@@ -213,22 +215,20 @@ public class BookService {
         return bookCategoryRepository.findAllByActivityIsTrueAndIdIn(ids);
     }
 
+    @Transactional
     public Book findBookByIsbnOrElseSave(NaverDetailBookDto bookDto) {
-        NaverDetailBookDto.ChannelItem item = bookDto.getChannel().getItem();
+        NaverBookItem item = bookDto.getChannel().getItem();
         return bookRepository.findByIsbn(item.getIsbn())
-            .orElse(
-                bookRepository.save(
-                    Book.builder()
-                        .isbn(item.getIsbn())
-                        .author(item.getAuthor())
-                        .link(item.getLink())
-                        .description(item.getDescription())
-                        .discount(item.getDiscount())
-                        .pubdate(item.getPubdate())
-                        .imageUrl(item.getImage())
-                        .publisher(item.getPublisher())
-                        .build())
-            );
+            .orElse(bookRepository.save(NaverBookItem.toEntity(item)));
+    }
+
+    @Transactional
+    public List<Book> saveAllBooks(List<NaverBookItem> items) {
+        return bookRepository.saveAll(
+            items.stream().map(
+                    NaverBookItem::toEntity
+            ).toList()
+        );
     }
 
     @Transactional

@@ -39,7 +39,7 @@ public class Book {
     @Column(nullable = false)
     private String publisher;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2000)
     private String description;
 
     @Column(length = 1023, nullable = false)
@@ -47,18 +47,4 @@ public class Book {
 
     @OneToMany(mappedBy = "book")
     private List<UserBook> userBooks;
-
-    public static NaverBookSearchDto.Item toDto(Book book) {
-        return NaverBookSearchDto.Item.builder()
-            .author(book.getAuthor())
-            .description(book.getDescription())
-            .image(book.getImageUrl())
-            .isbn(book.getIsbn())
-            .publisher(book.getPublisher())
-            .link(book.getLink())
-            .title(book.getTitle())
-            .pubdate(book.getPubdate())
-            .discount(book.getDiscount())
-            .build();
-    }
 }

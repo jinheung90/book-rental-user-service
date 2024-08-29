@@ -1,5 +1,6 @@
 package com.example.project.book.dto;
 
+import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.store.entity.UserBook;
 
@@ -58,7 +59,7 @@ public class UserBookDto {
     private SearchAddressDto address;
 
     @Schema(description = "네이버 책 정보")
-    private NaverBookSearchDto.Item bookInfo;
+    private NaverBookItem bookInfo;
 
     @Schema(description = "좋아요 클릭 상태")
     @Builder.Default
@@ -78,7 +79,7 @@ public class UserBookDto {
                 .address(
                         SearchAddressDto.fromEntity(userBookAddress)
                 )
-                .bookInfo(NaverBookSearchDto.Item.fromBook(userBook.getBook()))
+                .bookInfo(NaverBookItem.fromBook(userBook.getBook()))
                 .rentPrice(userBook.getRentPrice())
                 .sellPrice(userBook.getSellPrice())
                 .bookSellType(userBook.getBookSellType())
