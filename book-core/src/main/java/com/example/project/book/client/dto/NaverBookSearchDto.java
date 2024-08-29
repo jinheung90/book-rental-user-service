@@ -22,6 +22,7 @@ public class NaverBookSearchDto {
     @NoArgsConstructor
     @Builder
     public static class Item {
+
         private String title;
         private String link;
         private String image;
@@ -31,7 +32,6 @@ public class NaverBookSearchDto {
         private Long discount;
         private Long pubdate;
         private Long isbn;
-
 
         public static Item fromBook(Book book) {
             return Item.builder()

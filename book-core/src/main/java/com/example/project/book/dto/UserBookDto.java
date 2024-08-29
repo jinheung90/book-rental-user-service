@@ -3,6 +3,7 @@ package com.example.project.book.dto;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.store.entity.UserBook;
 
+import com.example.project.book.store.entity.UserBookAddress;
 import com.example.project.book.store.entity.UserBookLike;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
@@ -64,6 +65,7 @@ public class UserBookDto {
     private boolean bookLikeState = false;
 
     public static UserBookDto fromEntity(UserBook userBook) {
+        final UserBookAddress userBookAddress = userBook.getUserBookAddress();
         return UserBookDto.builder()
                 .id(userBook.getId())
                 .userId(userBook.getUserId())
@@ -74,13 +76,7 @@ public class UserBookDto {
                 ).detail(userBook.getDetail())
                 .title(userBook.getBook().getTitle())
                 .address(
-                        new SearchAddressDto(
-                                userBook.getAddressId(),
-                                "",
-                                "",
-                                (double) 0,
-                                (double) 0
-                        )
+                        SearchAddressDto.fromEntity(userBookAddress)
                 )
                 .bookInfo(NaverBookSearchDto.Item.fromBook(userBook.getBook()))
                 .rentPrice(userBook.getRentPrice())

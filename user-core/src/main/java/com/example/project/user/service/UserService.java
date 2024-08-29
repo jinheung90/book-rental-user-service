@@ -1,10 +1,7 @@
 package com.example.project.user.service;
 
-
-import com.example.project.address.RoadAddress;
-import com.example.project.user.client.dto.KakaoAddressSearchDto;
+import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.user.dto.UserProfileDto;
-import com.example.project.user.dto.UserSecurityDto;
 import com.example.project.user.entity.*;
 
 import com.example.project.common.aws.s3.BucketType;

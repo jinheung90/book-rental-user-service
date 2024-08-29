@@ -1,8 +1,5 @@
 package com.example.project.book.api;
 
-
-
-import com.example.project.address.RoadAddress;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
@@ -14,7 +11,7 @@ import com.example.project.book.store.entity.UserBookLike;
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
 import com.example.project.user.client.api.KakaoAddressSearchClient;
-import com.example.project.user.client.dto.KakaoAddressSearchDto;
+import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.user.dto.UserProfileDto;
 
 import com.example.project.user.security.CustomUserDetail;
@@ -81,7 +78,7 @@ public class BookController {
             @RequestParam(name = "pos_y") double y,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
-        // TODO 검색 엔진으로 변경
+
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<UserBookDto> searchResult = null;
 
@@ -137,8 +134,9 @@ public class BookController {
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
         SearchAddressDto addressDto = userBookDto.getAddress();
-        final KakaoAddressSearchDto kakaoAddressSearchDto = this.kakaoAddressSearchClient.findAllByAddress(addressDto.getAddressName());
-        final KakaoAddressSearchDto.Documents document = kakaoAddressSearchDto.getSameZoneNoFromDoc(addressDto.getZoneNo(), addressDto.getAddressName());
+        final KakaoAddressSearchDto.RoadAddressDto roadAddressDto =
+                this.kakaoAddressSearchClient.findOneByNameAndZoneNo(addressDto.getAddressName(), addressDto.getZoneNo()).getRoad_address();
+        addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
         final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn());
         final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, customUserDetail.getPK(), addressDto);
         bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto, customUserDetail.getPK(), addressDto);
@@ -147,17 +145,19 @@ public class BookController {
 
     @PutMapping("/book/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<UserBookDto> update(
+    public ResponseEntity<UserBookDto> updateUserBook(
             @RequestBody UserBookDto userBookDto,
             @AuthenticationPrincipal CustomUserDetail customUserDetail,
             @PathVariable(name = "id") Long userBookId
     ) {
         SearchAddressDto addressDto = userBookDto.getAddress();
         if(addressDto.getAddressName() != null && !addressDto.getAddressName().isBlank()) {
-
+            final KakaoAddressSearchDto.RoadAddressDto roadAddressDto =
+                    this.kakaoAddressSearchClient.findOneByNameAndZoneNo(addressDto.getAddressName(), addressDto.getZoneNo()).getRoad_address();
+            addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
         }
-        final UserBook userBook = bookService.updateUserBook(userBookDto, customUserDetail.getPK(), userBookId);
-        bookSearchService.updateUserBook(userBook.getId(), userBookDto);
+        final UserBook userBook = bookService.updateUserBook(userBookDto, customUserDetail.getPK(), userBookId, addressDto);
+        bookSearchService.updateUserBook(userBook.getId(), userBookDto, addressDto);
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 

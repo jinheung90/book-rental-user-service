@@ -41,13 +41,14 @@ public class UserBookQuery {
                 .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE)
                         .or(userBook.rentState.eq(BookRentalStateType.RENTED)))
                 .where(userBook.activity.isTrue())
-                .orderBy(userBook.updatedAt.desc())
                 .offset(pageRequest.getOffset())
                 .limit(pageRequest.getPageSize());
 
         query = this.searchName(query, name);
         query = this.searchUserId(query, userId);
         query = this.checkSellType(query, bookSellType);
+        query = this.bookSort(query, bookSellType, bookSortType);
+
         return query.fetch();
     }
 
@@ -80,9 +81,26 @@ public class UserBookQuery {
         return query;
     }
 
+    public <T> JPAQuery<T> bookSort(JPAQuery<T> query, BookSellType bookSellType, BookSortType bookSortType) {
+        return switch (bookSortType) {
+            case UPDATED_AT -> query.orderBy(userBook.updatedAt.desc());
+            case LOW_PRICE -> lowPriceSort(query, bookSellType);
+            case RECOMMEND -> query.orderBy(userBook.updatedAt.desc());
+            case DISTANCE -> query.orderBy(userBook.updatedAt.desc());
+        };
+    }
     public <T> JPAQuery<T> searchName(JPAQuery<T> query, String name) {
         if(Objects.nonNull(name) && !name.isBlank()) return query.where(book.title.contains(name));
         return query;
+    }
+
+    public <T> JPAQuery<T> lowPriceSort(JPAQuery<T> query, BookSellType bookSellType) {
+        return switch (bookSellType) {
+            case RENT -> query.orderBy(userBook.rentPrice.asc());
+            case SELL -> query.orderBy(userBook.sellPrice.asc());
+            case BOTH -> query.orderBy(userBook.sellPrice.asc())
+                    .orderBy(userBook.rentPrice.asc());
+        };
     }
 
     public <T> JPAQuery<T>  searchUserId(JPAQuery<T> query, Long userId) {
@@ -90,7 +108,7 @@ public class UserBookQuery {
         return query;
     }
 
-    public Long countSearchUserBook(String name, Long userId, BookSellType bookSellType) {
+    public Long countSearchUserBook(String name, Long userId, BookSellType bookSellType, BookSortType bookSortType) {
         JPAQuery<Long> query = jpaQueryFactory.select(userBook.count())
                 .from(userBook)
                 .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE)
@@ -99,6 +117,7 @@ public class UserBookQuery {
         query = this.searchName(query, name);
         query = this.searchUserId(query, userId);
         query = this.checkSellType(query, bookSellType);
+        query = this.bookSort(query, bookSellType, bookSortType);
         return query.fetchFirst();
     }
 

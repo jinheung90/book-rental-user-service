@@ -1,11 +1,13 @@
 package com.example.project.book.search.doc;
 
 import com.example.project.book.client.dto.NaverDetailBookDto;
+import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookImageDto;
 import com.example.project.book.store.entity.UserBookImage;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.util.JamoSeparate;
+import io.micrometer.core.instrument.search.Search;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -147,4 +149,15 @@ public class UserBook {
     public void setClickCount(Long clickCount) {
         this.clickCount = clickCount;
     }
+
+    public void setAddress(SearchAddressDto addressDto) {
+        if(addressDto == null || addressDto.getAddressName() == null || addressDto.getAddressName().isBlank()) {
+            return;
+        }
+        this.addressId = addressDto.getId();
+        this.addressName = addressDto.getAddressName();
+        this.addressZoneNo = addressDto.getZoneNo();
+        this.location = new GeoPoint(addressDto.getLatitude(), addressDto.getLongitude());
+    }
+
 }

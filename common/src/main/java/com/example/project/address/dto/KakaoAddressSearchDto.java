@@ -1,8 +1,5 @@
-package com.example.project.user.client.dto;
+package com.example.project.address.dto;
 
-
-import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
-import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -69,17 +66,9 @@ public class KakaoAddressSearchDto {
         private String sub_building_no;
         private String building_name;
         private String zone_no;
+        //latitude
         private String y;
+        //longitude
         private String x;
-    }
-
-    public Documents getSameZoneNoFromDoc(String zoneNo, String addressName) {
-        for (Documents d : this.documents
-                ) {
-            if(d.getRoad_address().zone_no.equals(zoneNo) && d.getRoad_address().address_name.equals(addressName)) {
-                return d;
-            }
-        }
-        throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "cant not find address");
     }
 }

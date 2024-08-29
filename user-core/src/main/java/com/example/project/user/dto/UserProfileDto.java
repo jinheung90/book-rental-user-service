@@ -1,6 +1,5 @@
 package com.example.project.user.dto;
 
-import com.example.project.address.RoadAddress;
 import com.example.project.user.entity.User;
 import com.example.project.user.entity.UserProfile;
 import io.swagger.v3.oas.annotations.media.Schema;

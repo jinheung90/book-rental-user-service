@@ -44,6 +44,7 @@ public class BookService {
     private final UserBookCategoryRepository userBookCategoryRepository;
     private final UserBookImageRepository userBookImageRepository;
     private final UserBookLikeRepository userBookLikeRepository;
+    private final UserBookAddressRepository userBookAddressRepository;
 
     private final S3Uploader s3Uploader;
 
@@ -54,7 +55,7 @@ public class BookService {
         List<UserBookDto> userBookDtos = userBooks.stream().map(
                 userBook -> UserBookDto.whenSearch(userBook, likeMap.get(userBook.getId()))
         ).toList();
-        return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, searchUserId, bookSellType));
+        return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, searchUserId, bookSellType, bookSortType));
     }
 
     @Transactional
@@ -73,7 +74,8 @@ public class BookService {
     public UserBook updateUserBook(
             UserBookDto userBookDto,
             Long userId,
-            Long userBookId
+            Long userBookId,
+            SearchAddressDto addressDto
     ) {
          final UserBook userBook = userBookRepository.findByUserIdAndId(userId, userBookId)
                  .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "can't access userBook"));
@@ -84,7 +86,23 @@ public class BookService {
          userBook.setRentPrice(userBookDto.getRentPrice());
          userBook.setSellPrice(userBookDto.getSellPrice());
          userBook.setImages(updateImages(userBookDto.getUserBookImageDtos(), userBook));
+        if(addressDto != null && addressDto.getAddressName() != null && !addressDto.getAddressName().isBlank()) {
+            this.deleteUserBookAddressById(userBook.getUserBookAddress().getId());
+            userBook.setUserBookAddress(
+                UserBookAddress.builder()
+                    .latitude(addressDto.getLatitude())
+                    .longitude(addressDto.getLongitude())
+                    .addressName(addressDto.getAddressName())
+                    .zoneNo(addressDto.getZoneNo())
+                    .build()
+            );
+        }
         return userBook;
+    }
+
+    @Transactional
+    public void deleteUserBookAddressById(Long id) {
+        userBookAddressRepository.deleteById(id);
     }
 
     @Transactional
@@ -142,7 +160,12 @@ public class BookService {
                 .sellPrice(userBookDto.getSellPrice())
                 .rentState(BookRentalStateType.AVAILABLE)
                 .bookSellType(BookSellType.BOTH)
-                .addressId(addressDto.getId())
+                .userBookAddress(UserBookAddress.builder()
+                    .addressName(addressDto.getAddressName())
+                    .zoneNo(addressDto.getZoneNo())
+                    .longitude(addressDto.getLongitude())
+                    .latitude(addressDto.getLatitude())
+                    .build())
                 .images(userBookDto.getUserBookImageDtos().stream().map(
                     userBookImageDto -> UserBookImage
                         .builder()

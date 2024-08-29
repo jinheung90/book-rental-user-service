@@ -74,8 +74,9 @@ public class UserBook {
     @JoinColumn(name = "book_id")
     private Book book;
 
-    @Column(name = "address_id")
-    private Long addressId;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_book_address_id")
+    private UserBookAddress userBookAddress;
 
     public void inactive() {
         activity = false;
@@ -120,5 +121,9 @@ public class UserBook {
 
     public void setImages(List<UserBookImage> userBookImages) {
         this.images = userBookImages;
+    }
+
+    public void setUserBookAddress(UserBookAddress userBookAddress) {
+        this.userBookAddress = userBookAddress;
     }
 }

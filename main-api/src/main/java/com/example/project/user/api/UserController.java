@@ -1,7 +1,7 @@
 package com.example.project.user.api;
 
 
-import com.example.project.address.RoadAddress;
+
 import com.example.project.book.store.service.BookService;
 
 import com.example.project.common.aws.sns.SnsSender;
@@ -10,7 +10,7 @@ import com.example.project.common.util.CommonFunction;
 import com.example.project.common.util.ResponseBody;
 import com.example.project.user.client.api.KakaoAddressSearchClient;
 import com.example.project.user.client.api.KakaoAuthApiClient;
-import com.example.project.user.client.dto.KakaoAddressSearchDto;
+import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.user.client.dto.KakaoProfile;
 import com.example.project.user.client.dto.KakaoToken;
 import com.example.project.user.dto.LoginResponse;
@@ -27,7 +27,6 @@ import com.example.project.user.service.UserService;
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
 import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +36,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;

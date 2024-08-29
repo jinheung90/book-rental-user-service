@@ -2,9 +2,7 @@ package com.example.project.user.client.api;
 
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
 import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
-import com.example.project.user.client.dto.KakaoAddressSearchDto;
-import com.example.project.user.client.dto.KakaoToken;
-import lombok.Generated;
+import com.example.project.address.dto.KakaoAddressSearchDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +15,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor

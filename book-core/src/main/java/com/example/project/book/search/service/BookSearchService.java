@@ -1,7 +1,6 @@
 package com.example.project.book.search.service;
 
 
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookClickCountDto;
@@ -55,7 +54,7 @@ public class BookSearchService {
                 .addressId(addressDto.getId())
                 .addressName(addressDto.getAddressName())
                 .addressZoneNo(addressDto.getZoneNo())
-                .location(new GeoPoint(addressDto.getY(), addressDto.getX()))
+                .location(new GeoPoint(addressDto.getLatitude(), addressDto.getLongitude()))
                 .userId(userId)
                 .likeCount(0L)
                 .titleWordUnits(JamoSeparate.separate(userBookDto.getTitle()))
@@ -93,7 +92,7 @@ public class BookSearchService {
     }
 
     @Async
-    public void updateUserBook(Long userBookId, UserBookDto userBookDto) {
+    public void updateUserBook(Long userBookId, UserBookDto userBookDto, SearchAddressDto newAddressDto) {
 
         UserBook userBook = findByBookId(userBookId);
         userBook.setBookSellType(userBookDto.getBookSellType());
@@ -102,6 +101,8 @@ public class BookSearchService {
         userBook.setRentPrice(userBookDto.getRentPrice().intValue());
         userBook.setSellPrice(userBookDto.getSellPrice().intValue());
         userBook.setTitle(userBookDto.getTitle());
+        userBook.setRentState(userBookDto.getRentState());
+        userBook.setAddress(newAddressDto);
 
         userBookESRepository.save(userBook);
     }
