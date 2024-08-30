@@ -21,7 +21,7 @@ public class Book {
     @Column(nullable = false)
     private String title;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private Long isbn;
 
     @Column(name = "image_url", length = 500)

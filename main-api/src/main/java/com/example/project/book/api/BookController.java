@@ -17,6 +17,8 @@ import com.example.project.user.client.api.KakaoAddressSearchClient;
 import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.user.dto.UserProfileDto;
 
+import com.example.project.user.entity.User;
+import com.example.project.user.entity.UserAddress;
 import com.example.project.user.security.CustomUserDetail;
 import com.example.project.user.service.UserService;
 import com.example.project.book.client.api.NaverBookSearchClient;
@@ -41,11 +43,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -143,8 +146,8 @@ public class BookController {
                 this.kakaoAddressSearchClient.findOneByNameAndZoneNo(addressDto.getAddressName(), addressDto.getZoneNo()).getRoad_address();
         addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
         final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn());
-        final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, customUserDetail.getPK(), addressDto);
-        bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto, customUserDetail.getPK(), addressDto);
+        final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
+        bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 

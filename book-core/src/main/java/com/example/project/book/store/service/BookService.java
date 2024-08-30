@@ -63,7 +63,7 @@ public class BookService {
     @Transactional
     public UserBook registerUserBook(
             UserBookDto userBookDto,
-            NaverDetailBookDto item,
+            NaverBookItem item,
             Long userId,
             SearchAddressDto addressDto
     ) {
@@ -122,7 +122,7 @@ public class BookService {
             }
         }
         if(count != 1) {
-            log.error(String.format("main image is not 1, count: %d", count));
+            log.warn(String.format("main image is not 1, count: %d", count));
         }
     }
 
@@ -216,10 +216,10 @@ public class BookService {
     }
 
     @Transactional
-    public Book findBookByIsbnOrElseSave(NaverDetailBookDto bookDto) {
-        NaverBookItem item = bookDto.getChannel().getItem();
-        return bookRepository.findByIsbn(item.getIsbn())
-            .orElse(bookRepository.save(NaverBookItem.toEntity(item)));
+    public Book findBookByIsbnOrElseSave(NaverBookItem bookDto) {
+        log.info(bookDto.getLink());
+        Optional<Book> optionalBook = bookRepository.findByIsbn(bookDto.getIsbn());
+        return optionalBook.orElseGet(() -> bookRepository.save(NaverBookItem.toEntity(bookDto)));
     }
 
     @Transactional
@@ -285,6 +285,11 @@ public class BookService {
         final List<UserBookDto> userBooks = userBookQuery.getWishList(pageRequest).stream().map(UserBookDto::fromEntity).toList();
         final Long count = userBookQuery.countWishList();
         return new PageImpl<>(userBooks, pageRequest, count);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Book> findBookAll() {
+        return bookRepository.findAll();
     }
 
 }

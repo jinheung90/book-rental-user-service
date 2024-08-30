@@ -1,6 +1,7 @@
 package com.example.project.book.search.service;
 
 
+import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookClickCountDto;
@@ -37,7 +38,7 @@ public class BookSearchService {
     public void saveUserBook(
         UserBookDto userBookDto,
         Long userBookId,
-        NaverDetailBookDto detailBookDto,
+        NaverBookItem bookItem,
         Long userId,
         SearchAddressDto addressDto
     ) {
@@ -46,7 +47,7 @@ public class BookSearchService {
                 .bookId(userBookId)
                 .bookSellType(userBookDto.getBookSellType())
                 .activity(true)
-                .book(Book.fromBook(detailBookDto.getChannel().getItem()))
+                .book(Book.fromBook(bookItem))
                 .rentPrice(userBookDto.getRentPrice().intValue())
                 .sellPrice(userBookDto.getSellPrice().intValue())
                 .title(userBookDto.getTitle())

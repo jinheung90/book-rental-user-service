@@ -1,6 +1,7 @@
 package com.example.project.book.dto;
 
 import com.example.project.address.dto.KakaoAddressSearchDto;
+import com.example.project.book.search.doc.Book;
 import com.example.project.book.store.entity.UserBookAddress;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,16 @@ public class SearchAddressDto {
                 .build();
     }
 
+    public static UserBookAddress toEntity(SearchAddressDto searchAddressDto) {
+        return UserBookAddress.builder()
+                .id(searchAddressDto.getId())
+                .addressName(searchAddressDto.getAddressName())
+                .zoneNo(searchAddressDto.getZoneNo())
+                .latitude(searchAddressDto.getLatitude())
+                .longitude(searchAddressDto.getLongitude())
+                .build();
+    }
+
     public static SearchAddressDto fromRoadAddress(KakaoAddressSearchDto.RoadAddressDto roadAddressDto) {
         return SearchAddressDto.builder()
                 .addressName(roadAddressDto.getAddress_name())
@@ -38,6 +49,5 @@ public class SearchAddressDto {
                 .latitude(Double.valueOf(roadAddressDto.getX()))
                 .build();
     }
-
 
 }

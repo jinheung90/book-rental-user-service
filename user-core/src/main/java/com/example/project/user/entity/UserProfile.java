@@ -26,9 +26,6 @@ public class UserProfile {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
-    @Column(name = "address_id")
-    private Long addressId;
-
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -52,7 +49,5 @@ public class UserProfile {
         this.nickName = nickName;
     }
 
-    public void setAddressId(Long addressId) {
-        this.addressId = addressId;
-    }
+
 }

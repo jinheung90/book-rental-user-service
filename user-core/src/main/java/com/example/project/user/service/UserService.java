@@ -263,6 +263,11 @@ public class UserService {
                 .collect(Collectors.toMap(UserProfileDto::getId, userProfileDto -> userProfileDto));
     }
 
+    @Transactional(readOnly = true)
+    public List<User> findUserAll() {
+        return userRepository.findAll();
+    }
+
     public String generateS3ImageUrlForProfile() {
         return s3Uploader.createUserProfileImagePreSignedUrl(UUID.randomUUID().toString());
     }

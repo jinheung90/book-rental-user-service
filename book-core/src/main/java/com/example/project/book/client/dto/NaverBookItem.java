@@ -2,10 +2,12 @@ package com.example.project.book.client.dto;
 
 import com.example.project.book.store.entity.Book;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import software.amazon.awssdk.annotations.NotNull;
 
 @Getter
 @AllArgsConstructor
@@ -21,6 +23,7 @@ public class NaverBookItem {
     private String description;
     private Long discount;
     private Long pubdate;
+    @NotEmpty
     private Long isbn;
 
     private static final int descriptionSubNum = 2000;
