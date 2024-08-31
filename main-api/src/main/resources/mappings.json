@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "titleWordUnits": {
+      "type": "text",
+      "analyzer": "korean_analyzer"
+    },
+    "detail": {
+      "type": "text",
+      "analyzer": "korean_analyzer"
+    }
+  }
+}

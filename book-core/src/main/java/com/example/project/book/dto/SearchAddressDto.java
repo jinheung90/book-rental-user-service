@@ -2,6 +2,7 @@ package com.example.project.book.dto;
 
 import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.book.search.doc.Book;
+import com.example.project.book.search.doc.UserBook;
 import com.example.project.book.store.entity.UserBookAddress;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,16 @@ public class SearchAddressDto {
                 .zoneNo(address.getZoneNo())
                 .latitude(address.getLatitude())
                 .longitude(address.getLongitude())
+                .build();
+    }
+
+    public static SearchAddressDto fromDoc(UserBook userBook) {
+        return SearchAddressDto.builder()
+                .id(userBook.getAddressId())
+                .addressName(userBook.getAddressName())
+                .zoneNo(userBook.getAddressZoneNo())
+                .latitude(userBook.getLocation().getLat())
+                .longitude(userBook.getLocation().getLon())
                 .build();
     }
 

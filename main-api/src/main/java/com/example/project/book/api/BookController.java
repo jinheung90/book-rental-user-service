@@ -80,18 +80,22 @@ public class BookController {
             @RequestParam(name = "userId", required = false) Long userId,
             @Parameter(description = "판매 가능 상태")
             @RequestParam(name = "bookSellType", required = false, defaultValue = "BOTH") BookSellType bookSellType,
-            @Parameter(description = "현재 위치 좌표 x")
-            @RequestParam(name = "pos_x") double x,
-            @Parameter(description = "현재 위치 좌표 y")
-            @RequestParam(name = "pos_y") double y,
+            @Parameter(description = "현재 위치 좌표 (longitude) x")
+            @RequestParam(name = "longitude") Double x,
+            @Parameter(description = "현재 위치 좌표 (latitude) y")
+            @RequestParam(name = "latitude") Double y,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<UserBookDto> searchResult = null;
+        Page<UserBookDto> searchResult;
 
         try {
-            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId);
+            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, x, y, pageRequest);
+            Map<Long, UserBookLike> userBookLikeMap = bookService.getBookLikesByIdInAndUserId(searchResult.getContent().stream().map(UserBookDto::getUserId).toList(), customUserDetail.getPK());
+            searchResult.getContent().forEach(
+                    userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()).isActivity())
+            );
         } catch (Exception e) {
             log.error(e.getMessage());
             searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK(), bookSellType, sortKey);

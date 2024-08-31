@@ -1,24 +1,18 @@
 package com.example.project.book.search.doc;
 
-import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookImageDto;
-import com.example.project.book.store.entity.UserBookImage;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.util.JamoSeparate;
-import io.micrometer.core.instrument.search.Search;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
-import software.amazon.awssdk.services.ssm.endpoints.internal.Value;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +22,8 @@ import java.util.Objects;
 @Getter
 @AllArgsConstructor
 @Slf4j
+@Mapping(mappingPath = "mappings.json")
+@Setting(settingPath = "settings.json")
 public class UserBook {
 
     @Id
@@ -159,5 +155,4 @@ public class UserBook {
         this.addressZoneNo = addressDto.getZoneNo();
         this.location = new GeoPoint(addressDto.getLatitude(), addressDto.getLongitude());
     }
-
 }

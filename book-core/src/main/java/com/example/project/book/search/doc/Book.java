@@ -38,4 +38,18 @@ public class Book {
             .link(item.getLink())
             .build();
     }
+
+    public static NaverBookItem fromBook(Book item) {
+        return NaverBookItem.builder()
+                .author(item.getAuthor())
+                .description(item.getDescription())
+                .isbn(item.getIsbn())
+                .discount(item.getDiscount())
+                .pubdate(item.getPubdate())
+                .image(item.getImage())
+                .title(item.getTitle())
+                .publisher(item.getPublisher())
+                .link(item.getLink())
+                .build();
+    }
 }

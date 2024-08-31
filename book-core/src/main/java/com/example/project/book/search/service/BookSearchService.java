@@ -1,6 +1,8 @@
 package com.example.project.book.search.service;
 
 
+import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
@@ -11,14 +13,20 @@ import com.example.project.book.search.doc.Book;
 import com.example.project.book.search.doc.UserBook;
 import com.example.project.book.search.doc.UserBookClickLog;
 import com.example.project.book.search.repository.UserBookClickESRepository;
+import com.example.project.book.search.repository.UserBookESQuery;
 import com.example.project.book.search.repository.UserBookESRepository;
 
+import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
 import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import com.example.project.common.util.JamoSeparate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -33,6 +41,7 @@ public class BookSearchService {
 
     private final UserBookESRepository userBookESRepository;
     private final UserBookClickESRepository userBookClickESRepository;
+    private final UserBookESQuery userBookESQuery;
 
     @Async
     public void saveUserBook(
@@ -66,10 +75,21 @@ public class BookSearchService {
     public Page<UserBookDto> searchUserBooks(
         String keyword,
         BookSortType sortType,
-        Long userId
+        Long userId,
+        BookSellType bookSellType,
+        double longitude,
+        double latitude,
+        PageRequest pageRequest
     ) {
-
-        return null;
+        return userBookESQuery.searchUserBookQuery(
+            keyword,
+            sortType,
+            userId,
+            bookSellType,
+            longitude,
+            latitude,
+            pageRequest
+        );
     }
 
     @Async

@@ -2,6 +2,7 @@ package com.example.project.book.dto;
 
 import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverBookSearchDto;
+import com.example.project.book.search.doc.Book;
 import com.example.project.book.store.entity.UserBook;
 
 import com.example.project.book.store.entity.UserBookAddress;
@@ -93,6 +94,25 @@ public class UserBookDto {
             userBookDto.setBookLikeState(true);
         }
         return userBookDto;
+    }
+
+    public static UserBookDto fromDoc(com.example.project.book.search.doc.UserBook userBook) {
+
+        return UserBookDto.builder()
+                .id(userBook.getBookId())
+                .userId(userBook.getUserId())
+                .userBookImageDtos(userBook.getImages())
+                .detail(userBook.getDetail())
+                .title(userBook.getBook().getTitle())
+                .address(
+                        SearchAddressDto.fromDoc(userBook)
+                )
+                .bookInfo(Book.fromBook(userBook.getBook()))
+                .rentPrice(BigDecimal.valueOf(userBook.getRentPrice()))
+                .sellPrice(BigDecimal.valueOf(userBook.getSellPrice()))
+                .bookSellType(userBook.getBookSellType())
+                .rentState(userBook.getRentState())
+                .build();
     }
 
     public void setBookLikeState(boolean bookLikeState) {
