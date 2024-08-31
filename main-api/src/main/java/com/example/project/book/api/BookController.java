@@ -12,6 +12,7 @@ import com.example.project.book.store.entity.UserBookLike;
 
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
+import com.example.project.common.util.CommonFunction;
 import com.example.project.common.util.ResponseBody;
 import com.example.project.user.client.api.KakaoAddressSearchClient;
 import com.example.project.address.dto.KakaoAddressSearchDto;
@@ -223,6 +224,11 @@ public class BookController {
     public ResponseEntity<List<Book>> testDummyBookInsert() {
         return ResponseEntity.ok(testSaveNaverBook());
     }
+    @GetMapping("/user_book/test/dummy")
+    public ResponseEntity<Map> testDummyUserBookInsert() {
+        testSaveUserBook();
+        return ResponseEntity.ok(ResponseBody.successResponse());
+    }
 
     public List<SearchAddressDto>  testAddressData() {
         List<SearchAddressDto> testAddressDtos = new ArrayList<>();
@@ -241,13 +247,14 @@ public class BookController {
     }
 
     public List<Book> testSaveNaverBook() {
-        List<NaverBookItem> testIsbn = new ArrayList<>();
         NaverBookSearchDto naverBookSearchDto = naverBookSearchClient.getBooksFromName(1, 100, "교학사");
-        testIsbn.addAll(naverBookSearchDto.getItems());
+        Set<NaverBookItem> testIsbn = new TreeSet<>(Comparator.comparing(NaverBookItem::getIsbn));
+        testIsbn.addAll(naverBookSearchDto.getItems().stream().filter(item -> item.getIsbn() != null).toList());
         naverBookSearchDto = naverBookSearchClient.getBooksFromName(1, 100, "문학동네");
-        testIsbn.addAll(naverBookSearchDto.getItems());
+        testIsbn.addAll(naverBookSearchDto.getItems().stream().filter(item -> item.getIsbn() != null).toList());
         naverBookSearchDto = naverBookSearchClient.getBooksFromName(1, 100, "민음사");
-        testIsbn.addAll(naverBookSearchDto.getItems());
+        testIsbn.addAll(naverBookSearchDto.getItems().stream().filter(item -> item.getIsbn() != null).toList());
+
         return bookService.saveAllBooks(testIsbn);
     }
 
@@ -258,4 +265,70 @@ public class BookController {
                 .addressName(addressName)
                 .build();
     }
+
+
+    @Transactional
+    public void testSaveUserBook() {
+        List<Book> books = bookService.findBookAll();
+        List<User> users = userService.findUserAll();
+        Set<String> savedUserBook = new HashSet<>();
+        Map<Long, User> userMap = users.stream().collect(Collectors.toMap(
+                User::getId,
+                user -> user
+        ));
+
+        Map<Long, Book> bookMap = books.stream().collect(Collectors.toMap(
+                Book::getId,
+                book -> book
+        ));
+
+        for (int i = 0; i < 300; i++) {
+            log.info("test");
+            User user =  userMap.get(new Random().nextLong(14, 3000));
+            Book book = bookMap.get(new Random().nextLong(582, 873));
+            if(book == null || user == null || savedUserBook.contains(user.getId() + ":" + book.getId())) {
+                continue;
+            }
+            log.info("test2");
+
+            if(user.getUserAddress() == null || user.getUserAddress().isEmpty()) {
+                throw new RuntimeException();
+            }
+
+            UserAddress userAddress =user.getUserAddress().get(0);
+            SearchAddressDto addressDto = SearchAddressDto.builder().addressName(userAddress.getAddressName())
+                    .longitude(userAddress.getLongitude())
+                    .zoneNo(userAddress.getZoneNo())
+                    .latitude(userAddress.getLatitude())
+                    .build();
+
+            BookSellType bookSellType;
+            if (i < 200) {
+                bookSellType =BookSellType.BOTH;
+            } else if(i > 270) {
+                bookSellType = BookSellType.SELL;
+            } else {
+                bookSellType = BookSellType.RENT;
+            }
+
+            NaverBookItem bookDto = NaverBookItem.fromBook(book);
+            UserBookDto userBookDto = UserBookDto.builder()
+                    .bookSellType(bookSellType)
+                    .bookLikeState(false)
+                    .userId(user.getId())
+                    .bookInfo(bookDto)
+                    .rentPrice(BigDecimal.valueOf(new Random().nextLong(1000, 3000)))
+                    .sellPrice(BigDecimal.valueOf(new Random().nextLong(5000,30000)))
+                    .userBookImageDtos(new ArrayList<>())
+                    .title(book.getTitle())
+                    .detail(CommonFunction.subStringCharLength(book.getDescription(), 1000))
+                    .build();
+            log.info("test3");
+            final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, user.getId(),addressDto);
+            bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto,  user.getId(), addressDto);
+            savedUserBook.add(user.getId() + ":" + book.getId());
+
+        }
+    }
+
 }

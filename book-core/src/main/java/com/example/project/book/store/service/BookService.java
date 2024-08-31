@@ -223,7 +223,7 @@ public class BookService {
     }
 
     @Transactional
-    public List<Book> saveAllBooks(List<NaverBookItem> items) {
+    public List<Book> saveAllBooks(Collection<NaverBookItem> items) {
         return bookRepository.saveAll(
             items.stream().map(
                     NaverBookItem::toEntity

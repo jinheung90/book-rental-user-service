@@ -23,7 +23,6 @@ public class NaverBookItem {
     private String description;
     private Long discount;
     private Long pubdate;
-    @NotEmpty
     private Long isbn;
 
     private static final int descriptionSubNum = 2000;
