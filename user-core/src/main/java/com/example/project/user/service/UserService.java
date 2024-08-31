@@ -18,6 +18,7 @@ import com.querydsl.core.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -270,5 +271,24 @@ public class UserService {
 
     public String generateS3ImageUrlForProfile() {
         return s3Uploader.createUserProfileImagePreSignedUrl(UUID.randomUUID().toString());
+    }
+    @Async
+    public void dummyDataInsert(List<KakaoAddressSearchDto.Documents> documents, int size) {
+        for (int i = 0; i < size; i++) {
+            UserSecurity userSecurity = this.signupByEmail(
+                    "a" + i + CommonFunction.getRandomNumber6Digit() + "@gmail.com",
+                    "0890WLs03!",
+                    UserProfileDto.builder()
+                            .nickName(CommonFunction.generateUpperLettersAndNum(8))
+                            .addresses(new ArrayList<>())
+                            .build(),
+                    "0101" + i % 10 + CommonFunction.getRandomNumber6Digit()
+            );
+
+            User user = userSecurity.getUser();
+            List<KakaoAddressSearchDto.Documents> insertDoc = new ArrayList<>();
+            insertDoc.add(documents.get(new Random().nextInt(documents.size() - 1)));
+            this.updateUserAddress(user, insertDoc);
+        }
     }
 }

@@ -19,6 +19,7 @@ import com.example.project.user.dto.*;
 import com.example.project.user.entity.User;
 import com.example.project.user.entity.UserProfile;
 import com.example.project.user.entity.UserSecurity;
+import com.example.project.user.enums.AddressType;
 import com.example.project.user.enums.PhoneAuthKeys;
 import com.example.project.user.security.CustomUserDetail;
 import com.example.project.user.security.TokenProvider;
@@ -301,4 +302,37 @@ public class UserController {
     }
 
 
+    @GetMapping("dummy")
+    public ResponseEntity<Map> testDummyData(
+            @RequestParam(name = "size") int size
+    ) {
+        List<KakaoAddressSearchDto.Documents> docs = this.testAddressData().stream()
+                .map(userAddressDto -> kakaoAddressSearchClient.findOneByNameAndZoneNo(userAddressDto.getAddressName(), userAddressDto.getZoneNo()))
+                .toList();
+        userService.dummyDataInsert(docs, size);
+        return ResponseEntity.ok(ResponseBody.successResponse());
+    }
+
+    public List<UserAddressDto>  testAddressData() {
+        List<UserAddressDto> testAddressDtos = new ArrayList<>();
+        testAddressDtos.add(addSignupData("13529","경기 성남시 분당구 판교역로 166 (카카오 판교 아지트)"));
+        testAddressDtos.add(addSignupData("63249","제주특별자치도 제주시 제주대학로 21-1"));
+        testAddressDtos.add(addSignupData("06035","서울 강남구 가로수길 5"));
+        testAddressDtos.add(addSignupData("04528","서울 중구 남대문로 2-1"));
+        testAddressDtos.add(addSignupData("34013","대전 유성구 갑천로 85"));
+        testAddressDtos.add(addSignupData("10544","경기 고양시 덕양구 가양대로 110"));
+        testAddressDtos.add(addSignupData("03693","서울 서대문구 가재울로 6"));
+        testAddressDtos.add(addSignupData("12178","경기 남양주시 화도읍 가구단지중앙길 2"));
+        testAddressDtos.add(addSignupData("13590","경기 성남시 분당구 분당로 17"));
+        testAddressDtos.add(addSignupData("59243","전남 강진군 강진읍 강진공단길 8"));
+        testAddressDtos.add(addSignupData("54157","전북특별자치도 군산시 개사길 54"));
+        return testAddressDtos;
+    }
+
+    public UserAddressDto addSignupData(String zoneNo, String addressName) {
+        return UserAddressDto.builder().addressType(AddressType.HOME)
+                .zoneNo(zoneNo)
+                .addressName(addressName)
+                .build();
+    }
 }
