@@ -26,18 +26,6 @@ spring:
       redis:
         port: 6379
         host: book-rental-cache-ro.v6ojg2.ng.0001.apn2.cache.amazonaws.com
-  kakao-auth:
-    rest-api-key: ${kakao-auth-rest-api-key}
-    client-secret: ${kakao-auth-secret}
-    redirect-uri: ${kakao-auth-redirect-uri}
-  naver:
-    client-id: ${naver-client-id}
-    client-secret: ${naver-client-secret}
-  token:
-    access-token-secret: ${access-token-secret}
-    refresh-token-expired: 1209600
-    access-token-expired: 1209600
-    issuer: team
   elasticsearch:
     uris: ${opensearch-uris}
     username: ${opensearch-username}
@@ -72,3 +60,16 @@ server:
     context-path: /api
 cors:
   allow-origins: http://localhost:3000,https://used-book-store-frontend.vercel.app
+
+kakao-auth:
+  rest-api-key: ${kakao-auth-rest-api-key}
+  client-secret: ${kakao-auth-secret}
+  redirect-uri: ${kakao-auth-redirect-uri}
+naver:
+  client-id: ${naver-client-id}
+  client-secret: ${naver-client-secret}
+token:
+  access-token-secret: ${access-token-secret}
+  refresh-token-expired: 1209600
+  access-token-expired: 1209600
+  issuer: team
