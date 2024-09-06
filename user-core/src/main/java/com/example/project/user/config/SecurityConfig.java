@@ -78,6 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/book/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(whiteList).permitAll()
                         .anyRequest().permitAll()
@@ -88,10 +89,13 @@ public class SecurityConfig {
     }
 
     public CorsConfigurationSource corsConfigurationSource() {
+        List<String> allowWildcard = new ArrayList<>() {{
+            add("*");
+        }};
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowOrigins);
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
+        configuration.setAllowedOrigins(allowWildcard);
+        configuration.setAllowedHeaders(allowWildcard);
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
