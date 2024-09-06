@@ -55,10 +55,7 @@ public class UserController {
     private final UserService userService;
     private final SnsSender snsSender;
 
-    @PostMapping(
-        value = "/signup/email",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(value = "/signup/email")
     @Operation(summary = "회원가입 (이메일)")
     public ResponseEntity<LoginResponse> signup(
         @RequestBody EmailSignupRequest emailSignupRequest
@@ -81,10 +78,7 @@ public class UserController {
         );
     }
 
-    @PostMapping(
-            value = "/signup/kakao",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(value = "/signup/kakao")
     @Operation(summary = "회원가입 카카오")
     public ResponseEntity<LoginResponse> signup(
         @RequestBody KakaoSignupRequest kakaoSignupRequest
@@ -254,7 +248,7 @@ public class UserController {
 
         final UserProfile userProfile = userService.updateUserProfile(userProfileDto, customUserDetail.getPK());
         List<KakaoAddressSearchDto.Documents> kakaoAddress = new ArrayList<>();
-        if(addresses != null && addresses.size() > 0) {
+        if(addresses != null && !addresses.isEmpty()) {
             for (UserAddressDto address: addresses
                  ) {
                 KakaoAddressSearchDto.Documents documents = kakaoAddressSearchClient.findOneByNameAndZoneNo(address.getAddressName(), address.getZoneNo());
