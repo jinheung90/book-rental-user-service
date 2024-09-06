@@ -191,7 +191,7 @@ public class UserController {
         if(!authNumber.equals(phoneDto.getAuthNumber())) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PASSWORD_NOT_MATCH);
         }
-        String tempToken = phoneAuthService.setPhoneAuthTempToken(phoneDto.getPhone());
+        String tempToken = phoneAuthService.setPhoneAuthTempToken(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_SIGNUP_KEY);
         return ResponseEntity.ok().body(new PhoneDto(phoneDto.getPhone(), "" , tempToken));
     }
 
@@ -216,12 +216,9 @@ public class UserController {
 
     @PostMapping("/auth/phone/verify/password")
     @Operation(summary = "휴대폰 인증번호 검증 (비밀번호 재설정)")
-    public ResponseEntity<Map<String, Object>> verifyPhoneAuthNumberWhenPasswordReset(
-            @RequestBody PasswordResetRequest passwordResetRequest
+    public ResponseEntity<PhoneDto> verifyPhoneAuthNumberWhenPasswordReset(
+            @RequestBody PhoneDto phoneDto
     ) {
-        final PhoneDto phoneDto = passwordResetRequest.getPhoneDto();
-        final UserSecurityDto userSecurityDto = passwordResetRequest.getUserSecurityDto();
-
         String authNumber = phoneAuthService.getPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_PASSWORD_KEY);
 
         if(authNumber == null) {
@@ -231,8 +228,21 @@ public class UserController {
         if(!authNumber.equals(phoneDto.getAuthNumber())) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PASSWORD_NOT_MATCH);
         }
-        log.warn(userSecurityDto.getEmail());
-        userService.emailVerifyAndPasswordReset(phoneDto.getPhone(), userSecurityDto.getEmail(), userSecurityDto.getPassword());
+
+        String authTempToken = phoneAuthService.setPasswordChangePhoneAuthTempToken(phoneDto.getPhone());
+        phoneDto = new PhoneDto("", "", authTempToken);
+        return ResponseEntity.ok().body(phoneDto);
+    }
+
+    @PostMapping("/auth/password")
+    @Operation(summary = "비밀번호 재설정")
+    public ResponseEntity<Map> verifyPhoneAuthNumberWhenPasswordReset(
+            @RequestBody PasswordResetRequest passwordResetRequest
+    ) {
+        final PhoneDto phoneDto = passwordResetRequest.getPhoneDto();
+        final EmailSignInRequest emailSignInRequest = passwordResetRequest.getEmailSignInRequest();
+        userService.emailVerifyAndPasswordReset(phoneDto.getPhone(), emailSignInRequest.getEmail(), emailSignInRequest.getPassword());
+        phoneAuthService.matchPasswordChangePhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
         return ResponseEntity.ok().body(ResponseBody.successResponse());
     }
 

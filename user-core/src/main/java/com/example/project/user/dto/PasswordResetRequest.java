@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PasswordResetRequest {
-    private UserSecurityDto userSecurityDto;
+    private EmailSignInRequest emailSignInRequest;
     private PhoneDto phoneDto;
 }
