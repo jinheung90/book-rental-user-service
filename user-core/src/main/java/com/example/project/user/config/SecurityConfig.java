@@ -43,6 +43,7 @@ public class SecurityConfig {
     private static final String[] DEV_WHITELIST = {
             "/v3/api-docs/**",
             "/actuator/*",
+            "/api/swagger-ui/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api-docs.yaml",
