@@ -1,7 +1,7 @@
 package com.example.project.book.dto;
 
 import com.example.project.address.dto.KakaoAddressSearchDto;
-import com.example.project.book.search.doc.Book;
+
 import com.example.project.book.store.entity.UserBookAddress;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
