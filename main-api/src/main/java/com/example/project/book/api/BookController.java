@@ -5,8 +5,7 @@ import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookLikeDto;
-import com.example.project.book.search.service.BookSearchService;
-import com.example.project.book.store.entity.Book;
+
 import com.example.project.book.store.entity.UserBook;
 import com.example.project.book.store.entity.UserBookLike;
 
@@ -61,8 +60,6 @@ public class BookController {
     private final KakaoAddressSearchClient kakaoAddressSearchClient;
 
     private final UserService userService;
-    private final BookSearchService bookSearchService;
-
 
     @GetMapping("/book/search")
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -90,12 +87,12 @@ public class BookController {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<UserBookDto> searchResult = null;
 
-        try {
-            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId);
-        } catch (Exception e) {
-            log.error(e.getMessage());
+//        try {
+//            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId);
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
             searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK(), bookSellType, sortKey);
-        }
+//        }
 
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
@@ -113,7 +110,6 @@ public class BookController {
             @PathVariable(name = "id") Long userBookId,
             @AuthenticationPrincipal CustomUserDetail customUserDetail) {
         UserBookLike userBookLike = bookService.updateUserBookLike(customUserDetail.getPK(), userBookId);
-        bookSearchService.updateBookLikeCount(userBookId, userBookLike.isActivity());
         return ResponseEntity.ok(new UserBookLikeDto(userBookLike.getUserId(), userBookLike.getUserBook().getId(), userBookLike.isActivity(), userBookLike.getUpdatedAt()));
     }
 
@@ -147,7 +143,6 @@ public class BookController {
         addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
         final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn());
         final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
-        bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
@@ -165,7 +160,7 @@ public class BookController {
             addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
         }
         final UserBook userBook = bookService.updateUserBook(userBookDto, customUserDetail.getPK(), userBookId, addressDto);
-        bookSearchService.updateUserBook(userBook.getId(), userBookDto, addressDto);
+
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
@@ -203,7 +198,7 @@ public class BookController {
             @PathVariable(name = "id") Long userBookId,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
-        bookSearchService.saveUserClick(userBookId, customUserDetail.getPK());
+
         return ResponseEntity.ok(UserBookDto.fromEntity(this.bookService.findUserBookById(userBookId)));
     }
 }
