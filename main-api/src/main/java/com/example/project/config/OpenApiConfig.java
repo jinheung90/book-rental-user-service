@@ -18,6 +18,7 @@ import java.util.Arrays;
 @Configuration
 @OpenAPIDefinition(servers = {
         @Server(url = "https://book-service-prod.jin900920.com/api", description = "main"),
+        @Server(url = "/api", description = "main"),
         @Server(url = "http://localhost:8080/api", description = "local"),
         @Server(url = "http://book-service-prod.jin900920.com:8080/api", description = "deploy test")
 })
