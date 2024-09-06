@@ -196,6 +196,8 @@ public class UserService {
             userProfile.setNickName(userProfileDto.getNickName());
         }
 
+        userProfile.updateProfileImageUrl(userProfileDto.getProfileImageUrl());
+
         return userProfile;
     }
 
