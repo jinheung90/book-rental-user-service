@@ -13,10 +13,25 @@ public class BookESConfig extends ElasticsearchConfiguration {
     @Value("#{'${spring.elasticsearch.uris}'.split(',')}")
     private String[] uris;
 
+    @Value("${spring.elasticsearch.username}")
+    private String username;
+
+    @Value("${spring.elasticsearch.password}")
+    private String password;
+
+    @Value("${spring.profiles.active}")
+    private String profile;
+
     @Override
     public ClientConfiguration clientConfiguration() {
+        if(profile.equals("local")) {
+            return ClientConfiguration.builder()
+                    .connectedTo(uris)
+                    .build();
+        }
         return ClientConfiguration.builder()
                 .connectedTo(uris)
+                .withBasicAuth(username, password)
                 .build();
     }
 }

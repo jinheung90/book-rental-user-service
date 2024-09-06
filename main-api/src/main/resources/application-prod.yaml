@@ -39,7 +39,9 @@ spring:
     access-token-expired: 1209600
     issuer: team
   elasticsearch:
-    uris: http://localhost:9200
+    uris: ${opensearch-uris}
+    username: ${opensearch-username}
+    password: ${opensearch-password}
   task:
     execution:
       pool:
