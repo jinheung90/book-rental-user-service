@@ -150,7 +150,7 @@ public class UserController {
         if(userService.existsUserByPhone(phoneDto.getPhone())) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "exists phone");
         }
-        final String authNumber = phoneAuthService.setPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_SIGNUP_KEY);
+        final String authNumber = phoneAuthService.setSignupPhoneAuthNumber(phoneDto.getPhone());
         this.snsSender.sendPhoneAuthNumberMessage(phoneDto.getPhone(), authNumber);
         return ResponseEntity.ok().body(phoneDto);
     }
@@ -161,7 +161,7 @@ public class UserController {
             @RequestBody PhoneDto phoneDto
     ) {
         CommonFunction.matchPhoneRegex(phoneDto.getPhone());
-        final String authNumber = phoneAuthService.setPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_EMAIL_KEY);
+        final String authNumber = phoneAuthService.setEmailFindPhoneAuthNumber(phoneDto.getPhone());
         this.snsSender.sendPhoneAuthNumberMessage(phoneDto.getPhone(), authNumber);
         return ResponseEntity.ok().body(phoneDto);
     }
@@ -172,7 +172,7 @@ public class UserController {
             @RequestBody PhoneDto phoneDto
     ) {
         CommonFunction.matchPhoneRegex(phoneDto.getPhone());
-        final String authNumber = phoneAuthService.setPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_PASSWORD_KEY);
+        final String authNumber = phoneAuthService.setPasswordResetPhoneAuthNumber(phoneDto.getPhone());
         this.snsSender.sendPhoneAuthNumberMessage(phoneDto.getPhone(), authNumber);
         return ResponseEntity.ok().body(phoneDto);
     }
@@ -182,7 +182,7 @@ public class UserController {
     public ResponseEntity<PhoneDto> verifyPhoneAuthNumberWhenSignup(
             @RequestBody PhoneDto phoneDto
     ) {
-        String authNumber = phoneAuthService.getPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_SIGNUP_KEY);
+        String authNumber = phoneAuthService.getSignupPhoneAuthNumber(phoneDto.getPhone());
 
         if(authNumber == null) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PHONE_AUTH_NUM_EXPIRED);
@@ -191,7 +191,7 @@ public class UserController {
         if(!authNumber.equals(phoneDto.getAuthNumber())) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PASSWORD_NOT_MATCH);
         }
-        String tempToken = phoneAuthService.setPhoneAuthTempToken(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_SIGNUP_KEY);
+        String tempToken = phoneAuthService.setPhoneAuthTempToken(phoneDto.getPhone());
         return ResponseEntity.ok().body(new PhoneDto(phoneDto.getPhone(), "" , tempToken));
     }
 
@@ -200,7 +200,7 @@ public class UserController {
     public ResponseEntity<UserDto> verifyPhoneAuthNumberWhenFindEmail(
             @RequestBody PhoneDto phoneDto
     ) {
-        String authNumber = phoneAuthService.getPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_EMAIL_KEY);
+        String authNumber = phoneAuthService.getFindEmailPhoneAuthNumber(phoneDto.getPhone());
 
         if(authNumber == null) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PHONE_AUTH_NUM_EXPIRED);
@@ -219,7 +219,7 @@ public class UserController {
     public ResponseEntity<PhoneDto> verifyPhoneAuthNumberWhenPasswordReset(
             @RequestBody PhoneDto phoneDto
     ) {
-        String authNumber = phoneAuthService.getPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_PASSWORD_KEY);
+        String authNumber = phoneAuthService.getPasswordResetPhoneAuthNumber(phoneDto.getPhone());
 
         if(authNumber == null) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PHONE_AUTH_NUM_EXPIRED);
@@ -243,6 +243,7 @@ public class UserController {
         final EmailSignInRequest emailSignInRequest = passwordResetRequest.getEmailSignInRequest();
         userService.emailVerifyAndPasswordReset(phoneDto.getPhone(), emailSignInRequest.getEmail(), emailSignInRequest.getPassword());
         phoneAuthService.matchPasswordChangePhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
+        phoneAuthService.delPasswordPhoneAuthTempToken(passwordResetRequest.getPhoneDto().getPhone());
         return ResponseEntity.ok().body(ResponseBody.successResponse());
     }
 

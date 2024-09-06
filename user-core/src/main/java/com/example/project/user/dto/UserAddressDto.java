@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -31,6 +32,10 @@ public class UserAddressDto {
                 .build();
     }
     public static List<UserAddressDto> fromEntityList(List<UserAddress> addresses) {
+        if(addresses == null || addresses.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         return addresses.stream().map(address -> UserAddressDto.builder()
                 .addressName(address.getAddressName())
                 .zoneNo(address.getZoneNo())
