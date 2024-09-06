@@ -94,7 +94,7 @@ public class SecurityConfig {
         }};
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowOrigins);
-        configuration.setAllowedOrigins(allowWildcard);
+        configuration.setAllowedMethods(allowWildcard);
         configuration.setAllowedHeaders(allowWildcard);
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
