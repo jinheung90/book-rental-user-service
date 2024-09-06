@@ -236,8 +236,7 @@ public class UserController {
         return ResponseEntity.ok().body(ResponseBody.successResponse());
     }
 
-    @PutMapping(value = "/profile",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/profile")
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "회원 정보 수정")
     public ResponseEntity<UserProfileDto> updateUserProfile(
