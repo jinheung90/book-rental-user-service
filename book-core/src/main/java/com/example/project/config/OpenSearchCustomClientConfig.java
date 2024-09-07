@@ -41,7 +41,13 @@ public class OpenSearchCustomClientConfig extends AbstractOpenSearchConfiguratio
                 .usingSsl()
                 .withBasicAuth(username, password)
                 .build();
-        log.info(clientConfiguration.getEndpoints().get(0).getAddress().toString());
+        clientConfiguration.getEndpoints().forEach(
+                inetSocketAddress -> {
+                    log.info(inetSocketAddress.getHostName());
+                    log.info(String.valueOf(inetSocketAddress.getPort()));
+                    log.info(inetSocketAddress.getHostString());
+                }
+        );
         return RestClients.create(clientConfiguration).rest();
     }
 
