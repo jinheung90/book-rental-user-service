@@ -29,7 +29,7 @@ import java.util.List;
 @Configuration
 public class OpenSearchCustomClientConfig extends AbstractOpenSearchConfiguration {
 
-    @Value("${spring.elasticsearch.uris}")
+    @Value("#{'${spring.elasticsearch.uris}'.split(',')}")
     private String[] uris;
 
     @Value("${spring.elasticsearch.username}")
