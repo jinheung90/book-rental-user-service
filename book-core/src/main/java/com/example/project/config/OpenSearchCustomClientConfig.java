@@ -8,8 +8,10 @@ import org.opensearch.data.client.orhlc.RestClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
+@EnableElasticsearchRepositories(basePackages = {"com.example.project.book.search.repository"})
 @Slf4j
 public class OpenSearchCustomClientConfig extends AbstractOpenSearchConfiguration {
 
