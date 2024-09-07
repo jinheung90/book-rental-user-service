@@ -21,12 +21,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-
 public class OpenSearchCustomClientConfig extends AbstractOpenSearchConfiguration {
 
     @Value("${spring.elasticsearch.uris}")
