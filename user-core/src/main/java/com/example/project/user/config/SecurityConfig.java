@@ -43,6 +43,7 @@ public class SecurityConfig {
     private static final String[] DEV_WHITELIST = {
             "/v3/api-docs/**",
             "/actuator/*",
+            "/api/swagger-ui/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
             "/api-docs.yaml",
@@ -77,6 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/book/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(whiteList).permitAll()
                         .anyRequest().permitAll()
@@ -87,10 +89,13 @@ public class SecurityConfig {
     }
 
     public CorsConfigurationSource corsConfigurationSource() {
+        List<String> allowWildcard = new ArrayList<>() {{
+            add("*");
+        }};
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(allowOrigins);
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
+        configuration.setAllowedMethods(allowWildcard);
+        configuration.setAllowedHeaders(allowWildcard);
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

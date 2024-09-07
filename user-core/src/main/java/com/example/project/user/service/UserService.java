@@ -55,8 +55,6 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserSecurity findUserSecurityByPhoneAndEmailAndLoginProvider(String phone, String email, LoginProvider loginProvider) {
-        log.warn(phone, email);
-        log.warn(email);
         return userSecurityRepository.findByUserPhoneAndEmailAndProvider(phone, email, loginProvider)
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER, " not exists user from phone and email"));
     }
@@ -66,7 +64,6 @@ public class UserService {
     @Transactional
     public UserSecurity emailVerifyAndPasswordReset(String phone, String email, String password) {
         CommonFunction.matchPasswordRegex(password);
-        log.info(email);
         final UserSecurity userSecurity = findUserSecurityByPhoneAndEmailAndLoginProvider(phone, email, LoginProvider.EMAIL);
         userSecurity.setPassword(passwordEncoder.encode(password));
         return userSecurity;
@@ -198,6 +195,8 @@ public class UserService {
             this.duplicatedNicknameNotMe(userProfileDto.getNickName(), userId);
             userProfile.setNickName(userProfileDto.getNickName());
         }
+
+        userProfile.updateProfileImageUrl(userProfileDto.getProfileImageUrl());
 
         return userProfile;
     }

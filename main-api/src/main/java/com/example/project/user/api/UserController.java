@@ -55,10 +55,7 @@ public class UserController {
     private final UserService userService;
     private final SnsSender snsSender;
 
-    @PostMapping(
-        value = "/signup/email",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(value = "/signup/email")
     @Operation(summary = "회원가입 (이메일)")
     public ResponseEntity<LoginResponse> signup(
         @RequestBody EmailSignupRequest emailSignupRequest
@@ -81,10 +78,7 @@ public class UserController {
         );
     }
 
-    @PostMapping(
-            value = "/signup/kakao",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(value = "/signup/kakao")
     @Operation(summary = "회원가입 카카오")
     public ResponseEntity<LoginResponse> signup(
         @RequestBody KakaoSignupRequest kakaoSignupRequest
@@ -156,7 +150,7 @@ public class UserController {
         if(userService.existsUserByPhone(phoneDto.getPhone())) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "exists phone");
         }
-        final String authNumber = phoneAuthService.setPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_SIGNUP_KEY);
+        final String authNumber = phoneAuthService.setSignupPhoneAuthNumber(phoneDto.getPhone());
         this.snsSender.sendPhoneAuthNumberMessage(phoneDto.getPhone(), authNumber);
         return ResponseEntity.ok().body(phoneDto);
     }
@@ -167,7 +161,7 @@ public class UserController {
             @RequestBody PhoneDto phoneDto
     ) {
         CommonFunction.matchPhoneRegex(phoneDto.getPhone());
-        final String authNumber = phoneAuthService.setPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_EMAIL_KEY);
+        final String authNumber = phoneAuthService.setEmailFindPhoneAuthNumber(phoneDto.getPhone());
         this.snsSender.sendPhoneAuthNumberMessage(phoneDto.getPhone(), authNumber);
         return ResponseEntity.ok().body(phoneDto);
     }
@@ -178,7 +172,7 @@ public class UserController {
             @RequestBody PhoneDto phoneDto
     ) {
         CommonFunction.matchPhoneRegex(phoneDto.getPhone());
-        final String authNumber = phoneAuthService.setPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_PASSWORD_KEY);
+        final String authNumber = phoneAuthService.setPasswordResetPhoneAuthNumber(phoneDto.getPhone());
         this.snsSender.sendPhoneAuthNumberMessage(phoneDto.getPhone(), authNumber);
         return ResponseEntity.ok().body(phoneDto);
     }
@@ -188,7 +182,7 @@ public class UserController {
     public ResponseEntity<PhoneDto> verifyPhoneAuthNumberWhenSignup(
             @RequestBody PhoneDto phoneDto
     ) {
-        String authNumber = phoneAuthService.getPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_SIGNUP_KEY);
+        String authNumber = phoneAuthService.getSignupPhoneAuthNumber(phoneDto.getPhone());
 
         if(authNumber == null) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PHONE_AUTH_NUM_EXPIRED);
@@ -206,7 +200,7 @@ public class UserController {
     public ResponseEntity<UserDto> verifyPhoneAuthNumberWhenFindEmail(
             @RequestBody PhoneDto phoneDto
     ) {
-        String authNumber = phoneAuthService.getPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_EMAIL_KEY);
+        String authNumber = phoneAuthService.getFindEmailPhoneAuthNumber(phoneDto.getPhone());
 
         if(authNumber == null) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PHONE_AUTH_NUM_EXPIRED);
@@ -222,13 +216,10 @@ public class UserController {
 
     @PostMapping("/auth/phone/verify/password")
     @Operation(summary = "휴대폰 인증번호 검증 (비밀번호 재설정)")
-    public ResponseEntity<Map<String, Object>> verifyPhoneAuthNumberWhenPasswordReset(
-            @RequestBody PasswordResetRequest passwordResetRequest
+    public ResponseEntity<PhoneDto> verifyPhoneAuthNumberWhenPasswordReset(
+            @RequestBody PhoneDto phoneDto
     ) {
-        final PhoneDto phoneDto = passwordResetRequest.getPhoneDto();
-        final UserSecurityDto userSecurityDto = passwordResetRequest.getUserSecurityDto();
-
-        String authNumber = phoneAuthService.getPhoneAuthNumber(phoneDto.getPhone(), PhoneAuthKeys.PHONE_AUTH_PASSWORD_KEY);
+        String authNumber = phoneAuthService.getPasswordResetPhoneAuthNumber(phoneDto.getPhone());
 
         if(authNumber == null) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PHONE_AUTH_NUM_EXPIRED);
@@ -237,13 +228,26 @@ public class UserController {
         if(!authNumber.equals(phoneDto.getAuthNumber())) {
             throw new RuntimeExceptionWithCode(GlobalErrorCode.PASSWORD_NOT_MATCH);
         }
-        log.warn(userSecurityDto.getEmail());
-        userService.emailVerifyAndPasswordReset(phoneDto.getPhone(), userSecurityDto.getEmail(), userSecurityDto.getPassword());
+
+        String authTempToken = phoneAuthService.setPasswordChangePhoneAuthTempToken(phoneDto.getPhone());
+        phoneDto = new PhoneDto("", "", authTempToken);
+        return ResponseEntity.ok().body(phoneDto);
+    }
+
+    @PostMapping("/auth/password")
+    @Operation(summary = "비밀번호 재설정")
+    public ResponseEntity<Map> verifyPhoneAuthNumberWhenPasswordReset(
+            @RequestBody PasswordResetRequest passwordResetRequest
+    ) {
+        final PhoneDto phoneDto = passwordResetRequest.getPhoneDto();
+        final EmailSignInRequest emailSignInRequest = passwordResetRequest.getEmailSignInRequest();
+        userService.emailVerifyAndPasswordReset(phoneDto.getPhone(), emailSignInRequest.getEmail(), emailSignInRequest.getPassword());
+        phoneAuthService.matchPasswordChangePhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
+        phoneAuthService.delPasswordPhoneAuthTempToken(passwordResetRequest.getPhoneDto().getPhone());
         return ResponseEntity.ok().body(ResponseBody.successResponse());
     }
 
-    @PutMapping(value = "/profile",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/profile")
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "회원 정보 수정")
     public ResponseEntity<UserProfileDto> updateUserProfile(
@@ -254,7 +258,7 @@ public class UserController {
 
         final UserProfile userProfile = userService.updateUserProfile(userProfileDto, customUserDetail.getPK());
         List<KakaoAddressSearchDto.Documents> kakaoAddress = new ArrayList<>();
-        if(addresses != null && addresses.size() > 0) {
+        if(addresses != null && !addresses.isEmpty()) {
             for (UserAddressDto address: addresses
                  ) {
                 KakaoAddressSearchDto.Documents documents = kakaoAddressSearchClient.findOneByNameAndZoneNo(address.getAddressName(), address.getZoneNo());

@@ -56,19 +56,6 @@ public class NaverBookItem {
                 .build();
     }
 
-    public static com.example.project.book.search.doc.Book toDoc(NaverBookItem item) {
-        return com.example.project.book.search.doc.Book.builder()
-                .isbn(item.getIsbn())
-                .author(item.getAuthor())
-                .link(item.getLink())
-                .description(item.getDescription())
-                .discount(item.getDiscount())
-                .pubdate(item.getPubdate())
-                .image(item.getImage())
-                .publisher(item.getPublisher())
-                .title(item.getTitle())
-                .build();
-    }
 
     public static String descriptionFitFromColumn(String description) {
         char[] characters = description.toCharArray();
