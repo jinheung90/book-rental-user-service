@@ -10,10 +10,12 @@ import org.opensearch.gateway.GatewayException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import java.util.List;
 
 @Configuration
+@EnableElasticsearchRepositories(basePackages = "com.example.project.book.search.repository")
 public class OpenSearchCustomClientConfig extends AbstractOpenSearchConfiguration {
 
     @Value("#{'${spring.elasticsearch.uris}'.split(',')}")
@@ -39,13 +41,10 @@ public class OpenSearchCustomClientConfig extends AbstractOpenSearchConfiguratio
         } else {
             clientConfiguration = ClientConfiguration.builder()
                     .connectedTo(uris)
+                    .usingSsl()
                     .withBasicAuth(username, password)
                     .build();
         }
-        try {
-            return RestClients.create(clientConfiguration).rest();
-        } catch (Exception e) {
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.SEVER_ERROR);
-        }
+        return RestClients.create(clientConfiguration).rest();
     }
 }
