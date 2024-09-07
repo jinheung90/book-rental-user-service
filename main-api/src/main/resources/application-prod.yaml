@@ -30,7 +30,7 @@ spring:
       port: 6379
       host: book-rental-cache-ro.v6ojg2.ng.0001.apn2.cache.amazonaws.com
   elasticsearch:
-    uris: ${opensearch-uris}
+    host: ${opensearch-uris}
     username: ${opensearch-username}
     password: ${opensearch-password}
   task:

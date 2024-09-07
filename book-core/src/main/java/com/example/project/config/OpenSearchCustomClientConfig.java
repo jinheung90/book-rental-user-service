@@ -1,25 +1,35 @@
 package com.example.project.config;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
 import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
-import org.opensearch.client.RestHighLevelClient;
-import org.opensearch.data.client.orhlc.AbstractOpenSearchConfiguration;
-import org.opensearch.data.client.orhlc.ClientConfiguration;
-import org.opensearch.data.client.orhlc.RestClients;
-import org.opensearch.gateway.GatewayException;
+
+import jdk.jfr.ContentType;
+import org.apache.http.*;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HttpContext;
+import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.elasticsearch.client.ClientConfiguration;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.springframework.http.MediaType;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "com.example.project.book.search.repository")
-public class OpenSearchCustomClientConfig extends AbstractOpenSearchConfiguration {
+public class OpenSearchCustomClientConfig {
 
-    @Value("#{'${spring.elasticsearch.uris}'.split(',')}")
-    private String[] uris;
+    @Value("${spring.elasticsearch.host}")
+    private String host;
 
     @Value("${spring.elasticsearch.username}")
     private String username;
@@ -30,21 +40,28 @@ public class OpenSearchCustomClientConfig extends AbstractOpenSearchConfiguratio
     @Value("${spring.profiles.active}")
     private String profile;
 
-    @Override
     @Bean
-    public RestHighLevelClient opensearchClient() {
-        ClientConfiguration clientConfiguration;
+    public ElasticsearchClient elasticsearchClient() {
+        HttpHost httpHost;
         if(profile.equals("local")) {
-            clientConfiguration = ClientConfiguration.builder()
-                    .connectedTo(uris)
-                    .build();
+            httpHost = new HttpHost("localhost", 9200, "http");
         } else {
-            clientConfiguration = ClientConfiguration.builder()
-                    .connectedTo(uris)
-                    .usingSsl()
-                    .withBasicAuth(username, password)
-                    .build();
+            httpHost = new HttpHost(host, 443, "https");
         }
-        return RestClients.create(clientConfiguration).rest();
+        final RestClient restClient = RestClient.builder(new HttpHost(httpHost))
+                .setDefaultHeaders(
+                        new Header[]{new BasicHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)}
+                ).setHttpClientConfigCallback(
+                        httpClientBuilder -> httpClientBuilder.addInterceptorLast((HttpResponseInterceptor) (response, context) -> {
+                            response.addHeader("X-Elastic-Product", "Elasticsearch");
+                        })
+                )
+                .build();
+        return new  ElasticsearchClient(
+                new RestClientTransport(
+                        restClient, new JacksonJsonpMapper()
+                )
+        );
     }
+
 }
