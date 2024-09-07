@@ -52,8 +52,7 @@ sequenceDiagram
         - 추천순 (좋아요, 클릭 수 복합)
         - 가까운 순 (유저 프로필 주소, 현재 주소)
     - 특정 유저가 올린 책으로 검색 가능
-    - 책 이름, 유저 책 타이틀 이름으로 텍스트 검색 (자모 분리 및 자동 완성기능), 
-
+    - 책 이름, 유저 책 타이틀 이름으로 텍스트 검색 (자모 분리 및 자동 완성기능),
 
 ## 고민한 부분
 
@@ -66,12 +65,20 @@ sequenceDiagram
     좋아요를 redis로 처리해서 캐싱하려고 했으나 즉시 반영해야할 필요가 있었음, 
     따라서 mysql에 직접 넣는것이 효율적이라고 판단
 
-## 기타 
+## ES
+
+#### es 설정
+    - 설치 
+    https://opensearch.org/versions/opensearch-2-16-0.html
+    - plugin 설치
+    - .\bin\opensearch-plugin install analysis-nori (한글 형태소 분석기)
+    - .\bin\opensearch-plugin install analysis-icu (자모 분리)
+
+#### suggestion
+    - 
+
+## 기타
 
 ### 책 상세 클릭 수 정책
     - 30일 전 부터 오늘까지의 집계 결과
     - 클릭 복수x 2시간마다 새로 클릭 반영가능
-
-### boost 설정 기능
-    - 추후에 어드민으로 검색의 boost를 설정 할 수 있도록 하는 api 생성
-

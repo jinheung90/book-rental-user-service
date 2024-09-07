@@ -22,8 +22,6 @@ import java.util.Objects;
 @Getter
 @AllArgsConstructor
 @Slf4j
-@Mapping(mappingPath = "mappings.json")
-@Setting(settingPath = "settings.json")
 public class UserBook {
 
     @Id

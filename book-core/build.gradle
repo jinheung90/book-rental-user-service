@@ -3,6 +3,7 @@
 dependencies {
     implementation project(":common")
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation group: 'org.opensearch.client', name: 'spring-data-opensearch', version: '1.5.2'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'

@@ -1,10 +1,8 @@
 package com.example.project.book.search.service;
 
 
-import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.example.project.book.client.dto.NaverBookItem;
-import com.example.project.book.client.dto.NaverDetailBookDto;
+
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookClickCountDto;
 import com.example.project.book.dto.UserBookDto;
@@ -72,25 +70,25 @@ public class BookSearchService {
         );
     }
 
-    public Page<UserBookDto> searchUserBooks(
-        String keyword,
-        BookSortType sortType,
-        Long userId,
-        BookSellType bookSellType,
-        double longitude,
-        double latitude,
-        PageRequest pageRequest
-    ) {
-        return userBookESQuery.searchUserBookQuery(
-            keyword,
-            sortType,
-            userId,
-            bookSellType,
-            longitude,
-            latitude,
-            pageRequest
-        );
-    }
+//    public Page<UserBookDto> searchUserBooks(
+//        String keyword,
+//        BookSortType sortType,
+//        Long userId,
+//        BookSellType bookSellType,
+//        double longitude,
+//        double latitude,
+//        PageRequest pageRequest
+//    ) {
+//        return userBookESQuery.searchUserBookQuery(
+//            keyword,
+//            sortType,
+//            userId,
+//            bookSellType,
+//            longitude,
+//            latitude,
+//            pageRequest
+//        );
+//    }
 
     @Async
     public void updateBookLikeCount(Long userBookId, boolean activity) {

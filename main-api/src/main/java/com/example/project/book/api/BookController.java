@@ -89,17 +89,17 @@ public class BookController {
 
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<UserBookDto> searchResult;
-
-        try {
-            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, x, y, pageRequest);
-            Map<Long, UserBookLike> userBookLikeMap = bookService.getBookLikesByIdInAndUserId(searchResult.getContent().stream().map(UserBookDto::getUserId).toList(), customUserDetail.getPK());
-            searchResult.getContent().forEach(
-                    userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()).isActivity())
-            );
-        } catch (Exception e) {
-            log.error(e.getMessage());
+//
+//        try {
+//            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, x, y, pageRequest);
+//            Map<Long, UserBookLike> userBookLikeMap = bookService.getBookLikesByIdInAndUserId(searchResult.getContent().stream().map(UserBookDto::getUserId).toList(), customUserDetail.getPK());
+//            searchResult.getContent().forEach(
+//                    userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()).isActivity())
+//            );
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
             searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK(), bookSellType, sortKey);
-        }
+//        }
 
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
