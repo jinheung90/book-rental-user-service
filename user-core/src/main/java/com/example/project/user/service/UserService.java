@@ -54,17 +54,17 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserSecurity findUserSecurityByPhoneAndEmailAndLoginProvider(String phone, String email, LoginProvider loginProvider) {
-        return userSecurityRepository.findByUserPhoneAndEmailAndProvider(phone, email, loginProvider)
+    public UserSecurity findUserSecurityByPhoneAndEmailAndLoginProvider(String phone, LoginProvider loginProvider) {
+        return userSecurityRepository.findByUserPhoneAndProvider(phone, loginProvider)
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER, " not exists user from phone and email"));
     }
 
 
 
     @Transactional
-    public UserSecurity emailVerifyAndPasswordReset(String phone, String email, String password) {
+    public UserSecurity passwordReset(String phone, String password) {
         CommonFunction.matchPasswordRegex(password);
-        final UserSecurity userSecurity = findUserSecurityByPhoneAndEmailAndLoginProvider(phone, email, LoginProvider.EMAIL);
+        final UserSecurity userSecurity = findUserSecurityByPhoneAndEmailAndLoginProvider(phone, LoginProvider.EMAIL);
         userSecurity.setPassword(passwordEncoder.encode(password));
         return userSecurity;
     }

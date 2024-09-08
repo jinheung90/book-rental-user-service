@@ -21,5 +21,5 @@ public interface UserSecurityRepository extends JpaRepository<UserSecurity, Long
     Optional<UserSecurity> findByUserId(Long userId);
 
     @EntityGraph(attributePaths = {"user", "user.authorities", "user.userProfile"})
-    Optional<UserSecurity> findByUserPhoneAndEmailAndProvider(String phone, String email, LoginProvider provider);
+    Optional<UserSecurity> findByUserPhoneAndProvider(String phone, LoginProvider provider);
 }

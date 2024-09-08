@@ -241,7 +241,7 @@ public class UserController {
     ) {
         final PhoneDto phoneDto = passwordResetRequest.getPhoneDto();
         final EmailSignInRequest emailSignInRequest = passwordResetRequest.getEmailSignInRequest();
-        userService.emailVerifyAndPasswordReset(phoneDto.getPhone(), emailSignInRequest.getEmail(), emailSignInRequest.getPassword());
+        userService.passwordReset(phoneDto.getPhone(), emailSignInRequest.getPassword());
         phoneAuthService.matchPasswordChangePhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
         phoneAuthService.delPasswordPhoneAuthTempToken(passwordResetRequest.getPhoneDto().getPhone());
         return ResponseEntity.ok().body(ResponseBody.successResponse());
