@@ -1,5 +1,6 @@
 package com.example.project.book.client.api;
 
+import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 
 import com.example.project.book.client.dto.NaverDetailBookDto;
@@ -17,6 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -50,13 +54,16 @@ public class NaverBookSearchClient {
                 .header(CLIENT_ID_HEADER_NAME, clientId)
                 .header(CLIENT_SECRET_HEADER_NAME, clientSecret)
                 .build();
+
         ResponseEntity<String> response = restTemplate.exchange(requestEntity, String.class);
         String jsonStr = response.getBody();
 
         this.isSuccessful(response);
 
         try {
-            return new ObjectMapper().readValue(response.getBody(), NaverBookSearchDto.class);
+            NaverBookSearchDto result = new ObjectMapper().readValue(response.getBody(), NaverBookSearchDto.class);
+            result.deleteByIsbnIsNull();
+            return result;
         } catch (JsonProcessingException e) {
             log.error(e.getLocalizedMessage());
             log.error(jsonStr);

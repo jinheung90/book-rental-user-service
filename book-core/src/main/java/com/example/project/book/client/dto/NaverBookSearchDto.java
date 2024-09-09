@@ -15,4 +15,11 @@ public class NaverBookSearchDto {
     private int start;
     private int display;
     private List<NaverBookItem> items;
+
+    public void deleteByIsbnIsNull() {
+        if(items == null) {
+            return;
+        }
+        items = items.stream().filter(item -> item.getIsbn() != null).toList();
+    }
 }
