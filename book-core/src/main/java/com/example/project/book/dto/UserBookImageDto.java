@@ -1,5 +1,6 @@
 package com.example.project.book.dto;
 
+import com.example.project.book.store.entity.UserBook;
 import com.example.project.book.store.entity.UserBookImage;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,6 +43,15 @@ public class UserBookImageDto {
                 .id(userBookImage.getId())
                 .imageOrder(userBookImage.getImageOrder())
                 .mainImage(userBookImage.getMainImage())
+                .build();
+    }
+
+    public static UserBookImage toEntity(UserBookImageDto userBookImageDto, UserBook userBook) {
+        return UserBookImage.builder()
+                .userBook(userBook)
+                .imageOrder(userBookImageDto.getImageOrder())
+                .imageUrl(userBookImageDto.getImageUrl())
+                .mainImage(userBookImageDto.getMainImage())
                 .build();
     }
 }

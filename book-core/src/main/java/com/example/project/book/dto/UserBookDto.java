@@ -76,7 +76,7 @@ public class UserBookDto {
                                 UserBookImageDto::fromEntity
                         ).toList()
                 ).detail(userBook.getDetail())
-                .title(userBook.getBook().getTitle())
+                .title(userBook.getTitle())
                 .address(
                         SearchAddressDto.fromEntity(userBookAddress)
                 )

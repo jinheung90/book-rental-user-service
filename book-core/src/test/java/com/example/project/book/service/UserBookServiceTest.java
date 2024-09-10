@@ -1,6 +1,7 @@
 package com.example.project.book.service;
 
 
+import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookDto;
 import com.example.project.book.dto.UserBookImageDto;
@@ -104,13 +105,13 @@ public class UserBookServiceTest {
     @Test
     void updateUserBookNotFindThenThrow() {
         BDDMockito.given(userBookRepository.findByUserIdAndId(1L, 3L)).willThrow(RuntimeExceptionWithCode.class);
-        Assertions.assertThrows(RuntimeExceptionWithCode.class, () -> bookService.updateUserBook(userBookDto, 1L, 3L, new SearchAddressDto()));
+        Assertions.assertThrows(RuntimeExceptionWithCode.class, () -> bookService.updateUserBook(userBookDto, 1L, 3L, new SearchAddressDto(), NaverBookItem.builder().build()));
     }
 
     @Test
     void updateUserBookTestWhenExistsUpdate() {
         BDDMockito.given(userBookRepository.findByUserIdAndId(1L, 5L)).willReturn(Optional.of(userBook));
-        UserBook actual = bookService.updateUserBook(userBookDto, 1L, 5L, new SearchAddressDto());
+        UserBook actual = bookService.updateUserBook(userBookDto, 1L, 5L, new SearchAddressDto(), NaverBookItem.builder().build());
         Assertions.assertAll(
                 () -> Assertions.assertEquals(result.getTitle(), actual.getTitle()),
                 () -> Assertions.assertEquals(result.getBookSellType(), actual.getBookSellType()),
@@ -121,7 +122,7 @@ public class UserBookServiceTest {
     @Test
     void updateUserBookTestWhenTitleEmptyString() {
         BDDMockito.given(userBookRepository.findByUserIdAndId(1L, 5L)).willReturn(Optional.of(userBook));
-        UserBook actual = bookService.updateUserBook(userBookDtoEmpty, 1L, 5L, new SearchAddressDto());
+        UserBook actual = bookService.updateUserBook(userBookDtoEmpty, 1L, 5L, new SearchAddressDto(), NaverBookItem.builder().build());
         Assertions.assertAll(
                 () -> Assertions.assertEquals("titlebefore", actual.getTitle()),
                 () -> Assertions.assertEquals("detailbefore", actual.getDetail())

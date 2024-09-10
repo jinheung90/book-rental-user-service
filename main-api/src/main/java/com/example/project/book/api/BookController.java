@@ -159,8 +159,12 @@ public class BookController {
                     this.kakaoAddressSearchClient.findOneByNameAndZoneNo(addressDto.getAddressName(), addressDto.getZoneNo()).getRoad_address();
             addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
         }
-        final UserBook userBook = bookService.updateUserBook(userBookDto, customUserDetail.getPK(), userBookId, addressDto);
-        bookSearchService.updateUserBook(userBook.getId(), userBookDto, addressDto);
+        NaverBookItem naverBookItem = userBookDto.getBookInfo();
+        if(naverBookItem.getIsbn() != null && naverBookItem.getTitle() != null && !naverBookItem.getTitle().isBlank()) {
+            naverBookItem = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn()).getChannel().getItem();
+        }
+        final UserBook userBook = bookService.updateUserBook(userBookDto, customUserDetail.getPK(), userBookId, addressDto, naverBookItem);
+        bookSearchService.updateUserBook(userBookId, userBookDto, addressDto);
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 

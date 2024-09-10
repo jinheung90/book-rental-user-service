@@ -105,11 +105,10 @@ public class BookSearchService {
     public UserBook findByBookId(Long userBookId) {
         return userBookESRepository.findByBookId(userBookId)
             .orElseThrow(
-                () -> new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST)
+                () -> new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "not exists bookId")
             );
     }
 
-    @Async
     public void updateUserBook(Long userBookId, UserBookDto userBookDto, SearchAddressDto newAddressDto) {
 
         UserBook userBook = findByBookId(userBookId);

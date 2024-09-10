@@ -77,10 +77,12 @@ public class BookService {
             UserBookDto userBookDto,
             Long userId,
             Long userBookId,
-            SearchAddressDto addressDto
+            SearchAddressDto addressDto,
+            NaverBookItem naverBookItem
     ) {
          final UserBook userBook = userBookRepository.findByUserIdAndId(userId, userBookId)
                  .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "can't access userBook"));
+
          userBook.setBookSellType(userBookDto.getBookSellType());
          userBook.setDetail(userBookDto.getDetail());
          userBook.setTitle(userBookDto.getTitle());
@@ -88,17 +90,18 @@ public class BookService {
          userBook.setRentPrice(userBookDto.getRentPrice());
          userBook.setSellPrice(userBookDto.getSellPrice());
          userBook.setImages(updateImages(userBookDto.getUserBookImageDtos(), userBook));
+
         if(addressDto != null && addressDto.getAddressName() != null && !addressDto.getAddressName().isBlank()) {
-            this.deleteUserBookAddressById(userBook.getUserBookAddress().getId());
-            userBook.setUserBookAddress(
-                UserBookAddress.builder()
-                    .latitude(addressDto.getLatitude())
-                    .longitude(addressDto.getLongitude())
-                    .addressName(addressDto.getAddressName())
-                    .zoneNo(addressDto.getZoneNo())
-                    .build()
-            );
+            Long preUserBookId = userBook.getUserBookAddress().getId();
+            userBook.setUserBookAddress(SearchAddressDto.toEntity(addressDto));
+            this.deleteUserBookAddressById(preUserBookId);
         }
+
+        if(naverBookItem != null) {
+            Book book = findBookByIsbnOrElseSave(naverBookItem);
+            userBook.setBook(book);
+        }
+
         return userBook;
     }
 
@@ -140,11 +143,7 @@ public class BookService {
     public List<UserBookImage> saveUserBookImages(List<UserBookImageDto> userBookImages, UserBook userBook) {
         if(userBookImages != null) {
             return userBookImageRepository.saveAll(userBookImages.stream().map(userBookImageDto ->
-                    UserBookImage.builder()
-                            .userBook(userBook)
-                            .imageOrder(userBookImageDto.getImageOrder())
-                            .imageUrl(userBookImageDto.getImageUrl())
-                            .build()
+                    UserBookImageDto.toEntity(userBookImageDto, userBook)
             ).toList());
         }
         return new ArrayList<>();

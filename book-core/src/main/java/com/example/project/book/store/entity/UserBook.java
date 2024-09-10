@@ -119,6 +119,10 @@ public class UserBook {
         this.rentPrice = rentPrice;
     }
 
+    public void setBook(Book book) {
+        this.book = book;
+    }
+
     public void setImages(List<UserBookImage> userBookImages) {
         this.images = userBookImages;
     }

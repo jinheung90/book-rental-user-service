@@ -29,5 +29,4 @@ public class UserBookAddress {
 
     @Column
     private Double latitude;
-
 }
