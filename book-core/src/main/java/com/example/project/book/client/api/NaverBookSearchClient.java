@@ -40,6 +40,10 @@ public class NaverBookSearchClient {
 
     public NaverBookSearchDto getBooksFromName(int start, int display, String name) {
 
+        if(name.isBlank()) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, "잘못된 쿼리 요청입니다.");
+        }
+
         UriComponents uri = UriComponentsBuilder
                 .fromUriString("https://openapi.naver.com/v1/search/book.json")
                 .queryParam("query", name)
@@ -48,7 +52,6 @@ public class NaverBookSearchClient {
                 .queryParam("sort", "sim")
                 .encode()
                 .build();
-        log.info(uri.toUriString());
 
         RequestEntity requestEntity = RequestEntity.get(uri.toUri())
                 .header(CLIENT_ID_HEADER_NAME, clientId)
@@ -65,6 +68,7 @@ public class NaverBookSearchClient {
             result.deleteByIsbnIsNull();
             return result;
         } catch (JsonProcessingException e) {
+            log.error(name);
             log.error(e.getLocalizedMessage());
             log.error(jsonStr);
             throw new RuntimeExceptionWithCode(GlobalErrorCode.NAVER_API_FAIL, "string to json parse fail");

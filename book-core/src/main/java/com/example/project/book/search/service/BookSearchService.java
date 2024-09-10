@@ -22,9 +22,7 @@ import com.example.project.common.util.JamoSeparate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHit;
+
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -55,6 +53,7 @@ public class BookSearchService {
                 .bookSellType(userBookDto.getBookSellType())
                 .activity(true)
                 .book(Book.fromBook(bookItem))
+                .titleWordUnits(JamoSeparate.separate(bookItem.getTitle()))
                 .rentPrice(userBookDto.getRentPrice().intValue())
                 .sellPrice(userBookDto.getSellPrice().intValue())
                 .title(userBookDto.getTitle())
@@ -70,25 +69,25 @@ public class BookSearchService {
         );
     }
 
-//    public Page<UserBookDto> searchUserBooks(
-//        String keyword,
-//        BookSortType sortType,
-//        Long userId,
-//        BookSellType bookSellType,
-//        double longitude,
-//        double latitude,
-//        PageRequest pageRequest
-//    ) {
-//        return userBookESQuery.searchUserBookQuery(
-//            keyword,
-//            sortType,
-//            userId,
-//            bookSellType,
-//            longitude,
-//            latitude,
-//            pageRequest
-//        );
-//    }
+    public Page<UserBookDto> searchUserBooks(
+        String keyword,
+        BookSortType sortType,
+        Long userId,
+        BookSellType bookSellType,
+        double longitude,
+        double latitude,
+        PageRequest pageRequest
+    ) {
+        return userBookESQuery.searchUserBookQuery(
+            keyword,
+            sortType,
+            userId,
+            bookSellType,
+            longitude,
+            latitude,
+            pageRequest
+        );
+    }
 
     @Async
     public void updateBookLikeCount(Long userBookId, boolean activity) {

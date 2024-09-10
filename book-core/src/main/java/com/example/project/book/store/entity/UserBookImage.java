@@ -29,7 +29,7 @@ public class UserBookImage {
     private Boolean mainImage;
 
     @ManyToOne
-    @JoinColumn(name = "user_book_id", nullable = false)
+    @JoinColumn(name = "user_book_id")
     private UserBook userBook;
 
     @CreationTimestamp

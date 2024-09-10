@@ -6,19 +6,17 @@ import com.example.project.book.client.dto.NaverDetailBookDto;
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookLikeDto;
 import com.example.project.book.search.service.BookSearchService;
-import com.example.project.book.store.entity.Book;
+
 import com.example.project.book.store.entity.UserBook;
 import com.example.project.book.store.entity.UserBookLike;
 
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
-import com.example.project.common.util.ResponseBody;
+
 import com.example.project.user.client.api.KakaoAddressSearchClient;
 import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.user.dto.UserProfileDto;
 
-import com.example.project.user.entity.User;
-import com.example.project.user.entity.UserAddress;
 import com.example.project.user.security.CustomUserDetail;
 import com.example.project.user.service.UserService;
 import com.example.project.book.client.api.NaverBookSearchClient;
@@ -37,18 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -65,7 +57,6 @@ public class BookController {
 
 
     @GetMapping("/book/search")
-    @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(description = "유저 책 검색")
     public ResponseEntity<Page<SearchBookDto>> searchBooks(
             @Parameter(description = "페이지")
@@ -81,25 +72,25 @@ public class BookController {
             @Parameter(description = "판매 가능 상태")
             @RequestParam(name = "bookSellType", required = false, defaultValue = "BOTH") BookSellType bookSellType,
             @Parameter(description = "현재 위치 좌표 (longitude) x")
-            @RequestParam(name = "longitude") Double x,
+            @RequestParam(name = "longitude", required = false) Double longitude,
             @Parameter(description = "현재 위치 좌표 (latitude) y")
-            @RequestParam(name = "latitude") Double y,
+            @RequestParam(name = "latitude", required = false) Double latitude,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
 
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<UserBookDto> searchResult;
-//
-//        try {
-//            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, x, y, pageRequest);
-//            Map<Long, UserBookLike> userBookLikeMap = bookService.getBookLikesByIdInAndUserId(searchResult.getContent().stream().map(UserBookDto::getUserId).toList(), customUserDetail.getPK());
-//            searchResult.getContent().forEach(
-//                    userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()).isActivity())
-//            );
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
+
+        try {
+            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, longitude, latitude, pageRequest);
+            Map<Long, UserBookLike> userBookLikeMap = bookService.getBookLikesByIdInAndUserId(searchResult.getContent().stream().map(UserBookDto::getUserId).toList(), customUserDetail.getPK());
+            searchResult.getContent().forEach(
+                    userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()).isActivity())
+            );
+        } catch (Exception e) {
+            log.error(e.getMessage());
             searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK(), bookSellType, sortKey);
-//        }
+        }
 
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
@@ -174,7 +165,6 @@ public class BookController {
     }
 
     @GetMapping("/book/search/naver")
-    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<NaverBookSearchDto> searchBooksFromNaver(
             @RequestParam(name = "start", defaultValue = "1") int start,
             @RequestParam(name = "display", defaultValue = "10") int display,

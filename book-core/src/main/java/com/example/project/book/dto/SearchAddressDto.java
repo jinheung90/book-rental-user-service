@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class SearchAddressDto {
+
     private Long id;
     private String addressName;
     private String zoneNo;
@@ -57,7 +58,7 @@ public class SearchAddressDto {
                 .addressName(roadAddressDto.getAddress_name())
                 .zoneNo(roadAddressDto.getZone_no())
                 .latitude(Double.valueOf(roadAddressDto.getY()))
-                .latitude(Double.valueOf(roadAddressDto.getX()))
+                .longitude(Double.valueOf(roadAddressDto.getX()))
                 .build();
     }
 

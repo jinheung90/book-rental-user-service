@@ -73,9 +73,27 @@ sequenceDiagram
     - plugin 설치
     - .\bin\opensearch-plugin install analysis-nori (한글 형태소 분석기)
     - .\bin\opensearch-plugin install analysis-icu (자모 분리)
+#### spring 설정
+    - spring data elasticsearch vs spring data opensearch
+    
+    spring data elasticsearch가 기능이 더 많음 특히 Native query를 써야함
+    spring data elasticsearch 으로 opensearch로 사용
+    
+    error X-Elastic-Product가 없음 
+    X-Elastic-Product=Elasticsearch 헤더 추가
+    {"error":"Content-Type header [application/vnd.elasticsearch+json; compatible-with=8] 
+    is not supported","status":406}
 
-#### suggestion
-    - 
+    content-type application/json으로 추가
+
+    clientConfiguration = ClientConfiguration.builder()
+                    .connectedToLocalhost()
+                    .withDefaultHeaders() // 여기에 넣어봤지만 작동 안함
+
+    // 여기에 추가로 설정
+    .addInterceptorLast((HttpRequestInterceptor) (request, context) ->
+        request.setHeader("Content-Type", "application/json"))
+
 
 ## 기타
 

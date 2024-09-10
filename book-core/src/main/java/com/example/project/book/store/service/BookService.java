@@ -173,6 +173,7 @@ public class BookService {
                         .builder()
                         .imageUrl(userBookImageDto.getImageUrl())
                         .imageOrder(userBookImageDto.getImageOrder())
+                        .mainImage(userBookImageDto.getMainImage())
                         .build()
                 ).toList())
                 .activity(true)
