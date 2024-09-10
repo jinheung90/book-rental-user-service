@@ -1,5 +1,6 @@
 package com.example.project.book.dto;
 
+import com.example.project.address.dto.AddressDto;
 import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.book.search.doc.Book;
 import com.example.project.book.search.doc.UserBook;
@@ -8,19 +9,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class SearchAddressDto {
-    private Long id;
-    private String addressName;
-    private String zoneNo;
-    private Double longitude;
-    private Double latitude;
+@SuperBuilder
+public class SearchAddressDto extends AddressDto {
 
     public static SearchAddressDto fromEntity(UserBookAddress address) {
         return SearchAddressDto.builder()

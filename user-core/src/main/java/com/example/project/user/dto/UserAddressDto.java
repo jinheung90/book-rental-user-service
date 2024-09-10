@@ -1,11 +1,13 @@
 package com.example.project.user.dto;
 
+import com.example.project.address.dto.AddressDto;
 import com.example.project.user.entity.UserAddress;
 import com.example.project.user.enums.AddressType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,17 +15,14 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class UserAddressDto {
+@SuperBuilder
+public class UserAddressDto extends AddressDto {
 
-    private String addressName;
-    private String zoneNo;
-    private Double longitude;
-    private Double latitude;
     private AddressType addressType;
 
     public static UserAddressDto fromEntity(UserAddress address) {
         return UserAddressDto.builder()
+                .id(address.getId())
                 .addressName(address.getAddressName())
                 .zoneNo(address.getZoneNo())
                 .latitude(address.getLatitude())
@@ -36,14 +35,6 @@ public class UserAddressDto {
             return new ArrayList<>();
         }
 
-        return addresses.stream().map(address -> UserAddressDto.builder()
-                .addressName(address.getAddressName())
-                .zoneNo(address.getZoneNo())
-                .latitude(address.getLatitude())
-                .longitude(address.getLongitude())
-                .addressType(address.getAddressType())
-                .build())
-                .toList();
-
+        return addresses.stream().map(UserAddressDto::fromEntity).toList();
     }
 }
