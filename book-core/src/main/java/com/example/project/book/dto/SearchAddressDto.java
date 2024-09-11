@@ -15,7 +15,6 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 @SuperBuilder
 public class SearchAddressDto extends AddressDto {
 

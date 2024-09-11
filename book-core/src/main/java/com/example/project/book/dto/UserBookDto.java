@@ -6,6 +6,7 @@ import com.example.project.book.search.doc.Book;
 import com.example.project.book.store.entity.UserBook;
 
 import com.example.project.book.store.entity.UserBookAddress;
+import com.example.project.book.store.entity.UserBookImage;
 import com.example.project.book.store.entity.UserBookLike;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
@@ -66,6 +67,13 @@ public class UserBookDto {
     @Builder.Default
     private boolean bookLikeState = false;
 
+    @Builder.Default
+    private Long clickCount = 0L;
+
+    public void setClickCount(Long clickCount) {
+        this.clickCount = clickCount;
+    }
+
     public static UserBookDto fromEntity(UserBook userBook) {
         final UserBookAddress userBookAddress = userBook.getUserBookAddress();
         return UserBookDto.builder()
@@ -113,6 +121,40 @@ public class UserBookDto {
                 .bookSellType(userBook.getBookSellType())
                 .rentState(userBook.getRentState())
                 .build();
+    }
+
+
+    public static UserBook toEntity(UserBookDto userBookDto, com.example.project.book.store.entity.Book book, Long userId, SearchAddressDto addressDto) {
+        UserBook userBook = UserBook.builder()
+                .rentPrice(userBookDto.getRentPrice())
+                .bookSellType(userBookDto.getBookSellType())
+                .sellPrice(userBookDto.getSellPrice())
+                .rentState(BookRentalStateType.AVAILABLE)
+                .bookSellType(userBookDto.getBookSellType())
+                .userBookAddress(UserBookAddress.builder()
+                        .addressName(addressDto.getAddressName())
+                        .zoneNo(addressDto.getZoneNo())
+                        .longitude(addressDto.getLongitude())
+                        .latitude(addressDto.getLatitude())
+                        .build())
+                .images(userBookDto.getUserBookImageDtos().stream().map(
+                        userBookImageDto -> UserBookImage
+                                .builder()
+                                .imageUrl(userBookImageDto.getImageUrl())
+                                .imageOrder(userBookImageDto.getImageOrder())
+                                .mainImage(userBookImageDto.getMainImage())
+                                .build()
+                ).toList())
+                .activity(true)
+                .book(book)
+                .userId(userId)
+                .detail(userBookDto.getDetail())
+                .title(userBookDto.getTitle())
+                .build();
+
+        userBook.setBookSellType(userBookDto.getBookSellType(), userBookDto.getRentPrice(), userBookDto.getSellPrice());
+
+        return userBook;
     }
 
     public void setBookLikeState(boolean bookLikeState) {

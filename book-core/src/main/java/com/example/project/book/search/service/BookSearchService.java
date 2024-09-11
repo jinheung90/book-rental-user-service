@@ -9,7 +9,7 @@ import com.example.project.book.dto.UserBookDto;
 
 import com.example.project.book.search.doc.Book;
 import com.example.project.book.search.doc.UserBook;
-import com.example.project.book.search.doc.UserBookClickLog;
+
 import com.example.project.book.search.repository.UserBookClickESRepository;
 import com.example.project.book.search.repository.UserBookESQuery;
 import com.example.project.book.search.repository.UserBookESRepository;
@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class BookSearchService {
     private final UserBookESRepository userBookESRepository;
     private final UserBookClickESRepository userBookClickESRepository;
     private final UserBookESQuery userBookESQuery;
+    private final ElasticsearchTemplate elasticsearchTemplate;
 
     @Async
     public void saveUserBook(
@@ -109,39 +111,23 @@ public class BookSearchService {
             );
     }
 
+    // elasticsearch는 업데이트라는 개념이 없으므로 삭제 후 생성
     public void updateUserBook(Long userBookId, UserBookDto userBookDto, SearchAddressDto newAddressDto) {
 
         UserBook userBook = findByBookId(userBookId);
-        userBook.setBookSellType(userBookDto.getBookSellType());
-        userBook.setDetail(userBookDto.getDetail());
-        userBook.setImages(userBookDto.getUserBookImageDtos());
-        userBook.setRentPrice(userBookDto.getRentPrice().intValue());
-        userBook.setSellPrice(userBookDto.getSellPrice().intValue());
-        userBook.setTitle(userBookDto.getTitle());
-        userBook.setRentState(userBookDto.getRentState());
-        userBook.setAddress(newAddressDto);
-
+        userBookESRepository.deleteById(userBook.getId());
+        userBook.updateUserBook(
+                userBookDto.getTitle(),
+                userBook.getBookSellType(),
+                userBook.getDetail(),
+                userBook.getBook(),
+                userBook.getSellPrice(),
+                userBook.getRentState(),
+                userBook.getRentPrice(),
+                userBook.getImages(),
+                newAddressDto
+        );
         userBookESRepository.save(userBook);
     }
 
-    @Async
-    public void updateUserBookClickCount(Map<Long, UserBookClickCountDto> userBookClickCountDtoMap) {
-        List<UserBook> userBooks = userBookESRepository.findByBookIdIn(userBookClickCountDtoMap.keySet());
-        userBooks.forEach(userBook -> userBook.setClickCount(userBookClickCountDtoMap.get(userBook.getBookId()).getCount()));
-    }
-
-    @Async
-    public void saveUserClick(Long userBookId, Long userId) {
-        this.userBookClickESRepository.save(
-            UserBookClickLog.builder()
-                .userBookId(userBookId)
-                .userId(userId)
-                .createdAt(Instant.now())
-                .build()
-        );
-    }
-
-    public List<UserBookClickLog> getClickLogWithRange(Instant start, Instant end) {
-        return this.userBookClickESRepository.findAllByCreatedAtBetween(start, end);
-    }
 }

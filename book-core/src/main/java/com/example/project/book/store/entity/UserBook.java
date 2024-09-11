@@ -5,6 +5,8 @@ import com.example.project.book.dto.UserBookDto;
 import com.example.project.book.dto.UserBookImageDto;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
+import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
+import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -15,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 @Table(name = "user_books")
 @Getter
@@ -82,7 +85,26 @@ public class UserBook {
         activity = false;
     }
 
-    public void setBookSellType(BookSellType bookSellType) {
+    public void setBookSellType(BookSellType bookSellType, BigDecimal rentPrice, BigDecimal sellPrice) {
+        if(bookSellType == null) {
+            return;
+        }
+
+        if((bookSellType.equals(BookSellType.BOTH) || bookSellType.equals(BookSellType.RENT)) &&
+                this.rentPrice.intValue() <= 0 && (rentPrice == null || rentPrice.intValue() <= 0)) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "빌려줄 때 가격이 책정이 안되어 있음 mysql");
+        }
+
+
+        if((bookSellType.equals(BookSellType.BOTH) || bookSellType.equals(BookSellType.SELL)) &&
+                this.sellPrice.intValue() <= 0 && (sellPrice == null || sellPrice.intValue() <= 0)) {
+            throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "판매 할 때 가격이 책정이 안되어 있음 mysql");
+        }
+
+
+        this.setRentPrice(rentPrice);
+        this.setSellPrice(sellPrice);
+
         this.bookSellType = bookSellType;
     }
 

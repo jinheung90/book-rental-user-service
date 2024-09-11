@@ -91,7 +91,6 @@ public class NaverBookSearchClient {
                 .header(CLIENT_SECRET_HEADER_NAME, clientSecret)
                 .build();
         ResponseEntity<String> response = restTemplate.exchange(requestEntity, String.class);
-        String xmlStr = response.getBody();
 
         this.isSuccessful(response);
         ObjectMapper xmlMapper = new XmlMapper();

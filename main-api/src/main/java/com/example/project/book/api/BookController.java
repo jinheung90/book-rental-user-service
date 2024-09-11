@@ -1,5 +1,6 @@
 package com.example.project.book.api;
 
+import com.example.project.book.BookClickService;
 import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
@@ -51,9 +52,9 @@ public class BookController {
     private final BookService bookService;
     private final NaverBookSearchClient naverBookSearchClient;
     private final KakaoAddressSearchClient kakaoAddressSearchClient;
-
     private final UserService userService;
     private final BookSearchService bookSearchService;
+    private final BookClickService bookClickService;
 
 
     @GetMapping("/book/search")
@@ -83,17 +84,25 @@ public class BookController {
 
         try {
             searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, longitude, latitude, pageRequest);
-            Map<Long, UserBookLike> userBookLikeMap = bookService.getBookLikesByIdInAndUserId(searchResult.getContent().stream().map(UserBookDto::getUserId).toList(), customUserDetail.getPK());
-            searchResult.getContent().forEach(
-                    userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()).isActivity())
-            );
         } catch (Exception e) {
             log.error(e.getMessage());
             searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK(), bookSellType, sortKey);
         }
 
+        // 좋아요
+        Map<Long, UserBookLike> userBookLikeMap = bookService.getBookLikesByIdInAndUserId(searchResult.getContent().stream().map(UserBookDto::getUserId).toList(), customUserDetail.getPK());
+        searchResult.getContent().forEach(
+                userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()).isActivity())
+        );
+
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
+        final List<Long> userBookIds = searchResult.getContent().stream().map(UserBookDto::getId).toList();
+        // 유저 프로필
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
+        // 클릭 카운트
+        final Map<Long, Long> clickCountMap = bookClickService.getClickCountsByUserBookIdIn(userBookIds);
+
+        searchResult.forEach(userBookDto -> userBookDto.setClickCount(clickCountMap.get(userBookDto.getId())));
 
         List<SearchBookDto> resultDto = searchResult.getContent().stream()
                 .map(userBookDto -> new SearchBookDto(userBookDto, userProfileDtoMap.get(userBookDto.getUserId())))
@@ -108,7 +117,6 @@ public class BookController {
             @PathVariable(name = "id") Long userBookId,
             @AuthenticationPrincipal CustomUserDetail customUserDetail) {
         UserBookLike userBookLike = bookService.updateUserBookLike(customUserDetail.getPK(), userBookId);
-        bookSearchService.updateBookLikeCount(userBookId, userBookLike.isActivity());
         return ResponseEntity.ok(new UserBookLikeDto(userBookLike.getUserId(), userBookLike.getUserBook().getId(), userBookLike.isActivity(), userBookLike.getUpdatedAt()));
     }
 
@@ -201,7 +209,7 @@ public class BookController {
             @PathVariable(name = "id") Long userBookId,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
-        bookSearchService.saveUserClick(userBookId, customUserDetail.getPK());
+
         return ResponseEntity.ok(UserBookDto.fromEntity(this.bookService.findUserBookById(userBookId)));
     }
 }

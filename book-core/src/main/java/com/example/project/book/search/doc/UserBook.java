@@ -4,6 +4,8 @@ import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookImageDto;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
+import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
+import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
 import com.example.project.common.util.JamoSeparate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -99,6 +101,10 @@ public class UserBook {
     }
 
     public void setBookSellType(BookSellType bookSellType) {
+        if(bookSellType == null) {
+            return;
+        }
+
         this.bookSellType = bookSellType;
     }
 
@@ -114,8 +120,17 @@ public class UserBook {
             return;
         }
         this.title = title;
-        this.titleWordUnits = JamoSeparate.separate(title);
     }
+
+    public void setBook(Book book) {
+        if(book == null) {
+            return;
+        }
+        this.titleWordUnits = JamoSeparate.separate(book.getTitle());
+        this.book = book;
+    }
+
+
 
     public void setSellPrice(Integer sellPrice) {
         if(sellPrice == null || sellPrice == 0) {
@@ -152,5 +167,28 @@ public class UserBook {
         this.addressName = addressDto.getAddressName();
         this.addressZoneNo = addressDto.getZoneNo();
         this.location = new GeoPoint(addressDto.getLatitude(), addressDto.getLongitude());
+    }
+
+    public void updateUserBook(
+            String title,
+            BookSellType bookSellType,
+            String detail,
+            Book book,
+            Integer sellPrice,
+            BookRentalStateType rentState,
+            Integer rentPrice,
+            List<UserBookImageDto> userBookImages,
+            SearchAddressDto addressDto)
+    {
+        this.setTitle(title);
+        this.setBookSellType(bookSellType);
+        this.setDetail(detail);
+        this.setBook(book);
+        this.setSellPrice(sellPrice);
+        this.setRentState(rentState);
+        this.setRentPrice(rentPrice);
+        this.setImages(userBookImages);
+        this.setAddress(addressDto);
+        this.id = "";
     }
 }

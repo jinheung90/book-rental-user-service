@@ -83,7 +83,7 @@ public class BookService {
          final UserBook userBook = userBookRepository.findByUserIdAndId(userId, userBookId)
                  .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "can't access userBook"));
 
-         userBook.setBookSellType(userBookDto.getBookSellType());
+         userBook.setBookSellType(userBookDto.getBookSellType(), userBookDto.getRentPrice(), userBook.getSellPrice());
          userBook.setDetail(userBookDto.getDetail());
          userBook.setTitle(userBookDto.getTitle());
          userBook.setRentState(userBookDto.getRentState());
@@ -155,32 +155,7 @@ public class BookService {
 
     public UserBook saveUserBook(UserBookDto userBookDto, Book book, Long userId, SearchAddressDto addressDto) {
         return userBookRepository.save(
-            UserBook.builder()
-                .rentPrice(userBookDto.getRentPrice())
-                .bookSellType(userBookDto.getBookSellType())
-                .sellPrice(userBookDto.getSellPrice())
-                .rentState(BookRentalStateType.AVAILABLE)
-                .bookSellType(BookSellType.BOTH)
-                .userBookAddress(UserBookAddress.builder()
-                    .addressName(addressDto.getAddressName())
-                    .zoneNo(addressDto.getZoneNo())
-                    .longitude(addressDto.getLongitude())
-                    .latitude(addressDto.getLatitude())
-                    .build())
-                .images(userBookDto.getUserBookImageDtos().stream().map(
-                    userBookImageDto -> UserBookImage
-                        .builder()
-                        .imageUrl(userBookImageDto.getImageUrl())
-                        .imageOrder(userBookImageDto.getImageOrder())
-                        .mainImage(userBookImageDto.getMainImage())
-                        .build()
-                ).toList())
-                .activity(true)
-                .book(book)
-                .userId(userId)
-                .detail(userBookDto.getDetail())
-                .title(userBookDto.getTitle())
-                .build()
+            UserBookDto.toEntity(userBookDto, book, userId, addressDto)
         );
     }
 
