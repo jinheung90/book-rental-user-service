@@ -16,16 +16,16 @@ import java.util.List;
 public class UserProfileDto {
 
     @Schema(description = "유저 아이디")
-    private Long id;
+    protected Long id;
 
     @Schema(description = "프로필 이미지")
-    private String profileImageUrl;
+    protected String profileImageUrl;
 
     @Schema(description = "닉네임")
-    private String nickName;
+    protected String nickName;
 
     @Schema(description = "주소")
-    private List<UserAddressDto> addresses;
+    protected List<UserAddressDto> addresses;
 
     public static UserProfileDto fromEntity(UserProfile userProfile) {
         return UserProfileDto.builder()
