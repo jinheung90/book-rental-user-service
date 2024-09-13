@@ -1,6 +1,9 @@
 package com.example.project.user.service;
 
 import com.example.project.address.dto.KakaoAddressSearchDto;
+import com.example.project.user.client.dto.KakaoProfile;
+import com.example.project.user.dto.EmailSignupRequest;
+import com.example.project.user.dto.KakaoSignupRequest;
 import com.example.project.user.dto.UserProfileDto;
 import com.example.project.user.entity.*;
 
@@ -77,14 +80,14 @@ public class UserService {
     }
 
     @Transactional
-    public UserSecurity signupByEmail(String email, String password, UserProfileDto userProfileDto, String phoneNumber) {
-        this.verifyPassword(password);
-        this.duplicatedEmail(email);
-        this.duplicatedNickname(userProfileDto.getNickName());
-        final User user = this.saveUser(email, phoneNumber);
-        final UserProfile userProfile = this.saveUserProfile(userProfileDto,  user);
+    public UserSecurity signupByEmail(EmailSignupRequest request) {
+        this.verifyPassword(request.getPassword());
+        this.duplicatedEmail(request.getEmail());
+        this.duplicatedNickname(request.getNickName());
+        final User user = this.saveUser(request.getEmail(), request.getPhone());
+        final UserProfile userProfile = this.saveUserProfile(request.getNickName(), request.getProfileImageUrl(), user);
         user.setUserProfile(userProfile);
-        return this.saveUserSecurityWithEmail(user, password);
+        return this.saveUserSecurityWithEmail(user, request.getPassword());
     }
 
     @Transactional
@@ -141,16 +144,16 @@ public class UserService {
     }
 
     @Transactional
-    public UserSecurity signupByKakao(String inputEmail, String kakaoEmail, String socialId,  UserProfileDto userProfileDto, String phoneNumber) {
-        this.duplicatedNickname(userProfileDto.getNickName());
-        this.findUserBySocialLogin(socialId, LoginProvider.KAKAO)
+    public UserSecurity signupByKakao(KakaoSignupRequest kakaoSignupRequest, KakaoProfile kakaoProfile) {
+        this.duplicatedNickname(kakaoSignupRequest.getNickName());
+        this.findUserBySocialLogin(kakaoProfile.getId().toString(), LoginProvider.KAKAO)
                 .ifPresent(((userSecurity) -> {
                     throw new RuntimeExceptionWithCode(GlobalErrorCode.EXISTS_USER);
                 }));
-        final User user = this.saveUser(inputEmail, phoneNumber);
-        final UserProfile userProfile = this.saveUserProfile(userProfileDto, user);
+        final User user = this.saveUser(kakaoSignupRequest.getEmail(), kakaoSignupRequest.getPhone());
+        final UserProfile userProfile = this.saveUserProfile(kakaoSignupRequest.getNickName(), kakaoSignupRequest.getProfileImageUrl(), user);
         user.setUserProfile(userProfile);
-        return this.saveUserSecurityWithSocial(user, kakaoEmail, socialId, LoginProvider.KAKAO);
+        return this.saveUserSecurityWithSocial(user, kakaoProfile.getKakao_account().getEmail(), kakaoProfile.getId().toString(), LoginProvider.KAKAO);
     }
 
     public void verifyEmail(String email) {
@@ -174,12 +177,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfile saveUserProfile(UserProfileDto userProfileDto, User user) {
+    public UserProfile saveUserProfile(String nickname, String imageUrl, User user) {
 
         UserProfile userProfile = UserProfile.builder()
                 .user(user)
-                .nickName(userProfileDto.getNickName())
-                .profileImageUrl(userProfileDto.getProfileImageUrl())
+                .nickName(nickname)
+                .profileImageUrl(imageUrl)
                 .build();
 
         return userProfileRepository.save(userProfile);
