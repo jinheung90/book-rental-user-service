@@ -3,12 +3,9 @@ package com.example.project.book.store.service;
 import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
-import com.example.project.book.dto.SearchAddressDto;
-import com.example.project.book.dto.UserBookClickCountDto;
-import com.example.project.book.dto.UserBookDto;
+import com.example.project.book.dto.*;
 
 
-import com.example.project.book.dto.UserBookImageDto;
 import com.example.project.book.store.repository.*;
 
 import com.example.project.book.store.entity.*;
@@ -62,19 +59,19 @@ public class BookService {
 
     @Transactional
     public UserBook registerUserBook(
-            UserBookDto userBookDto,
+            UserBookRequest request,
             NaverBookItem item,
             Long userId,
             SearchAddressDto addressDto
     ) {
         Book book = this.findBookByIsbnOrElseSave(item);
-        checkMainImageCount(userBookDto.getUserBookImageDtos());
-        return saveUserBook(userBookDto, book, userId, addressDto);
+        checkMainImageCount(request.getUserBookImageDtos());
+        return saveUserBook(request, book, userId, addressDto);
     }
 
     @Transactional
     public UserBook updateUserBook(
-            UserBookDto userBookDto,
+            UserBookRequest request,
             Long userId,
             Long userBookId,
             SearchAddressDto addressDto,
@@ -83,13 +80,13 @@ public class BookService {
          final UserBook userBook = userBookRepository.findByUserIdAndId(userId, userBookId)
                  .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, "can't access userBook"));
 
-         userBook.setBookSellType(userBookDto.getBookSellType(), userBookDto.getRentPrice(), userBook.getSellPrice());
-         userBook.setDetail(userBookDto.getDetail());
-         userBook.setTitle(userBookDto.getTitle());
-         userBook.setRentState(userBookDto.getRentState());
-         userBook.setRentPrice(userBookDto.getRentPrice());
-         userBook.setSellPrice(userBookDto.getSellPrice());
-         userBook.setImages(updateImages(userBookDto.getUserBookImageDtos(), userBook));
+         userBook.setBookSellType(request.getBookSellType(), request.getRentPrice(), userBook.getSellPrice());
+         userBook.setDetail(request.getDetail());
+         userBook.setTitle(request.getTitle());
+         userBook.setRentState(request.getRentState());
+         userBook.setRentPrice(request.getRentPrice());
+         userBook.setSellPrice(request.getSellPrice());
+         userBook.setImages(updateImages(request.getUserBookImageDtos(), userBook));
 
         if(addressDto != null && addressDto.getAddressName() != null && !addressDto.getAddressName().isBlank()) {
             Long preUserBookId = userBook.getUserBookAddress().getId();
@@ -153,9 +150,9 @@ public class BookService {
         s3Uploader.deleteByKey(BucketType.BOOK, imageUrl);
     }
 
-    public UserBook saveUserBook(UserBookDto userBookDto, Book book, Long userId, SearchAddressDto addressDto) {
+    public UserBook saveUserBook(UserBookRequest request, Book book, Long userId, SearchAddressDto addressDto) {
         return userBookRepository.save(
-            UserBookDto.toEntity(userBookDto, book, userId, addressDto)
+            UserBookDto.toEntity(request, book, userId, addressDto)
         );
     }
 

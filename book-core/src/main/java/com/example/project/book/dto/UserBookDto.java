@@ -124,20 +124,20 @@ public class UserBookDto {
     }
 
 
-    public static UserBook toEntity(UserBookDto userBookDto, com.example.project.book.store.entity.Book book, Long userId, SearchAddressDto addressDto) {
+    public static UserBook toEntity(UserBookRequest request, com.example.project.book.store.entity.Book book, Long userId, SearchAddressDto addressDto) {
         UserBook userBook = UserBook.builder()
-                .rentPrice(userBookDto.getRentPrice())
-                .bookSellType(userBookDto.getBookSellType())
-                .sellPrice(userBookDto.getSellPrice())
+                .rentPrice(request.getRentPrice())
+                .bookSellType(request.getBookSellType())
+                .sellPrice(request.getSellPrice())
                 .rentState(BookRentalStateType.AVAILABLE)
-                .bookSellType(userBookDto.getBookSellType())
+                .bookSellType(request.getBookSellType())
                 .userBookAddress(UserBookAddress.builder()
                         .addressName(addressDto.getAddressName())
                         .zoneNo(addressDto.getZoneNo())
                         .longitude(addressDto.getLongitude())
                         .latitude(addressDto.getLatitude())
                         .build())
-                .images(userBookDto.getUserBookImageDtos().stream().map(
+                .images(request.getUserBookImageDtos().stream().map(
                         userBookImageDto -> UserBookImage
                                 .builder()
                                 .imageUrl(userBookImageDto.getImageUrl())
@@ -148,12 +148,10 @@ public class UserBookDto {
                 .activity(true)
                 .book(book)
                 .userId(userId)
-                .detail(userBookDto.getDetail())
-                .title(userBookDto.getTitle())
+                .detail(request.getDetail())
+                .title(request.getTitle())
                 .build();
-
-        userBook.setBookSellType(userBookDto.getBookSellType(), userBookDto.getRentPrice(), userBookDto.getSellPrice());
-
+        userBook.setBookSellType(request.getBookSellType(), request.getRentPrice(), request.getSellPrice());
         return userBook;
     }
 

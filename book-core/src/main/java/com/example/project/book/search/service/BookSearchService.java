@@ -7,6 +7,7 @@ import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookClickCountDto;
 import com.example.project.book.dto.UserBookDto;
 
+import com.example.project.book.dto.UserBookRequest;
 import com.example.project.book.search.doc.Book;
 import com.example.project.book.search.doc.UserBook;
 
@@ -43,7 +44,7 @@ public class BookSearchService {
 
     @Async
     public void saveUserBook(
-        UserBookDto userBookDto,
+        UserBookRequest request,
         Long userBookId,
         NaverBookItem bookItem,
         Long userId,
@@ -52,21 +53,21 @@ public class BookSearchService {
         userBookESRepository.save(
             UserBook.builder()
                 .bookId(userBookId)
-                .bookSellType(userBookDto.getBookSellType())
+                .bookSellType(request.getBookSellType())
                 .activity(true)
                 .book(Book.fromBook(bookItem))
                 .titleWordUnits(JamoSeparate.separate(bookItem.getTitle()))
-                .rentPrice(userBookDto.getRentPrice().intValue())
-                .sellPrice(userBookDto.getSellPrice().intValue())
-                .title(userBookDto.getTitle())
-                .images(userBookDto.getUserBookImageDtos())
+                .rentPrice(request.getRentPrice().intValue())
+                .sellPrice(request.getSellPrice().intValue())
+                .title(request.getTitle())
+                .images(request.getUserBookImageDtos())
                 .addressId(addressDto.getId())
                 .addressName(addressDto.getAddressName())
                 .addressZoneNo(addressDto.getZoneNo())
                 .location(new GeoPoint(addressDto.getLatitude(), addressDto.getLongitude()))
                 .userId(userId)
                 .likeCount(0L)
-                .titleWordUnits(JamoSeparate.separate(userBookDto.getTitle()))
+                .titleWordUnits(JamoSeparate.separate(request.getTitle()))
                 .build()
         );
     }
@@ -112,19 +113,19 @@ public class BookSearchService {
     }
 
     // elasticsearch는 업데이트라는 개념이 없으므로 삭제 후 생성
-    public void updateUserBook(Long userBookId, UserBookDto userBookDto, SearchAddressDto newAddressDto) {
+    public void updateUserBook(Long userBookId, UserBookRequest userBookRequest, SearchAddressDto newAddressDto, NaverBookItem book) {
 
         UserBook userBook = findByBookId(userBookId);
         userBookESRepository.deleteById(userBook.getId());
         userBook.updateUserBook(
-                userBookDto.getTitle(),
-                userBook.getBookSellType(),
-                userBook.getDetail(),
-                userBook.getBook(),
-                userBook.getSellPrice(),
-                userBook.getRentState(),
-                userBook.getRentPrice(),
-                userBook.getImages(),
+                userBookRequest.getTitle(),
+                userBookRequest.getBookSellType(),
+                userBookRequest.getDetail(),
+                Book.fromBook(book),
+                userBookRequest.getSellPrice().intValue(),
+                userBookRequest.getRentState(),
+                userBookRequest.getRentPrice().intValue(),
+                userBookRequest.getUserBookImageDtos(),
                 newAddressDto
         );
         userBookESRepository.save(userBook);

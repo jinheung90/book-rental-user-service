@@ -4,8 +4,7 @@ import com.example.project.book.BookClickService;
 import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
-import com.example.project.book.dto.SearchAddressDto;
-import com.example.project.book.dto.UserBookLikeDto;
+import com.example.project.book.dto.*;
 import com.example.project.book.search.service.BookSearchService;
 
 import com.example.project.book.store.entity.UserBook;
@@ -22,8 +21,6 @@ import com.example.project.user.security.CustomUserDetail;
 import com.example.project.user.service.UserService;
 import com.example.project.book.client.api.NaverBookSearchClient;
 
-import com.example.project.book.dto.SearchBookDto;
-import com.example.project.book.dto.UserBookDto;
 import com.example.project.book.store.service.BookService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -141,38 +138,38 @@ public class BookController {
     @PostMapping("/book")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<UserBookDto> uploadUserBook(
-            @RequestBody UserBookDto userBookDto,
+            @RequestBody UserBookRequest request,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
-        SearchAddressDto addressDto = userBookDto.getAddress();
+
         final KakaoAddressSearchDto.RoadAddressDto roadAddressDto =
-                this.kakaoAddressSearchClient.findOneByNameAndZoneNo(addressDto.getAddressName(), addressDto.getZoneNo()).getRoad_address();
-        addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
-        final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn());
-        final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
-        bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
+                this.kakaoAddressSearchClient.findOneByNameAndZoneNo(request.getAddressName(), request.getAddressZoneNo()).getRoad_address();
+        SearchAddressDto addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
+        final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(request.getBookIsbn());
+        final UserBook userBook = bookService.registerUserBook(request, bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
+        bookSearchService.saveUserBook(request, userBook.getUserId(), bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
     @PutMapping("/book/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<UserBookDto> updateUserBook(
-            @RequestBody UserBookDto userBookDto,
+            @RequestBody UserBookRequest request,
             @AuthenticationPrincipal CustomUserDetail customUserDetail,
             @PathVariable(name = "id") Long userBookId
     ) {
-        SearchAddressDto addressDto = userBookDto.getAddress();
-        if(addressDto.getAddressName() != null && !addressDto.getAddressName().isBlank()) {
+        SearchAddressDto addressDto = null;
+        if(request.getAddressName() != null && !request.getAddressName().isBlank()) {
             final KakaoAddressSearchDto.RoadAddressDto roadAddressDto =
-                    this.kakaoAddressSearchClient.findOneByNameAndZoneNo(addressDto.getAddressName(), addressDto.getZoneNo()).getRoad_address();
+                    this.kakaoAddressSearchClient.findOneByNameAndZoneNo(request.getAddressName(), request.getAddressZoneNo()).getRoad_address();
             addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
         }
-        NaverBookItem naverBookItem = userBookDto.getBookInfo();
-        if(naverBookItem.getIsbn() != null && naverBookItem.getTitle() != null && !naverBookItem.getTitle().isBlank()) {
-            naverBookItem = naverBookSearchClient.searchBookByIsbn(userBookDto.getBookInfo().getIsbn()).getChannel().getItem();
+        NaverBookItem naverBookItem = null;
+        if(request.getBookIsbn() != null && request.getBookTitle() != null && !request.getBookTitle().isBlank()) {
+            naverBookItem = naverBookSearchClient.searchBookByIsbn(request.getBookIsbn()).getChannel().getItem();
         }
-        final UserBook userBook = bookService.updateUserBook(userBookDto, customUserDetail.getPK(), userBookId, addressDto, naverBookItem);
-        bookSearchService.updateUserBook(userBookId, userBookDto, addressDto);
+        final UserBook userBook = bookService.updateUserBook(request, customUserDetail.getPK(), userBookId, addressDto, naverBookItem);
+        bookSearchService.updateUserBook(userBookId, request, addressDto, NaverBookItem.fromBook(userBook.getBook()));
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
