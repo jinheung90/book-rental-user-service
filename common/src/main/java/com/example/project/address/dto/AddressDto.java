@@ -13,7 +13,6 @@ import lombok.experimental.SuperBuilder;
 public abstract class AddressDto {
 
     protected Long id;
-
     protected String addressName;
     protected String zoneNo;
     protected Double longitude;

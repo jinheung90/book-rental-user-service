@@ -60,14 +60,11 @@ public class UserController {
     public ResponseEntity<LoginResponse> signup(
         @RequestBody EmailSignupRequest emailSignupRequest
     ) {
-        final PhoneDto phoneDto = emailSignupRequest.getPhoneDto();
-        final EmailSignInRequest emailSignInRequest = emailSignupRequest.getEmailSignInRequest();
-        final UserProfileDto userProfileDto = emailSignupRequest.getUserProfileDto();
-        phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
-        final UserSecurity userSecurity = userService.signupByEmail(emailSignInRequest.getEmail(), emailSignInRequest.getPassword(), userProfileDto,  phoneDto.getPhone());
+        phoneAuthService.matchPhoneAuthTempToken(emailSignupRequest.getPhone(), emailSignupRequest.getAuthTempToken());
+        final UserSecurity userSecurity = userService.signupByEmail(emailSignupRequest);
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
-        phoneAuthService.delPhoneAuthTempToken(phoneDto.getPhone());
+        phoneAuthService.delPhoneAuthTempToken(emailSignupRequest.getPhone());
         return ResponseEntity.ok(
             new LoginResponse(
                 accessToken,
@@ -83,16 +80,14 @@ public class UserController {
     public ResponseEntity<LoginResponse> signup(
         @RequestBody KakaoSignupRequest kakaoSignupRequest
     ) {
-        final KakaoLoginRequest kakaoLoginRequest = kakaoSignupRequest.getKakaoLoginRequest();
-        final PhoneDto phoneDto = kakaoSignupRequest.getPhoneDto();
-        final UserProfileDto userProfileDto = kakaoSignupRequest.getUserProfileDto();
-        phoneAuthService.matchPhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
-        final KakaoToken kakaoToken = kakaoAuthApiClient.getKakaoTokenFromAuthorizationCode(kakaoLoginRequest.getAuthorizationCode());
+
+        phoneAuthService.matchPhoneAuthTempToken(kakaoSignupRequest.getPhone(), kakaoSignupRequest.getAuthTempToken());
+        final KakaoToken kakaoToken = kakaoAuthApiClient.getKakaoTokenFromAuthorizationCode(kakaoSignupRequest.getAuthorizationCode());
         final KakaoProfile kakaoProfile = kakaoAuthApiClient.fetchUserProfile(kakaoToken.getAccess_token());
-        final UserSecurity userSecurity = userService.signupByKakao(kakaoLoginRequest.getEmail(), kakaoProfile.getKakao_account().getEmail(),  kakaoProfile.getId().toString(), userProfileDto, phoneDto.getPhone());
+        final UserSecurity userSecurity = userService.signupByKakao(kakaoSignupRequest, kakaoProfile);
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
-        phoneAuthService.delPhoneAuthTempToken(phoneDto.getPhone());
+        phoneAuthService.delPhoneAuthTempToken(kakaoSignupRequest.getPhone());
         return ResponseEntity.ok(
             new LoginResponse(
                 accessToken,
