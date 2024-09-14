@@ -100,7 +100,7 @@ public class UserController {
 
     @PostMapping("/signin/email")
     @Operation(summary = "로그인")
-    public ResponseEntity<LoginResponse> signIn(
+    public ResponseEntity<LoginResponse> signInEmail(
             @RequestBody EmailSignInRequest emailSignInRequest
     ) {
         final UserSecurity userSecurity = this.userService.signinByEmail(emailSignInRequest.getEmail(), emailSignInRequest.getPassword());
@@ -118,7 +118,7 @@ public class UserController {
 
     @PostMapping("/signin/kakao")
     @Operation(summary = "로그인 카카오")
-    public ResponseEntity<LoginResponse> signIn(
+    public ResponseEntity<LoginResponse> signInKakao(
             @RequestBody KakaoLoginRequest kakaoLoginRequest
     ) {
         final KakaoToken kakaoToken = kakaoAuthApiClient.getKakaoTokenFromAuthorizationCode(kakaoLoginRequest.getAuthorizationCode());
@@ -234,11 +234,9 @@ public class UserController {
     public ResponseEntity<Map> verifyPhoneAuthNumberWhenPasswordReset(
             @RequestBody PasswordResetRequest passwordResetRequest
     ) {
-        final PhoneDto phoneDto = passwordResetRequest.getPhoneDto();
-        final EmailSignInRequest emailSignInRequest = passwordResetRequest.getEmailSignInRequest();
-        userService.passwordReset(phoneDto.getPhone(), emailSignInRequest.getPassword());
-        phoneAuthService.matchPasswordChangePhoneAuthTempToken(phoneDto.getPhone(), phoneDto.getAuthTempToken());
-        phoneAuthService.delPasswordPhoneAuthTempToken(passwordResetRequest.getPhoneDto().getPhone());
+        phoneAuthService.matchPasswordChangePhoneAuthTempToken(passwordResetRequest.getPhone(), passwordResetRequest.getAuthTempToken());
+        userService.passwordReset(passwordResetRequest.getPhone(), passwordResetRequest.getPassword());
+        phoneAuthService.delPasswordPhoneAuthTempToken(passwordResetRequest.getPhone());
         return ResponseEntity.ok().body(ResponseBody.successResponse());
     }
 
