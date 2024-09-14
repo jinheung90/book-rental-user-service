@@ -44,4 +44,12 @@ public class CommonFunction {
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
     }
+
+    public static String subStringCharLength(String str , int size) {
+        char[] characters = str.toCharArray();
+        if(characters.length < size - 1) {
+            return str;
+        }
+        return new String(characters, 0, size - 1);
+    }
 }

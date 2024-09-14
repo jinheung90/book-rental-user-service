@@ -1,6 +1,7 @@
 package com.example.project.book.client.dto;
 
 import com.example.project.book.store.entity.Book;
+import com.example.project.common.util.CommonFunction;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -47,21 +48,12 @@ public class NaverBookItem {
                 .isbn(item.getIsbn())
                 .author(item.getAuthor())
                 .link(item.getLink())
-                .description(NaverBookItem.descriptionFitFromColumn(item.getDescription()))
+                .description(CommonFunction.subStringCharLength(item.getDescription(), descriptionSubNum))
                 .discount(item.getDiscount())
                 .pubdate(item.getPubdate())
                 .imageUrl(item.getImage())
                 .publisher(item.getPublisher())
                 .title(item.getTitle())
                 .build();
-    }
-
-
-    public static String descriptionFitFromColumn(String description) {
-        char[] characters = description.toCharArray();
-        if(characters.length < descriptionSubNum - 1) {
-            return description;
-        }
-        return new String(characters, 0, descriptionSubNum - 1);
     }
 }

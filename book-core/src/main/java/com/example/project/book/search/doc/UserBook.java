@@ -24,6 +24,8 @@ import java.util.Objects;
 @Getter
 @AllArgsConstructor
 @Slf4j
+@Setting(settingPath = "setting.json")
+@Mapping(mappingPath = "mapping.json")
 public class UserBook {
 
     @Id
@@ -31,9 +33,6 @@ public class UserBook {
 
     @Field(type = FieldType.Text)
     private String title;
-
-    @Field(type = FieldType.Text)
-    private String titleWordUnits;
 
     @Field(type = FieldType.Text)
     private String detail;
@@ -126,7 +125,6 @@ public class UserBook {
         if(book == null) {
             return;
         }
-        this.titleWordUnits = JamoSeparate.separate(book.getTitle());
         this.book = book;
     }
 

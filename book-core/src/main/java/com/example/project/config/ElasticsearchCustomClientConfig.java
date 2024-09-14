@@ -38,23 +38,7 @@ public class ElasticsearchCustomClientConfig extends ElasticsearchConfiguration 
 
     @Override
     public ClientConfiguration clientConfiguration() {
-        ClientConfiguration clientConfiguration;
-        if(profile.equals("local")) {
-            clientConfiguration = ClientConfiguration.builder()
-                    .connectedToLocalhost()
-                    .withClientConfigurer((ElasticsearchClients.ElasticsearchHttpClientConfigurationCallback) clientConfigurer ->
-                            HttpAsyncClientBuilder.create()
-                                    .disableAuthCaching()
-                            .addInterceptorLast(((HttpResponseInterceptor) (response, context) ->
-                                    response.addHeader("X-Elastic-Product", "Elasticsearch")))
-                                    .addInterceptorLast((HttpRequestInterceptor) (request, context) ->
-                                            request.setHeader("Content-Type", "application/json"))
-                    )
-                    .build();
-           return clientConfiguration;
-
-        }
-        clientConfiguration = ClientConfiguration.builder()
+        return ClientConfiguration.builder()
                 .connectedTo(uris)
                 .usingSsl()
                 .withBasicAuth(username, password)
@@ -67,8 +51,5 @@ public class ElasticsearchCustomClientConfig extends ElasticsearchConfiguration 
                                         request.setHeader("Content-Type", "application/json"))
                 )
                 .build();
-        return clientConfiguration;
     }
-
-
 }

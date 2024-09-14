@@ -1,6 +1,8 @@
 package com.example.project.book.search.repository;
 
 
+import co.elastic.clients.elasticsearch.core.search.FieldSuggesterBuilders;
+import co.elastic.clients.elasticsearch.core.search.Suggester;
 import com.example.project.book.dto.UserBookDto;
 import com.example.project.book.search.doc.UserBook;
 

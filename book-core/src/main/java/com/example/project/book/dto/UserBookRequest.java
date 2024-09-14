@@ -16,6 +16,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class UserBookRequest {
     private Long id;
     private String title;

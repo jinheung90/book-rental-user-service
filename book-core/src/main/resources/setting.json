@@ -1,0 +1,69 @@
+{
+  "analysis": {
+    "filter": {
+      "nori_posfilter": {
+        "type": "nori_part_of_speech",
+        "stoptags": [
+          "E",
+          "IC",
+          "J",
+          "MAG",
+          "MM",
+          "NA",
+          "NR",
+          "SC",
+          "SE",
+          "SF",
+          "SH",
+          "SL",
+          "SN",
+          "SP",
+          "SSC",
+          "SSO",
+          "SY",
+          "UNA",
+          "UNKNOWN",
+          "VA",
+          "VCN",
+          "VCP",
+          "VSV",
+          "VV",
+          "VX",
+          "XPN",
+          "XR",
+          "XSA",
+          "XSN",
+          "XSV"
+        ]
+      }
+    },
+    "analyzer": {
+      "nfd_analyzer": {
+        "tokenizer": "icu_tokenizer",
+        "filter": [
+          "lowercase"
+        ],
+        "char_filter": [
+          "nfd_normalizer"
+        ]
+      },
+      "nori_analyzer":{
+        "type":"custom",
+        "tokenizer":"korean_nori_tokenizer"
+      }
+    },
+    "char_filter": {
+      "nfd_normalizer": {
+        "type": "icu_normalizer",
+        "name": "nfc",
+        "mode": "decompose"
+      }
+    },
+    "tokenizer":{
+      "korean_nori_tokenizer":{
+        "type":"nori_tokenizer",
+        "decompound_mode":"mixed"
+      }
+    }
+  }
+}

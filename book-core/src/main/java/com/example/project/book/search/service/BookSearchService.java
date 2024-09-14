@@ -11,7 +11,6 @@ import com.example.project.book.dto.UserBookRequest;
 import com.example.project.book.search.doc.Book;
 import com.example.project.book.search.doc.UserBook;
 
-import com.example.project.book.search.repository.UserBookClickESRepository;
 import com.example.project.book.search.repository.UserBookESQuery;
 import com.example.project.book.search.repository.UserBookESRepository;
 
@@ -38,7 +37,6 @@ import java.util.Map;
 public class BookSearchService {
 
     private final UserBookESRepository userBookESRepository;
-    private final UserBookClickESRepository userBookClickESRepository;
     private final UserBookESQuery userBookESQuery;
     private final ElasticsearchTemplate elasticsearchTemplate;
 
@@ -56,10 +54,10 @@ public class BookSearchService {
                 .bookSellType(request.getBookSellType())
                 .activity(true)
                 .book(Book.fromBook(bookItem))
-                .titleWordUnits(JamoSeparate.separate(bookItem.getTitle()))
                 .rentPrice(request.getRentPrice().intValue())
                 .sellPrice(request.getSellPrice().intValue())
                 .title(request.getTitle())
+                .detail(request.getDetail())
                 .images(request.getUserBookImageDtos())
                 .addressId(addressDto.getId())
                 .addressName(addressDto.getAddressName())
@@ -67,7 +65,6 @@ public class BookSearchService {
                 .location(new GeoPoint(addressDto.getLatitude(), addressDto.getLongitude()))
                 .userId(userId)
                 .likeCount(0L)
-                .titleWordUnits(JamoSeparate.separate(request.getTitle()))
                 .build()
         );
     }
@@ -130,5 +127,4 @@ public class BookSearchService {
         );
         userBookESRepository.save(userBook);
     }
-
 }

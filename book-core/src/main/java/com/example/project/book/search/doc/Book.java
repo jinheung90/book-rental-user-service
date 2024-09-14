@@ -7,14 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Book {
+
     private String title;
-    private String titleWordUnits;
     private String link;
     private String image;
     private String author;
@@ -33,7 +35,6 @@ public class Book {
             .pubdate(item.getPubdate())
             .image(item.getImage())
             .title(item.getTitle())
-            .titleWordUnits(JamoSeparate.separate(item.getTitle()))
             .publisher(item.getPublisher())
             .link(item.getLink())
             .build();

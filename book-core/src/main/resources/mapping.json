@@ -1,0 +1,16 @@
+{
+  "properties": {
+    "book.title" : {
+      "type": "text",
+      "analyzer": "nfd_analyzer"
+    },
+    "title": {
+      "type": "text",
+      "analyzer": "nori_analyzer"
+    },
+    "detail": {
+      "type": "text",
+      "analyzer": "nori_analyzer"
+    }
+  }
+}
