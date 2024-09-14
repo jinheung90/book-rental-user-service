@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Builder
@@ -20,6 +21,10 @@ public class UserDto {
     @Schema(description = "이메일")
     @NotEmpty
     private String email;
+
+    private UserProfileDto userProfile;
+    private List<String> authorities;
+
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -27,6 +32,8 @@ public class UserDto {
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .userProfile(UserProfileDto.fromEntity(user.getUserProfile()))
+                .authorities(user.getAuthorityNames())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

@@ -16,7 +16,5 @@ import lombok.Getter;
 public class LoginResponse {
     @Schema(description = "jwt 토큰")
     private String accessToken;
-    private UserAuthorityDto userAuthorityDto;
-    private UserProfileDto userProfileDto;
-    private UserDto userDto;
+    private UserDto user;
 }
