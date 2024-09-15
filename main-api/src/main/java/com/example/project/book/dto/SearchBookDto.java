@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "유저가 가지고 있는 책과 프로필 정보")
 public class SearchBookDto {
     @Schema(description = "유저의 책 정보")
-    private UserBookDto userBookDto;
+    private UserBookDto usedBook;
     @Schema(description = "유저 프로필 정보")
-    private UserProfileDto userProfileDto;
+    private UserProfileDto userProfile;
 }

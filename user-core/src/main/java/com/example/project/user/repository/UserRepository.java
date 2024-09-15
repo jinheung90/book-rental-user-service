@@ -21,6 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByPhone(String phone);
 
+    @EntityGraph(attributePaths = {"authorities", "userSecurities", "userProfile"})
     List<User> findByIdIn(List<Long> ids);
 
     boolean existsByEmail(String email);

@@ -1,6 +1,7 @@
 package com.example.project.book.store.repository;
 
 import com.example.project.book.store.entity.UserBook;
+import com.example.project.book.store.entity.UserBookAddress;
 import com.example.project.book.store.service.BookService;
 import com.example.project.common.enums.BookRentalStateType;
 
@@ -18,6 +19,7 @@ import java.util.Objects;
 
 import static com.example.project.book.store.entity.QUserBook.userBook;
 import static com.example.project.book.store.entity.QUserBookLike.userBookLike;
+import static com.example.project.book.store.entity.QUserBookAddress.userBookAddress;
 import static com.example.project.book.store.entity.QBook.book;
 
 
@@ -37,6 +39,7 @@ public class UserBookQuery {
     ) {
         JPAQuery<UserBook> query = jpaQueryFactory.selectFrom(userBook)
                 .innerJoin(userBook.book, book)
+                .innerJoin(userBook.userBookAddress, userBookAddress)
                 .fetchJoin()
                 .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE)
                         .or(userBook.rentState.eq(BookRentalStateType.RENTED)))

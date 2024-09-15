@@ -40,7 +40,7 @@ public class UserBookDto {
     private String detail;
 
     @Schema(description = "책 이미지")
-    private List<UserBookImageDto> userBookImageDtos;
+    private List<UserBookImageDto> userBookImage;
 
     @Schema(description = "책 대여 상태")
     private BookRentalStateType rentState;
@@ -79,7 +79,7 @@ public class UserBookDto {
         return UserBookDto.builder()
                 .id(userBook.getId())
                 .userId(userBook.getUserId())
-                .userBookImageDtos(
+                .userBookImage(
                         userBook.getImages().stream().map(
                                 UserBookImageDto::fromEntity
                         ).toList()
@@ -92,6 +92,7 @@ public class UserBookDto {
                 .rentPrice(userBook.getRentPrice())
                 .sellPrice(userBook.getSellPrice())
                 .bookSellType(userBook.getBookSellType())
+                .clickCount(0L)
                 .rentState(userBook.getRentState())
                 .build();
     }
@@ -99,7 +100,7 @@ public class UserBookDto {
     public static UserBookDto whenSearch(UserBook userBook, UserBookLike userBookLike) {
         UserBookDto userBookDto = UserBookDto.fromEntity(userBook);
         if(userBookLike != null && userBookLike.isActivity()) {
-            userBookDto.setBookLikeState(true);
+            userBookDto.setBookLikeState(userBookLike);
         }
         return userBookDto;
     }
@@ -109,7 +110,7 @@ public class UserBookDto {
         return UserBookDto.builder()
                 .id(userBook.getBookId())
                 .userId(userBook.getUserId())
-                .userBookImageDtos(userBook.getImages())
+                .userBookImage(userBook.getImages())
                 .detail(userBook.getDetail())
                 .title(userBook.getBook().getTitle())
                 .address(
@@ -119,6 +120,7 @@ public class UserBookDto {
                 .rentPrice(BigDecimal.valueOf(userBook.getRentPrice()))
                 .sellPrice(BigDecimal.valueOf(userBook.getSellPrice()))
                 .bookSellType(userBook.getBookSellType())
+                .clickCount(0L)
                 .rentState(userBook.getRentState())
                 .build();
     }
@@ -155,7 +157,11 @@ public class UserBookDto {
         return userBook;
     }
 
-    public void setBookLikeState(boolean bookLikeState) {
-        this.bookLikeState = bookLikeState;
+    public void setBookLikeState(UserBookLike bookLikeState) {
+        if(bookLikeState == null || !bookLikeState.isActivity()) {
+            this.bookLikeState = false;
+            return;
+        }
+        this.bookLikeState = true;
     }
 }

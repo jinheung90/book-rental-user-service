@@ -2,6 +2,7 @@ package com.example.project.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -38,6 +39,7 @@ public class User {
     private UserProfile userProfile;
 
     @OneToMany(mappedBy = "user")
+    @BatchSize(size = 3)
     private List<UserAddress> userAddress;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

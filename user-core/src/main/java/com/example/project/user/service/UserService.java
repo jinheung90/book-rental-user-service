@@ -260,9 +260,9 @@ public class UserService {
     }
 
     public Map<Long, UserProfileDto> getUserProfilesByUserIds(List<Long> ids) {
-        return userProfileRepository.findAllByUserIdIn(ids)
-                .stream().map(UserProfileDto::fromEntity)
-                .collect(Collectors.toMap(UserProfileDto::getId, userProfileDto -> userProfileDto));
+        return userRepository.findByIdIn(ids)
+                .stream()
+                .collect(Collectors.toMap(User::getId, user -> UserProfileDto.fromEntity(user.getUserProfile())));
     }
 
     @Transactional(readOnly = true)

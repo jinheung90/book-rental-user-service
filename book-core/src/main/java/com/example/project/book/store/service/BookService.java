@@ -48,11 +48,10 @@ public class BookService {
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
-    public Page<UserBookDto> searchUserBooks(PageRequest pageRequest, String name, Long searchUserId, Long myUserId, BookSellType bookSellType, BookSortType bookSortType) {
+    public Page<UserBookDto> searchUserBooks(PageRequest pageRequest, String name, Long searchUserId, BookSellType bookSellType, BookSortType bookSortType) {
         List<UserBook> userBooks = userBookQuery.searchUserBook(pageRequest, name, searchUserId, bookSellType, bookSortType);
-        Map<Long, UserBookLike> likeMap = this.getBookLikesByIdInAndUserId(userBooks.stream().map(UserBook::getId).toList(), myUserId);
         List<UserBookDto> userBookDtos = userBooks.stream().map(
-                userBook -> UserBookDto.whenSearch(userBook, likeMap.get(userBook.getId()))
+                UserBookDto::fromEntity
         ).toList();
         return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, searchUserId, bookSellType, bookSortType));
     }

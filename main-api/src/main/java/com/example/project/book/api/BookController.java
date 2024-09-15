@@ -70,7 +70,7 @@ public class BookController {
             @Parameter(description = "사이즈")
             @RequestParam(name = "size", defaultValue = "10", required = false) int size,
             @Parameter(description = "정렬 키워드")
-            @RequestParam(name = "sortKey", defaultValue = "updatedAt", required = false) BookSortType sortKey,
+            @RequestParam(name = "sortKey", defaultValue = "UPDATED_AT", required = false) BookSortType sortKey,
             @Parameter(description = "이름 (나중에는 키워드 검색 예정)")
             @RequestParam(name = "name", required = false) String name,
             @Parameter(description = "유저 아이디")
@@ -91,13 +91,13 @@ public class BookController {
             searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, longitude, latitude, pageRequest);
         } catch (Exception e) {
             log.error(e.getMessage());
-            searchResult = bookService.searchUserBooks(pageRequest, name, userId, customUserDetail.getPK(), bookSellType, sortKey);
+            searchResult = bookService.searchUserBooks(pageRequest, name, customUserDetail.getPK(), bookSellType, sortKey);
         }
 
         // 좋아요
         Map<Long, UserBookLike> userBookLikeMap = bookService.getBookLikesByIdInAndUserId(searchResult.getContent().stream().map(UserBookDto::getUserId).toList(), customUserDetail.getPK());
         searchResult.getContent().forEach(
-                userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()).isActivity())
+                userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()))
         );
 
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
