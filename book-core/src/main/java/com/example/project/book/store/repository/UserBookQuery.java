@@ -8,9 +8,11 @@ import com.example.project.common.enums.BookRentalStateType;
 
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
+import com.querydsl.core.util.StringUtils;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
@@ -25,6 +27,7 @@ import static com.example.project.book.store.entity.QBook.book;
 
 
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class UserBookQuery {
 
@@ -39,6 +42,7 @@ public class UserBookQuery {
     ) {
         JPAQuery<UserBook> query = jpaQueryFactory.selectFrom(userBook)
                 .innerJoin(userBook.book, book)
+                .fetchJoin()
                 .innerJoin(userBook.userBookAddress, userBookAddress)
                 .fetchJoin()
                 .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE)
@@ -86,14 +90,12 @@ public class UserBookQuery {
 
     public <T> JPAQuery<T> bookSort(JPAQuery<T> query, BookSellType bookSellType, BookSortType bookSortType) {
         return switch (bookSortType) {
-            case UPDATED_AT -> query.orderBy(userBook.updatedAt.desc());
+            case UPDATED_AT, DISTANCE, RECOMMEND -> query.orderBy(userBook.updatedAt.desc());
             case LOW_PRICE -> lowPriceSort(query, bookSellType);
-            case RECOMMEND -> query.orderBy(userBook.updatedAt.desc());
-            case DISTANCE -> query.orderBy(userBook.updatedAt.desc());
         };
     }
     public <T> JPAQuery<T> searchName(JPAQuery<T> query, String name) {
-        if(Objects.nonNull(name) && !name.isBlank()) return query.where(book.title.contains(name));
+        if(!StringUtils.isNullOrEmpty(name)) return query.where(book.title.contains(name));
         return query;
     }
 

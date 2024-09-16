@@ -41,8 +41,8 @@ public class UserBookESQuery {
             BookSortType sortType,
             Long userId,
             BookSellType bookSellType,
-            double longitude,
-            double latitude,
+            Double longitude,
+            Double latitude,
             PageRequest pageRequest
     ) {
 
@@ -80,7 +80,7 @@ public class UserBookESQuery {
         return qb;
     }
 
-    public NativeQueryBuilder orderBySortCase(BookSellType bookSellType, BookSortType sortType, double longitude, double latitude, NativeQueryBuilder qb) {
+    public NativeQueryBuilder orderBySortCase(BookSellType bookSellType, BookSortType sortType, Double longitude, Double latitude, NativeQueryBuilder qb) {
         return switch (sortType) {
             case DISTANCE -> qb.withSort(this.geoDistance(longitude, latitude));
             case UPDATED_AT -> qb.withSort(updateAtCase());
@@ -103,7 +103,10 @@ public class UserBookESQuery {
         return qb.withIndicesBoost(boostList);
     }
 
-    private Sort geoDistance(double longitude, double latitude) {
+    private Sort geoDistance(Double longitude, Double latitude) {
+        if(latitude == null || longitude == null) {
+            return this.updateAtCase();
+        }
         return Sort.by(new GeoDistanceOrder("location", new GeoPoint(latitude, longitude))).ascending();
     }
 

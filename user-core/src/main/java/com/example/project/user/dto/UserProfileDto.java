@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -29,10 +30,19 @@ public class UserProfileDto {
 
     public static UserProfileDto fromEntity(UserProfile userProfile) {
         return UserProfileDto.builder()
-            .id(userProfile.getId())
-            .addresses(UserAddressDto.fromEntityList(userProfile.getUser().getUserAddress()))
-            .profileImageUrl(userProfile.getProfileImageUrl())
-            .nickName(userProfile.getNickName())
-            .build();
+                .id(userProfile.getId())
+                .addresses(UserAddressDto.fromEntityList(userProfile.getUser().getUserAddress()))
+                .profileImageUrl(userProfile.getProfileImageUrl())
+                .nickName(userProfile.getNickName())
+                .build();
+    }
+
+    public static UserProfileDto fromEntityWithoutAddress(UserProfile userProfile) {
+        return UserProfileDto.builder()
+                .id(userProfile.getId())
+                .addresses(new ArrayList<>())
+                .profileImageUrl(userProfile.getProfileImageUrl())
+                .nickName(userProfile.getNickName())
+                .build();
     }
 }

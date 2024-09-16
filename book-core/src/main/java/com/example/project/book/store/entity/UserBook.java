@@ -54,9 +54,7 @@ public class UserBook {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @OneToMany(mappedBy = "userBook", cascade = CascadeType.ALL)
-    @BatchSize(size = 3)
-    @OrderBy("imageOrder asc")
+    @OneToMany(mappedBy = "userBook", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserBookImage> images;
 
     @OneToMany(mappedBy = "userBook")

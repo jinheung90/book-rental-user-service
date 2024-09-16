@@ -259,10 +259,11 @@ public class UserService {
         return userSecurityRepository.save(userSecurity);
     }
 
+    @Transactional(readOnly = true)
     public Map<Long, UserProfileDto> getUserProfilesByUserIds(List<Long> ids) {
         return userRepository.findByIdIn(ids)
                 .stream()
-                .collect(Collectors.toMap(User::getId, user -> UserProfileDto.fromEntity(user.getUserProfile())));
+                .collect(Collectors.toMap(User::getId, user -> UserProfileDto.fromEntityWithoutAddress(user.getUserProfile())));
     }
 
     @Transactional(readOnly = true)
@@ -273,4 +274,5 @@ public class UserService {
     public String generateS3ImageUrlForProfile() {
         return s3Uploader.createUserProfileImagePreSignedUrl(UUID.randomUUID().toString());
     }
+
 }

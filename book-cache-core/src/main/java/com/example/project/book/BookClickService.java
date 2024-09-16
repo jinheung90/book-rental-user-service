@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,7 @@ public class BookClickService {
         ValueOperations<String, Long> operations = longRedisTemplate.opsForValue();
         operations.increment(USER_BOOK_CLICK_COUNT_KEY + userBookId, 1);
     }
-
+    
     public Map<Long, Long> getClickCountsByUserBookIdIn(List<Long> userBookIds) {
         if(userBookIds == null || userBookIds.isEmpty()) {
             return new HashMap<>();

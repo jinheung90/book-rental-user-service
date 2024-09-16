@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -97,12 +98,22 @@ public class UserBookDto {
                 .build();
     }
 
-    public static UserBookDto whenSearch(UserBook userBook, UserBookLike userBookLike) {
-        UserBookDto userBookDto = UserBookDto.fromEntity(userBook);
-        if(userBookLike != null && userBookLike.isActivity()) {
-            userBookDto.setBookLikeState(userBookLike);
-        }
-        return userBookDto;
+    public static UserBookDto whenSearch(UserBook userBook) {
+        return UserBookDto.builder()
+                .id(userBook.getId())
+                .userId(userBook.getUserId())
+                .detail(userBook.getDetail())
+                .title(userBook.getTitle())
+                .address(
+                        SearchAddressDto.fromEntity(userBook.getUserBookAddress())
+                )
+                .bookInfo(NaverBookItem.fromBook(userBook.getBook()))
+                .rentPrice(userBook.getRentPrice())
+                .sellPrice(userBook.getSellPrice())
+                .bookSellType(userBook.getBookSellType())
+                .clickCount(0L)
+                .rentState(userBook.getRentState())
+                .build();
     }
 
     public static UserBookDto fromDoc(com.example.project.book.search.doc.UserBook userBook) {
@@ -163,5 +174,13 @@ public class UserBookDto {
             return;
         }
         this.bookLikeState = true;
+    }
+
+    public void setUserBookImage(List<UserBookImage> userBookImages) {
+        if(userBookImages == null) {
+            this.userBookImage = new ArrayList<>();
+            return;
+        }
+        this.userBookImage = userBookImages.stream().map(UserBookImageDto::fromEntity).toList();
     }
 }

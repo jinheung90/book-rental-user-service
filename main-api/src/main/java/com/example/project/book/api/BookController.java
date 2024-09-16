@@ -91,25 +91,17 @@ public class BookController {
             searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, longitude, latitude, pageRequest);
         } catch (Exception e) {
             log.error(e.getMessage());
-            searchResult = bookService.searchUserBooks(pageRequest, name, customUserDetail.getPK(), bookSellType, sortKey);
+            searchResult = bookService.searchUserBooks(pageRequest, name, userId, bookSellType, sortKey);
         }
 
-        // 좋아요
-        Map<Long, UserBookLike> userBookLikeMap = bookService.getBookLikesByIdInAndUserId(searchResult.getContent().stream().map(UserBookDto::getUserId).toList(), customUserDetail.getPK());
-        searchResult.getContent().forEach(
-                userBookDto -> userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()))
-        );
+        List<UserBookDto> userBookDtos = bookService.addUserBookInfo(searchResult.getContent(), customUserDetail.getPK());
 
         final List<Long> userIds = searchResult.getContent().stream().map(UserBookDto::getUserId).toList();
-        final List<Long> userBookIds = searchResult.getContent().stream().map(UserBookDto::getId).toList();
+
         // 유저 프로필
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
-        // 클릭 카운트
-        final Map<Long, Long> clickCountMap = bookClickService.getClickCountsByUserBookIdIn(userBookIds);
 
-        searchResult.forEach(userBookDto -> userBookDto.setClickCount(clickCountMap.get(userBookDto.getId())));
-
-        List<SearchBookDto> resultDto = searchResult.getContent().stream()
+        List<SearchBookDto> resultDto = userBookDtos.stream()
                 .map(userBookDto -> new SearchBookDto(userBookDto, userProfileDtoMap.get(userBookDto.getUserId())))
                 .toList();
 

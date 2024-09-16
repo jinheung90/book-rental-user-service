@@ -100,3 +100,135 @@ sequenceDiagram
 ### 책 상세 클릭 수 정책
     - 30일 전 부터 오늘까지의 집계 결과
     - 클릭 복수x 2시간마다 새로 클릭 반영가능
+
+
+#### 쿼리 (mysql)
+    // 메인 검색 쿼리
+    select
+        ub1_0.id,
+        ub1_0.activity,
+        b1_0.id,
+        b1_0.author,
+        b1_0.description,
+        b1_0.discount,
+        b1_0.image_url,
+        b1_0.isbn,
+        b1_0.link,
+        b1_0.pubdate,
+        b1_0.publisher,
+        b1_0.title,
+        ub1_0.book_sell_type,
+        ub1_0.created_at,
+        ub1_0.detail,
+        ub1_0.rent_price,
+        ub1_0.book_rent_state,
+        ub1_0.sell_price,
+        ub1_0.title,
+        ub1_0.updated_at,
+        uba1_0.id,
+        uba1_0.address_name,
+        uba1_0.latitude,
+        uba1_0.longitude,
+        uba1_0.zone_no,
+        ub1_0.user_id 
+    from
+        user_books ub1_0 
+    join
+        books b1_0 
+            on b1_0.id=ub1_0.book_id 
+    join
+        user_book_addresses uba1_0 
+            on uba1_0.id=ub1_0.user_book_address_id 
+    where
+        (
+            ub1_0.book_rent_state=? 
+            or ub1_0.book_rent_state=?
+        ) 
+        and ub1_0.activity=? 
+        and (
+            ub1_0.book_sell_type=? 
+            or ub1_0.book_sell_type=? 
+            or ub1_0.book_sell_type=?
+        ) 
+    order by
+        ub1_0.updated_at desc 
+    limit
+        ?, ?
+    
+    // 카운트 쿼리
+    select
+        count(ub1_0.id) 
+    from
+        user_books ub1_0 
+    where
+        (
+            ub1_0.book_rent_state=? 
+            or ub1_0.book_rent_state=?
+        ) 
+        and ub1_0.activity=? 
+        and (
+            ub1_0.book_sell_type=? 
+            or ub1_0.book_sell_type=? 
+            or ub1_0.book_sell_type=?
+        ) 
+    order by
+        ub1_0.updated_at desc 
+    limit
+        ?
+
+    // 이미지 쿼리
+    select
+        ubi1_0.id,
+        ubi1_0.created_at,
+        ubi1_0.image_order,
+        ubi1_0.image_url,
+        ubi1_0.is_main,
+        ubi1_0.updated_at,
+        ubi1_0.user_book_id 
+    from
+        user_book_images ubi1_0 
+    where
+        ubi1_0.user_book_id in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+    order by
+        ubi1_0.image_order
+    
+    //유저 프로필 쿼리
+    select
+        u1_0.id,
+        a1_0.user_id,
+        a1_1.authority_name,
+        u1_0.created_at,
+        u1_0.is_deleted,
+        u1_0.email,
+        u1_0.phone,
+        u1_0.updated_at,
+        up1_0.id,
+        up1_0.created_at,
+        up1_0.nick_name,
+        up1_0.profile_image_url,
+        up1_0.updated_at,
+        up1_0.user_id,
+        us1_0.user_id,
+        us1_0.user_security_id,
+        us1_0.created_at,
+        us1_0.email,
+        us1_0.password,
+        us1_0.provider,
+        us1_0.social_member_id,
+        us1_0.updated_at 
+    from
+        users u1_0 
+    left join
+        users_authorities a1_0 
+            on u1_0.id=a1_0.user_id 
+    left join
+        authorities a1_1 
+            on a1_1.authority_name=a1_0.authority_name 
+    left join
+        user_profiles up1_0 
+            on u1_0.id=up1_0.user_id 
+    left join
+        user_securities us1_0 
+            on u1_0.id=us1_0.user_id 
+    where
+        u1_0.id in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

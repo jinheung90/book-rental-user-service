@@ -51,7 +51,7 @@ public class BookService {
     public Page<UserBookDto> searchUserBooks(PageRequest pageRequest, String name, Long searchUserId, BookSellType bookSellType, BookSortType bookSortType) {
         List<UserBook> userBooks = userBookQuery.searchUserBook(pageRequest, name, searchUserId, bookSellType, bookSortType);
         List<UserBookDto> userBookDtos = userBooks.stream().map(
-                UserBookDto::fromEntity
+                UserBookDto::whenSearch
         ).toList();
         return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, searchUserId, bookSellType, bookSortType));
     }
@@ -106,6 +106,39 @@ public class BookService {
         userBookAddressRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    public Map<Long, List<UserBookImage>> getUserBookImageUserBookIdIn(List<Long> ids) {
+        Map<Long, List<UserBookImage>> result = new HashMap<>();
+        this.userBookImageRepository.findAllByUserBookIdInOrderByImageOrder(ids).forEach(
+                        userBookImage -> {
+                            List<UserBookImage> images = result.get(userBookImage.getUserBook().getUserId());
+                            if(images == null) {
+                                result.put(userBookImage.getUserBook().getUserId(), new ArrayList<>() {{
+                                    add(userBookImage);
+                                }});
+                            } else {
+                                images.add(userBookImage);
+                            }
+                        }
+                );
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserBookDto> addUserBookInfo(List<UserBookDto> userBookDtos, Long userId) {
+        List<Long> userBookIds = userBookDtos.stream().map(UserBookDto::getId).toList();
+
+        Map<Long, List<UserBookImage>> userBookImageMap = this.getUserBookImageUserBookIdIn(userBookIds);
+        Map<Long, UserBookLike> userBookLikeMap = this.getBookLikesByIdInAndUserId(userBookIds, userId);
+        userBookDtos.forEach(
+                userBookDto -> {
+                    userBookDto.setBookLikeState(userBookLikeMap.get(userBookDto.getId()));
+                    userBookDto.setUserBookImage(userBookImageMap.get(userBookDto.getId()));
+                }
+        );
+        return userBookDtos;
+    }
+
     @Transactional
     public List<UserBookImage> updateImages(List<UserBookImageDto> userBookImages, UserBook userBook) {
         checkMainImageCount(userBookImages);
@@ -155,6 +188,7 @@ public class BookService {
         );
     }
 
+    @Transactional(readOnly = true)
     public Map<Long, UserBookLike> getBookLikesByIdInAndUserId(List<Long> ids, Long userId) {
         return userBookLikeRepository.findByUserBookIdInAndUserIdAndActivityIsTrue(ids, userId).stream().collect(
                 Collectors.toMap(userBookLike -> userBookLike.getUserBook().getId(), userBookLike -> userBookLike));
