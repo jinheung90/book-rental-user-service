@@ -191,6 +191,21 @@ sequenceDiagram
         ubi1_0.user_book_id in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
     order by
         ubi1_0.image_order
+
+    // 좋아요 쿼리
+    select
+        ubl1_0.id,
+        ubl1_0.activity,
+        ubl1_0.created_at,
+        ubl1_0.updated_at,
+        ubl1_0.user_book_id,
+        ubl1_0.user_id 
+    from
+        books_likes ubl1_0 
+    where
+        ubl1_0.user_book_id in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+        and ubl1_0.user_id=? 
+        and ubl1_0.activity
     
     //유저 프로필 쿼리
     select
