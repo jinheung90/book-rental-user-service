@@ -150,14 +150,6 @@ public class UserBookDto {
                         .longitude(addressDto.getLongitude())
                         .latitude(addressDto.getLatitude())
                         .build())
-                .images(request.getUserBookImageDtos().stream().map(
-                        userBookImageDto -> UserBookImage
-                                .builder()
-                                .imageUrl(userBookImageDto.getImageUrl())
-                                .imageOrder(userBookImageDto.getImageOrder())
-                                .mainImage(userBookImageDto.getMainImage())
-                                .build()
-                ).toList())
                 .activity(true)
                 .book(book)
                 .userId(userId)

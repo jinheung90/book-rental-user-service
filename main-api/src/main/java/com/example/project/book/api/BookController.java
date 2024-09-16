@@ -232,7 +232,7 @@ public class BookController {
     }
 
 
-    @Transactional
+
     public void testSaveUserBook() {
         List<Book> books = bookService.findBookAll();
         List<User> users = userService.findUserAll();
@@ -294,7 +294,7 @@ public class BookController {
                     .title(book.getTitle())
                     .detail(CommonFunction.subStringCharLength(book.getDescription(), 1000))
                     .build();
-            log.info("test3");
+
             final UserBook userBook = bookService.registerUserBook(userBookDto, bookDto, user.getId(),addressDto);
             bookSearchService.saveUserBook(userBookDto, userBook.getUserId(), bookDto,  user.getId(), addressDto);
             savedUserBook.add(user.getId() + ":" + book.getId());

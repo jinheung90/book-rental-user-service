@@ -170,7 +170,7 @@ public class BookService {
 
     @Transactional
     public List<UserBookImage> saveUserBookImages(List<UserBookImageDto> userBookImages, UserBook userBook) {
-        if(userBookImages != null) {
+        if(userBookImages != null && !userBookImages.isEmpty()) {
             return userBookImageRepository.saveAll(userBookImages.stream().map(userBookImageDto ->
                     UserBookImageDto.toEntity(userBookImageDto, userBook)
             ).toList());
@@ -182,11 +182,17 @@ public class BookService {
         s3Uploader.deleteByKey(BucketType.BOOK, imageUrl);
     }
 
+    @Transactional
     public UserBook saveUserBook(UserBookRequest request, Book book, Long userId, SearchAddressDto addressDto) {
-        return userBookRepository.save(
+        UserBook userBook = userBookRepository.save(
             UserBookDto.toEntity(request, book, userId, addressDto)
         );
+        List<UserBookImage> userBookImages = saveUserBookImages(request.getUserBookImageDtos(), userBook);
+        userBook.setImages(userBookImages);
+        return userBook;
     }
+
+
 
     @Transactional(readOnly = true)
     public Map<Long, UserBookLike> getBookLikesByIdInAndUserId(List<Long> ids, Long userId) {

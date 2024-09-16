@@ -15,6 +15,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -54,7 +55,7 @@ public class UserBook {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @OneToMany(mappedBy = "userBook", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userBook", cascade = CascadeType.ALL)
     private List<UserBookImage> images;
 
     @OneToMany(mappedBy = "userBook")
@@ -144,7 +145,7 @@ public class UserBook {
     }
 
     public void setImages(List<UserBookImage> userBookImages) {
-        this.images = userBookImages;
+        this.images = userBookImages.stream().sorted(Comparator.comparing(UserBookImage::getImageOrder)).toList();
     }
 
     public void setUserBookAddress(UserBookAddress userBookAddress) {
