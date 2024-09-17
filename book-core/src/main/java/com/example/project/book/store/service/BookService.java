@@ -111,9 +111,12 @@ public class BookService {
         Map<Long, List<UserBookImage>> result = new HashMap<>();
         this.userBookImageRepository.findAllByUserBookIdInOrderByImageOrder(ids).forEach(
                         userBookImage -> {
-                            List<UserBookImage> images = result.get(userBookImage.getUserBook().getUserId());
+
+                            Long userBookId = userBookImage.getUserBook().getId();
+                            log.info(userBookId.toString());
+                            List<UserBookImage> images = result.get(userBookId);
                             if(images == null) {
-                                result.put(userBookImage.getUserBook().getUserId(), new ArrayList<>() {{
+                                result.put(userBookId, new ArrayList<>() {{
                                     add(userBookImage);
                                 }});
                             } else {

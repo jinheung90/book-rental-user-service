@@ -1,6 +1,6 @@
 package com.example.project.book.api;
 
-import com.example.project.book.BookClickService;
+
 import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.client.dto.NaverBookSearchDto;
 import com.example.project.book.client.dto.NaverDetailBookDto;
@@ -40,7 +40,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -59,8 +59,6 @@ public class BookController {
     private final KakaoAddressSearchClient kakaoAddressSearchClient;
     private final UserService userService;
     private final BookSearchService bookSearchService;
-    private final BookClickService bookClickService;
-
 
     @GetMapping("/book/search")
     @Operation(description = "유저 책 검색")
@@ -102,7 +100,7 @@ public class BookController {
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
 
         List<SearchBookDto> resultDto = userBookDtos.stream()
-                .map(userBookDto -> new SearchBookDto(userBookDto, userProfileDtoMap.get(userBookDto.getUserId())))
+                .map(userBookDto -> SearchBookDto.toDto(userBookDto, userProfileDtoMap.get(userBookDto.getUserId())))
                 .toList();
 
         return ResponseEntity.ok(new PageImpl<>(resultDto, pageRequest, searchResult.getTotalElements()));
@@ -130,7 +128,7 @@ public class BookController {
         final List<Long> userIds = userBookDtos.getContent().stream().map(UserBookDto::getUserId).toList();
         final Map<Long, UserProfileDto> userProfileDtoMap = userService.getUserProfilesByUserIds(userIds);
         final List<SearchBookDto> searchBookDtos = userBookDtos.getContent().stream().map(userBookDto ->
-             new SearchBookDto(userBookDto, userProfileDtoMap.get(userBookDto.getUserId()))
+             SearchBookDto.toDto(userBookDto, userProfileDtoMap.get(userBookDto.getUserId()))
         ).toList();
         return ResponseEntity.ok(new PageImpl<>(searchBookDtos, pageRequest, userBookDtos.getTotalElements()));
     }
