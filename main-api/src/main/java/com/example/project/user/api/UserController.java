@@ -66,7 +66,7 @@ public class UserController {
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         phoneAuthService.delPhoneAuthTempToken(emailSignupRequest.getPhone());
         return ResponseEntity.ok(
-            new LoginResponse(accessToken, UserDto.fromEntity(user))
+            LoginResponse.fromEntity(accessToken, UserDto.fromEntity(user))
         );
     }
 
@@ -84,7 +84,7 @@ public class UserController {
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(user.getAuthorityNames(), user.getId());
         phoneAuthService.delPhoneAuthTempToken(kakaoSignupRequest.getPhone());
         return ResponseEntity.ok(
-            new LoginResponse(accessToken, UserDto.fromEntity(user))
+                LoginResponse.fromEntity(accessToken, UserDto.fromEntity(user))
         );
     }
 
@@ -97,7 +97,7 @@ public class UserController {
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(userSecurity.getUser().getAuthorityNames(), userSecurity.getUser().getId());
         return ResponseEntity.ok(
-            new LoginResponse(accessToken, UserDto.fromEntity(user))
+            LoginResponse.fromEntity(accessToken, UserDto.fromEntity(user))
         );
     }
 
@@ -112,7 +112,7 @@ public class UserController {
         final User user = userSecurity.getUser();
         final String accessToken = tokenProvider.createJwtAccessTokenByUser(userSecurity.getUser().getAuthorityNames(), userSecurity.getUser().getId());
         return ResponseEntity.ok(
-            new LoginResponse(accessToken, UserDto.fromEntity(user))
+            LoginResponse.fromEntity(accessToken, UserDto.fromEntity(user))
         );
     }
 
