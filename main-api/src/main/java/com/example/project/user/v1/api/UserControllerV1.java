@@ -1,4 +1,4 @@
-package com.example.project.user.api;
+package com.example.project.user.v1.api;
 
 
 
@@ -13,13 +13,13 @@ import com.example.project.user.client.api.KakaoAuthApiClient;
 import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.user.client.dto.KakaoProfile;
 import com.example.project.user.client.dto.KakaoToken;
-import com.example.project.user.dto.LoginResponse;
+import com.example.project.user.entity.UserAddress;
+import com.example.project.user.v1.dto.LoginResponse;
 import com.example.project.user.dto.*;
 
 import com.example.project.user.entity.User;
 import com.example.project.user.entity.UserProfile;
 import com.example.project.user.entity.UserSecurity;
-import com.example.project.user.enums.PhoneAuthKeys;
 import com.example.project.user.security.CustomUserDetail;
 import com.example.project.user.security.TokenProvider;
 import com.example.project.user.service.PhoneAuthService;
@@ -30,7 +30,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,7 +44,7 @@ import java.util.Map;
 @RequestMapping("/v1/user")
 @RequiredArgsConstructor
 @Slf4j
-public class UserController {
+public class UserControllerV1 {
 
     private final PhoneAuthService phoneAuthService;
     private final TokenProvider tokenProvider;
@@ -186,7 +185,7 @@ public class UserController {
         }
 
         final User user = userService.findUserByPhone(phoneDto.getPhone());
-        return ResponseEntity.ok().body(UserDto.fromEntity(user));
+        return ResponseEntity.ok().body(UserDto.whenEmailVerify(user));
     }
 
     @PostMapping("/auth/phone/verify/password")
@@ -223,7 +222,7 @@ public class UserController {
     @PutMapping(value = "/profile")
     @PreAuthorize("hasRole('ROLE_USER')")
     @Operation(summary = "회원 정보 수정")
-    public ResponseEntity<UserProfileDto> updateUserProfile(
+    public ResponseEntity<UserDto> updateUserProfile(
             @RequestBody UserProfileDto userProfileDto,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
@@ -231,16 +230,17 @@ public class UserController {
 
         final UserProfile userProfile = userService.updateUserProfile(userProfileDto, customUserDetail.getPK());
         List<KakaoAddressSearchDto.Documents> kakaoAddress = new ArrayList<>();
+        List<UserAddress> userAddresses = userProfile.getUser().getUserAddress();
         if(addresses != null && !addresses.isEmpty()) {
             for (UserAddressDto address: addresses
                  ) {
                 KakaoAddressSearchDto.Documents documents = kakaoAddressSearchClient.findOneByNameAndZoneNo(address.getAddressName(), address.getZoneNo());
                 kakaoAddress.add(documents);
             }
-            userService.updateUserAddress(userProfile.getUser(), kakaoAddress);
+            userAddresses = userService.updateUserAddress(userProfile.getUser(), kakaoAddress);
         }
 
-        return ResponseEntity.ok(UserProfileDto.fromEntity(userProfile));
+        return ResponseEntity.ok(UserDto.fromEntityWhenUpdate(userProfile.getUser(), userAddresses));
     }
 
     @GetMapping(value = "/verify/nickname")

@@ -41,7 +41,7 @@ public class UserBookDto {
     private String detail;
 
     @Schema(description = "책 이미지")
-    private List<UserBookImageDto> userBookImage;
+    private List<UserBookImageDto> images;
 
     @Schema(description = "책 대여 상태")
     private BookRentalStateType rentState;
@@ -84,7 +84,7 @@ public class UserBookDto {
                 .title(userBook.getTitle())
                 .address(
                         SearchAddressDto.fromEntity(userBookAddress)
-                ).userBookImage(new ArrayList<>())
+                ).images(new ArrayList<>())
                 .bookInfo(NaverBookItem.fromBook(userBook.getBook()))
                 .rentPrice(userBook.getRentPrice())
                 .sellPrice(userBook.getSellPrice())
@@ -117,7 +117,7 @@ public class UserBookDto {
         return UserBookDto.builder()
                 .id(userBook.getBookId())
                 .userId(userBook.getUserId())
-                .userBookImage(userBook.getImages())
+                .images(userBook.getImages())
                 .detail(userBook.getDetail())
                 .title(userBook.getBook().getTitle())
                 .address(
@@ -166,9 +166,9 @@ public class UserBookDto {
 
     public void setUserBookImage(List<UserBookImage> userBookImages) {
         if(userBookImages == null) {
-            this.userBookImage = new ArrayList<>();
+            this.images = new ArrayList<>();
             return;
         }
-        this.userBookImage = userBookImages.stream().map(UserBookImageDto::fromEntity).toList();
+        this.images = userBookImages.stream().map(UserBookImageDto::fromEntity).toList();
     }
 }

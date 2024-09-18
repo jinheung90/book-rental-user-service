@@ -31,7 +31,6 @@ public class UserProfileDto {
     public static UserProfileDto fromEntity(UserProfile userProfile) {
         return UserProfileDto.builder()
                 .id(userProfile.getId())
-                .addresses(UserAddressDto.fromEntityList(userProfile.getUser().getUserAddress()))
                 .profileImageUrl(userProfile.getProfileImageUrl())
                 .nickName(userProfile.getNickName())
                 .build();

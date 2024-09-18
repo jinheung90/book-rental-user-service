@@ -1,10 +1,9 @@
-package com.example.project.user.dto;
+package com.example.project.user.v1.dto;
 
 
 
-import com.example.project.user.dto.UserAuthorityDto;
+import com.example.project.user.dto.UserAddressDto;
 import com.example.project.user.dto.UserDto;
-import com.example.project.user.dto.UserProfileDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
