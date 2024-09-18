@@ -21,10 +21,10 @@ public class UserDto {
     @Schema(description = "이메일")
     @NotEmpty
     private String email;
-
-    private UserProfileDto userProfile;
+    protected String profileImageUrl;
+    protected String nickName;
+    private List<UserAddressDto> addresses;
     private List<String> authorities;
-
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -32,7 +32,8 @@ public class UserDto {
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .userProfile(UserProfileDto.fromEntity(user.getUserProfile()))
+                .profileImageUrl(user.getUserProfile().getProfileImageUrl())
+                .nickName(user.getUserProfile().getNickName())
                 .authorities(user.getAuthorityNames())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
