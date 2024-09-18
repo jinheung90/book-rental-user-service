@@ -60,7 +60,7 @@ public class UserBookServiceTest {
                 .sellPrice(BigDecimal.valueOf(100000))
                 .detail("detail")
                 .title("title")
-                .userBookImageDtos(new ArrayList<>() {{
+                .userBookImage(new ArrayList<>() {{
                     add(new UserBookImageDto(1L, "imageurl", 0, true));
                 }})
                 .build();
@@ -73,7 +73,7 @@ public class UserBookServiceTest {
                 .sellPrice(BigDecimal.valueOf(100000))
                 .detail("")
                 .title("")
-                .userBookImageDtos(new ArrayList<>() {{
+                .userBookImage(new ArrayList<>() {{
                     add(new UserBookImageDto(1L, "imageurl", 0, false));
                 }})
                 .build();
@@ -101,31 +101,4 @@ public class UserBookServiceTest {
                 .build();
 
     }
-
-//    @Test
-//    void updateUserBookNotFindThenThrow() {
-//        BDDMockito.given(userBookRepository.findByUserIdAndId(1L, 3L)).willThrow(RuntimeExceptionWithCode.class);
-//        Assertions.assertThrows(RuntimeExceptionWithCode.class, () -> bookService.updateUserBook(userBookDto, 1L, 3L, new SearchAddressDto(), NaverBookItem.builder().build()));
-//    }
-//
-//    @Test
-//    void updateUserBookTestWhenExistsUpdate() {
-//        BDDMockito.given(userBookRepository.findByUserIdAndId(1L, 5L)).willReturn(Optional.of(userBook));
-//        UserBook actual = bookService.updateUserBook(userBookDto, 1L, 5L, new SearchAddressDto(), NaverBookItem.builder().build());
-//        Assertions.assertAll(
-//                () -> Assertions.assertEquals(result.getTitle(), actual.getTitle()),
-//                () -> Assertions.assertEquals(result.getBookSellType(), actual.getBookSellType()),
-//                () -> Assertions.assertEquals(result.getDetail(), actual.getDetail())
-//        );
-//    }
-//
-//    @Test
-//    void updateUserBookTestWhenTitleEmptyString() {
-//        BDDMockito.given(userBookRepository.findByUserIdAndId(1L, 5L)).willReturn(Optional.of(userBook));
-//        UserBook actual = bookService.updateUserBook(userBookDtoEmpty, 1L, 5L, new SearchAddressDto(), NaverBookItem.builder().build());
-//        Assertions.assertAll(
-//                () -> Assertions.assertEquals("titlebefore", actual.getTitle()),
-//                () -> Assertions.assertEquals("detailbefore", actual.getDetail())
-//        );
-//    }
 }
