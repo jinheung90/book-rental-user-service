@@ -34,6 +34,7 @@ public class UserDto {
                 .email(user.getEmail())
                 .profileImageUrl(user.getUserProfile().getProfileImageUrl())
                 .nickName(user.getUserProfile().getNickName())
+                .addresses(user.getUserAddress().stream().map(UserAddressDto::fromEntity).toList())
                 .authorities(user.getAuthorityNames())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
