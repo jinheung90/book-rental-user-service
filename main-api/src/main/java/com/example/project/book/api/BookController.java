@@ -60,7 +60,7 @@ public class BookController {
     private final UserService userService;
     private final BookSearchService bookSearchService;
 
-    @GetMapping("/book/search")
+    @GetMapping("/v1/book/search")
     @Operation(description = "유저 책 검색")
     public ResponseEntity<Page<SearchBookDto>> searchBooks(
             @Parameter(description = "페이지")
@@ -106,7 +106,7 @@ public class BookController {
         return ResponseEntity.ok(new PageImpl<>(resultDto, pageRequest, searchResult.getTotalElements()));
     }
 
-    @PutMapping("/book/{id}/like")
+    @PutMapping("/v1/book/{id}/like")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<UserBookLikeDto> setBookLike(
             @PathVariable(name = "id") Long userBookId,
@@ -115,7 +115,7 @@ public class BookController {
         return ResponseEntity.ok(new UserBookLikeDto(userBookLike.getUserId(), userBookLike.getUserBook().getId(), userBookLike.isActivity(), userBookLike.getUpdatedAt()));
     }
 
-    @GetMapping("/book/wish")
+    @GetMapping("/v1/book/wish")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Page<SearchBookDto>> getWishList(
             @Parameter(description = "페이지")
@@ -133,7 +133,7 @@ public class BookController {
         return ResponseEntity.ok(new PageImpl<>(searchBookDtos, pageRequest, userBookDtos.getTotalElements()));
     }
 
-    @PostMapping("/book")
+    @PostMapping("/v1/book")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<UserBookDto> uploadUserBook(
             @RequestBody UserBookRequest request,
@@ -149,7 +149,7 @@ public class BookController {
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
-    @PutMapping("/book/{id}")
+    @PutMapping("/v1/book/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<UserBookDto> updateUserBook(
             @RequestBody UserBookRequest request,
@@ -171,7 +171,7 @@ public class BookController {
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
-    @GetMapping("/book/search/naver")
+    @GetMapping("/v1/book/search/naver")
     public ResponseEntity<NaverBookSearchDto> searchBooksFromNaver(
             @RequestParam(name = "start", defaultValue = "1") int start,
             @RequestParam(name = "display", defaultValue = "10") int display,
@@ -181,7 +181,7 @@ public class BookController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/book/image/url")
+    @GetMapping("/v1/book/image/url")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<String> getPresignedUrl(
             @AuthenticationPrincipal CustomUserDetail customUserDetail
@@ -189,7 +189,7 @@ public class BookController {
         return ResponseEntity.ok(this.bookService.getUserBookImagePreSignedUrl(customUserDetail.getPK().toString()));
     }
 
-    @GetMapping("/book/naver")
+    @GetMapping("/v1/book/naver")
     public ResponseEntity<NaverBookItem> getStoredNaverBook(
             @PathVariable(name = "id") Long bookId
     ) {
