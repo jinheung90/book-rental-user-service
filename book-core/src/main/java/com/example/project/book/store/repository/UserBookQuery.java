@@ -8,6 +8,9 @@ import com.example.project.common.enums.BookRentalStateType;
 
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.core.util.StringUtils;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -38,7 +41,9 @@ public class UserBookQuery {
             String name,
             Long userId,
             BookSellType bookSellType,
-            BookSortType bookSortType
+            BookSortType bookSortType,
+            Double latitude,
+            Double longitude
     ) {
         JPAQuery<UserBook> query = jpaQueryFactory.selectFrom(userBook)
                 .innerJoin(userBook.book, book)
@@ -54,7 +59,7 @@ public class UserBookQuery {
         query = this.searchName(query, name);
         query = this.searchUserId(query, userId);
         query = this.checkSellType(query, bookSellType);
-        query = this.bookSort(query, bookSellType, bookSortType);
+        query = this.bookSort(query, bookSellType, bookSortType, latitude, longitude);
 
         return query.fetch();
     }
@@ -62,6 +67,8 @@ public class UserBookQuery {
     public List<UserBook> getWishList(PageRequest pageRequest) {
         JPAQuery<UserBook> query = jpaQueryFactory.selectFrom(userBook)
                 .innerJoin(userBook, userBookLike.userBook)
+                .fetchJoin()
+                .innerJoin(userBook.userBookAddress, userBookAddress)
                 .fetchJoin()
                 .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE))
                 .where(userBookLike.activity.isTrue())
@@ -88,14 +95,15 @@ public class UserBookQuery {
         return query;
     }
 
-    public <T> JPAQuery<T> bookSort(JPAQuery<T> query, BookSellType bookSellType, BookSortType bookSortType) {
+    public <T> JPAQuery<T> bookSort(JPAQuery<T> query, BookSellType bookSellType, BookSortType bookSortType, Double latitude, Double longitude) {
         return switch (bookSortType) {
-            case UPDATED_AT, DISTANCE, RECOMMEND -> query.orderBy(userBook.updatedAt.desc());
+            case UPDATED_AT,  RECOMMEND -> query.orderBy(userBook.updatedAt.desc());
             case LOW_PRICE -> lowPriceSort(query, bookSellType);
+            case DISTANCE -> distanceSort(query, latitude, longitude);
         };
     }
     public <T> JPAQuery<T> searchName(JPAQuery<T> query, String name) {
-        if(!StringUtils.isNullOrEmpty(name)) return query.where(book.title.contains(name));
+        if(!StringUtils.isNullOrEmpty(name)) return query.where(userBook.bookTitleWordUnits.contains(name));
         return query;
     }
 
@@ -108,12 +116,32 @@ public class UserBookQuery {
         };
     }
 
+    public <T> JPAQuery<T> distanceSort(JPAQuery<T> query, Double latitude, Double longitude) {
+        if(longitude == null || latitude == null) {
+            return query;
+        }
+
+        NumberExpression point = Expressions.numberTemplate(Double.class,"ST_Distance_Sphere({0}, {1})",
+                Expressions.stringTemplate("POINT({0}, {1})",
+                        longitude,
+                        latitude
+                ),
+                Expressions.stringTemplate("POINT({0}, {1})",
+                        userBookAddress.longitude,
+                        userBookAddress.latitude
+                )
+        );
+
+        return query.orderBy(point.asc());
+    }
+
+
     public <T> JPAQuery<T>  searchUserId(JPAQuery<T> query, Long userId) {
         if(userId != null && userId != 0) return query.where(userBook.userId.eq(userId));
         return query;
     }
 
-    public Long countSearchUserBook(String name, Long userId, BookSellType bookSellType, BookSortType bookSortType) {
+    public Long countSearchUserBook(String name, Long userId, BookSellType bookSellType, BookSortType bookSortType, Double latitude, Double longitude) {
         JPAQuery<Long> query = jpaQueryFactory.select(userBook.count())
                 .from(userBook)
                 .where(userBook.rentState.eq(BookRentalStateType.AVAILABLE)
@@ -122,7 +150,7 @@ public class UserBookQuery {
         query = this.searchName(query, name);
         query = this.searchUserId(query, userId);
         query = this.checkSellType(query, bookSellType);
-        query = this.bookSort(query, bookSellType, bookSortType);
+        query = this.bookSort(query, bookSellType, bookSortType, latitude, longitude);
         return query.fetchFirst();
     }
 

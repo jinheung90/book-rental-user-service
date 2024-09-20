@@ -10,4 +10,6 @@ import java.util.Set;
 public interface UserBookESRepository extends ElasticsearchRepository<UserBook, String> {
     Optional<UserBook> findByBookId(Long bookId);
     List<UserBook> findByBookIdIn(Set<Long> bookId);
+
+    List<UserBook> findByUserId(Long userId);
 }

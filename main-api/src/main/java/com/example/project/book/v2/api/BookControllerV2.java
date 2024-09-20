@@ -75,13 +75,12 @@ public class BookControllerV2 {
 
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<UserBookDto> searchResult;
-
-        try {
-            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, longitude, latitude, pageRequest);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            searchResult = bookService.searchUserBooks(pageRequest, name, userId, bookSellType, sortKey);
-        }
+//        try {
+//            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, longitude, latitude, pageRequest);
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
+            searchResult = bookService.searchUserBooks(pageRequest, name, userId, bookSellType, sortKey, latitude, longitude);
+//        }
 
         List<UserBookDto> userBookDtos = bookService.addUserBookInfo(searchResult.getContent(), customUserDetail.getPK());
 
@@ -136,7 +135,7 @@ public class BookControllerV2 {
         SearchAddressDto addressDto = SearchAddressDto.fromRoadAddress(roadAddressDto);
         final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(request.getBookIsbn());
         final UserBook userBook = bookService.registerUserBook(request, bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
-        bookSearchService.saveUserBook(request, userBook.getUserId(), bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
+        bookSearchService.saveUserBook(request, userBook.getUserId(), bookDto.getChannel().getItem(), customUserDetail.getPK(), SearchAddressDto.fromEntity(userBook.getUserBookAddress()));
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 
@@ -158,7 +157,7 @@ public class BookControllerV2 {
             naverBookItem = naverBookSearchClient.searchBookByIsbn(request.getBookIsbn()).getChannel().getItem();
         }
         final UserBook userBook = bookService.updateUserBook(request, customUserDetail.getPK(), userBookId, addressDto, naverBookItem);
-        bookSearchService.updateUserBook(userBookId, request, addressDto, NaverBookItem.fromBook(userBook.getBook()));
+        bookSearchService.updateUserBook(userBookId, request, SearchAddressDto.fromEntity(userBook.getUserBookAddress()), NaverBookItem.fromBook(userBook.getBook()));
         return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
     }
 

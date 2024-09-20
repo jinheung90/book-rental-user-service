@@ -2,6 +2,7 @@ package com.example.project.user.v1.api;
 
 
 
+import com.example.project.book.search.service.BookSearchService;
 import com.example.project.book.store.service.BookService;
 
 import com.example.project.common.aws.sns.SnsSender;
@@ -51,6 +52,7 @@ public class UserControllerV1 {
     private final KakaoAuthApiClient kakaoAuthApiClient;
     private final KakaoAddressSearchClient kakaoAddressSearchClient;
     private final BookService bookService;
+    private final BookSearchService bookSearchService;
     private final UserService userService;
     private final SnsSender snsSender;
 
@@ -269,6 +271,7 @@ public class UserControllerV1 {
     ) {
         userService.withdrawUser(customUserDetail.getPK());
         bookService.inactiveUserBooks(customUserDetail.getPK());
+        bookSearchService.inactiveUserBookDocs(customUserDetail.getPK());
         return ResponseEntity.ok(ResponseBody.successResponse());
     }
 

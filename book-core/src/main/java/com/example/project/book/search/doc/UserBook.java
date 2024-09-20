@@ -40,6 +40,9 @@ public class UserBook {
     @Field(type = FieldType.Text)
     private BookRentalStateType rentState;
 
+    @Field(type = FieldType.Text)
+    private String bookTitleWordUnit;
+
     @Field(type = FieldType.Integer)
     private Integer rentPrice;
 
@@ -187,6 +190,11 @@ public class UserBook {
         this.setRentPrice(rentPrice);
         this.setImages(userBookImages);
         this.setAddress(addressDto);
+        this.id = "";
+    }
+
+    public void inactive() {
+        this.activity = false;
         this.id = "";
     }
 }

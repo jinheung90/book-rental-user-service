@@ -48,12 +48,12 @@ public class BookService {
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
-    public Page<UserBookDto> searchUserBooks(PageRequest pageRequest, String name, Long searchUserId, BookSellType bookSellType, BookSortType bookSortType) {
-        List<UserBook> userBooks = userBookQuery.searchUserBook(pageRequest, name, searchUserId, bookSellType, bookSortType);
+    public Page<UserBookDto> searchUserBooks(PageRequest pageRequest, String name, Long searchUserId, BookSellType bookSellType, BookSortType bookSortType, Double latitude, Double longitude) {
+        List<UserBook> userBooks = userBookQuery.searchUserBook(pageRequest, name, searchUserId, bookSellType, bookSortType, latitude, longitude);
         List<UserBookDto> userBookDtos = userBooks.stream().map(
                 UserBookDto::whenSearch
         ).toList();
-        return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, searchUserId, bookSellType, bookSortType));
+        return new PageImpl<>(userBookDtos, pageRequest, userBookQuery.countSearchUserBook(name, searchUserId, bookSellType, bookSortType, latitude, longitude));
     }
 
     @Transactional
@@ -111,9 +111,7 @@ public class BookService {
         Map<Long, List<UserBookImage>> result = new HashMap<>();
         this.userBookImageRepository.findAllByUserBookIdInOrderByImageOrder(ids).forEach(
                         userBookImage -> {
-
                             Long userBookId = userBookImage.getUserBook().getId();
-                            log.info(userBookId.toString());
                             List<UserBookImage> images = result.get(userBookId);
                             if(images == null) {
                                 result.put(userBookId, new ArrayList<>() {{

@@ -7,6 +7,8 @@ import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
 import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
+import com.example.project.common.util.CommonFunction;
+import com.example.project.common.util.JamoSeparate;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -34,6 +36,9 @@ public class UserBook {
 
     @Column(nullable = false)
     private String title;
+
+    @Column(name = "book_title_word_units", nullable = false, length = 500)
+    private String bookTitleWordUnits;
 
     @Column(length = 1023)
     private String detail;
@@ -141,6 +146,10 @@ public class UserBook {
     }
 
     public void setBook(Book book) {
+        if(book == null) {
+            return;
+        }
+        this.bookTitleWordUnits = JamoSeparate.separate(book.getTitle());
         this.book = book;
     }
 

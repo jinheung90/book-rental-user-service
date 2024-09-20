@@ -12,6 +12,7 @@ import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
 
 
+import com.example.project.common.util.JamoSeparate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -119,7 +120,7 @@ public class UserBookDto {
                 .userId(userBook.getUserId())
                 .images(userBook.getImages())
                 .detail(userBook.getDetail())
-                .title(userBook.getBook().getTitle())
+                .title(userBook.getTitle())
                 .address(
                         SearchAddressDto.fromDoc(userBook)
                 )
@@ -140,6 +141,7 @@ public class UserBookDto {
                 .sellPrice(request.getSellPrice())
                 .rentState(BookRentalStateType.AVAILABLE)
                 .bookSellType(request.getBookSellType())
+                .bookTitleWordUnits(JamoSeparate.separate(book.getTitle()))
                 .userBookAddress(UserBookAddress.builder()
                         .addressName(addressDto.getAddressName())
                         .zoneNo(addressDto.getZoneNo())
