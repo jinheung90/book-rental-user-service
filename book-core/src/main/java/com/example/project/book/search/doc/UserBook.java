@@ -4,9 +4,6 @@ import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookImageDto;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
-import com.example.project.common.errorHandling.customRuntimeException.RuntimeExceptionWithCode;
-import com.example.project.common.errorHandling.errorEnums.GlobalErrorCode;
-import com.example.project.common.util.JamoSeparate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -69,9 +66,6 @@ public class UserBook {
 
     @Builder.Default
     private Long clickCount = 0L;
-
-    @Field(type = FieldType.Date, format = DateFormat.date_time)
-    private Instant createdAt;
 
     @Field(type = FieldType.Date, format = DateFormat.date_time)
     private Instant updatedAt;

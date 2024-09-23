@@ -60,9 +60,10 @@ public class UserBookESQuery {
 //        }
 //        qb.withRuntimeFields(runtimeFieldList);
 
-//        this.orderBySortCase(bookSellType, sortType, longitude, latitude, qb);
+//        ;
 //        this.matchKeyword(qb, keyword);
-        qb.withPageable(pageRequest);
+        PageRequest pageRequest1 = this.orderBySortCase(bookSellType, sortType, longitude, latitude, pageRequest);
+        qb.withPageable(pageRequest1);
         return elasticsearchOperations.search(qb.build(), UserBook.class, userBookCoordinates);
     }
 
@@ -79,20 +80,16 @@ public class UserBookESQuery {
 //        return qb;
 //    }
 
-    public NativeQueryBuilder orderBySortCase(BookSellType bookSellType, BookSortType sortType, Double longitude, Double latitude, NativeQueryBuilder qb) {
+    public PageRequest orderBySortCase(BookSellType bookSellType, BookSortType sortType, Double longitude, Double latitude, PageRequest pageRequest) {
         log.info("c");
         log.info(sortType.toString());
         return switch (sortType) {
-            case DISTANCE -> qb.withSort(this.geoDistance(longitude, latitude));
-            case UPDATED_AT -> qb.withSort(updateAtCase());
-            case RECOMMEND -> recommendCase(qb);
-            case LOW_PRICE -> qb.withSort(this.priceSortCase(bookSellType));
+            case DISTANCE -> pageRequest.withSort(Sort.by(new GeoDistanceOrder("location", new GeoPoint(latitude, longitude))).ascending());
+            case UPDATED_AT, RECOMMEND -> pageRequest.withSort(Sort.Direction.DESC, "updatedAt");
+            case LOW_PRICE -> pageRequest.withSort(this.priceSortCase(bookSellType));
         };
     }
 
-    private Sort updateAtCase() {
-        return Sort.by(Sort.Direction.DESC, "createdAt");
-    }
 
     private NativeQueryBuilder recommendCase(NativeQueryBuilder qb) {
         List<IndexBoost> boostList = qb.getIndicesBoost();
@@ -102,14 +99,6 @@ public class UserBookESQuery {
         boostList.add(new IndexBoost("clickCount", 2.f));
         boostList.add(new IndexBoost("likeCount", 3.f));
         return qb.withIndicesBoost(boostList);
-    }
-
-    private Sort geoDistance(Double longitude, Double latitude) {
-        log.info("d");
-        if(latitude == null || longitude == null) {
-            return this.updateAtCase();
-        }
-        return Sort.by(new GeoDistanceOrder("location", new GeoPoint(latitude, longitude))).ascending();
     }
 
     private Sort priceSortCase(BookSellType bookSellType) {

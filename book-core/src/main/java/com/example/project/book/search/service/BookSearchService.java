@@ -47,7 +47,6 @@ public class BookSearchService {
 
     private final UserBookESRepository userBookESRepository;
     private final UserBookESQuery userBookESQuery;
-    private final ElasticsearchTemplate elasticsearchTemplate;
 
     @Async
     public void saveUserBook(
@@ -73,6 +72,7 @@ public class BookSearchService {
                 .addressName(addressDto.getAddressName())
                 .addressZoneNo(addressDto.getZoneNo())
                 .location(new GeoPoint(addressDto.getLatitude(), addressDto.getLongitude()))
+                 .updatedAt(Instant.now())
                 .userId(userId)
                 .likeCount(0L)
                 .build()

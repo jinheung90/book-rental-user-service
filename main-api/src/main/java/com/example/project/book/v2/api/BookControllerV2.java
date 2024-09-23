@@ -1,6 +1,7 @@
 package com.example.project.book.v2.api;
 
 
+import ch.qos.logback.core.util.StringUtil;
 import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.book.client.api.NaverBookSearchClient;
 import com.example.project.book.client.dto.NaverBookItem;
@@ -16,6 +17,7 @@ import com.example.project.book.v2.dto.SearchBookDto;
 import com.example.project.common.enums.BookSellType;
 import com.example.project.common.enums.BookSortType;
 import com.example.project.common.util.CommonFunction;
+import com.example.project.common.util.JamoSeparate;
 import com.example.project.user.client.api.KakaoAddressSearchClient;
 import com.example.project.user.dto.UserProfileDto;
 import com.example.project.user.entity.User;
@@ -34,10 +36,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.*;
-import java.util.stream.Collectors;
-
 
 @RequiredArgsConstructor
 @RestController
@@ -75,12 +74,16 @@ public class BookControllerV2 {
 
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<UserBookDto> searchResult;
-//        try {
-//            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, longitude, latitude, pageRequest);
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
+        try {
+            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, longitude, latitude, pageRequest);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            log.error(e.getLocalizedMessage());
+            if(!StringUtil.isNullOrEmpty(name)) {
+                name = JamoSeparate.separate(name);
+            }
             searchResult = bookService.searchUserBooks(pageRequest, name, userId, bookSellType, sortKey, latitude, longitude);
-//        }
+        }
 
         List<UserBookDto> userBookDtos = bookService.addUserBookInfo(searchResult.getContent(), customUserDetail.getPK());
 

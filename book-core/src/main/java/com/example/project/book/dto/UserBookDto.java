@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -72,6 +73,8 @@ public class UserBookDto {
     @Builder.Default
     private Long clickCount = 0L;
 
+    private Instant updatedAt;
+
     public void setClickCount(Long clickCount) {
         this.clickCount = clickCount;
     }
@@ -92,6 +95,7 @@ public class UserBookDto {
                 .bookSellType(userBook.getBookSellType())
                 .clickCount(0L)
                 .rentState(userBook.getRentState())
+                .updatedAt(userBook.getUpdatedAt())
                 .build();
     }
 
@@ -110,6 +114,7 @@ public class UserBookDto {
                 .bookSellType(userBook.getBookSellType())
                 .clickCount(0L)
                 .rentState(userBook.getRentState())
+                .updatedAt(userBook.getUpdatedAt())
                 .build();
     }
 
@@ -130,6 +135,7 @@ public class UserBookDto {
                 .bookSellType(userBook.getBookSellType())
                 .clickCount(0L)
                 .rentState(userBook.getRentState())
+                .updatedAt(userBook.getUpdatedAt())
                 .build();
     }
 
