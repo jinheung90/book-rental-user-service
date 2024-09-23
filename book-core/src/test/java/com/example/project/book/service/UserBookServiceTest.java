@@ -51,32 +51,7 @@ public class UserBookServiceTest {
 
     @BeforeEach
     void init() {
-        userBookDto = UserBookDto.builder()
-                .userId(1L)
-                .bookLikeState(true)
-                .bookSellType(BookSellType.BOTH)
-                .rentPrice(BigDecimal.valueOf(50000))
-                .rentState(BookRentalStateType.AVAILABLE)
-                .sellPrice(BigDecimal.valueOf(100000))
-                .detail("detail")
-                .title("title")
-                .userBookImage(new ArrayList<>() {{
-                    add(new UserBookImageDto(1L, "imageurl", 0, true));
-                }})
-                .build();
-        userBookDtoEmpty = UserBookDto.builder()
-                .userId(1L)
-                .bookLikeState(true)
-                .bookSellType(BookSellType.BOTH)
-                .rentPrice(BigDecimal.valueOf(50000))
-                .rentState(BookRentalStateType.AVAILABLE)
-                .sellPrice(BigDecimal.valueOf(100000))
-                .detail("")
-                .title("")
-                .userBookImage(new ArrayList<>() {{
-                    add(new UserBookImageDto(1L, "imageurl", 0, false));
-                }})
-                .build();
+
 
         userBook = UserBook.builder()
                 .userId(1L)
