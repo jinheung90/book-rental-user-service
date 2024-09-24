@@ -65,6 +65,7 @@ public class BookControllerV1 {
 
     @GetMapping("/v1/book/search")
     @Operation(description = "유저 책 검색")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Page<SearchBookDto>> searchBooks(
             @Parameter(description = "페이지")
             @RequestParam(name = "page", defaultValue = "0", required = false) int page,
