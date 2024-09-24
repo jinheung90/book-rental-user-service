@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 
 /**
@@ -74,5 +75,6 @@ public class User {
 
     public void inactive() {
         this.deleted = true;
+        this.phone = UUID.randomUUID().toString().replace("-", "");
     }
 }
