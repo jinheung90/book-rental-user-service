@@ -76,9 +76,9 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(request-> request
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                        .requestMatchers("/user/**").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/book/**").permitAll()
+                        .requestMatchers("/v1/user/**").permitAll()
+                        .requestMatchers("/v1/auth/**").permitAll()
+                        .requestMatchers("/v1/book/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(whiteList).permitAll()
                         .anyRequest().permitAll()
