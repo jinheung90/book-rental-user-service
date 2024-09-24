@@ -111,6 +111,7 @@ public class UserService {
                 () -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER)
         );
         userSecurity.getUser().inactive();
+        userSecurity.getUser().getUserProfile().eraseNickNameForUserInactive();
     }
 
     public boolean duplicatedNicknameNotMe(String nickname, Long userId) {

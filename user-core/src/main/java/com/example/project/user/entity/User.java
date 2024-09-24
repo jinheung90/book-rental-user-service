@@ -29,7 +29,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id = null;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String phone = "";
 
     @Column(nullable = false, unique = true)
@@ -76,5 +76,6 @@ public class User {
     public void inactive() {
         this.deleted = true;
         this.phone = UUID.randomUUID().toString().replace("-", "");
+        this.email = UUID.randomUUID().toString().replace("-", "");
     }
 }
