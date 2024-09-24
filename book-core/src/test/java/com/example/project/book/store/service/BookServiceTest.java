@@ -1,15 +1,15 @@
-package com.example.project.book.service;
+package com.example.project.book.store.service;
 
 
 import com.example.project.book.client.dto.NaverBookItem;
 import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookDto;
 import com.example.project.book.dto.UserBookImageDto;
-import com.example.project.book.store.entity.UserBook;
+import com.example.project.book.dto.UserBookRequest;
+import com.example.project.book.store.entity.UserBookTest;
 import com.example.project.book.store.repository.BookRepository;
 import com.example.project.book.store.repository.UserBookImageRepository;
 import com.example.project.book.store.repository.UserBookRepository;
-import com.example.project.book.store.service.BookService;
 import com.example.project.common.aws.s3.S3Uploader;
 import com.example.project.common.enums.BookRentalStateType;
 import com.example.project.common.enums.BookSellType;
@@ -29,13 +29,13 @@ import java.util.Optional;
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("local")
-public class UserBookServiceTest {
+public class BookServiceTest {
 
     private UserBookDto userBookDto;
     private UserBookDto userBookDtoEmpty;
-    private UserBook userBook;
+    private UserBookTest userBook;
 
-    private UserBook result;
+    private UserBookTest result;
 
     @Mock
     private S3Uploader s3Uploader;
@@ -49,31 +49,35 @@ public class UserBookServiceTest {
     @InjectMocks
     private BookService bookService;
 
-    @BeforeEach
-    void init() {
 
 
-        userBook = UserBook.builder()
-                .userId(1L)
-                .bookSellType(BookSellType.SELL)
-                .rentPrice(BigDecimal.valueOf(10000))
-                .rentState(BookRentalStateType.AVAILABLE)
-                .sellPrice(BigDecimal.valueOf(111111))
-                .detail("detailbefore")
-                .title("titlebefore")
-                .id(5L)
-                .build();
-
-        result = UserBook.builder()
-                .userId(1L)
-                .bookSellType(BookSellType.BOTH)
-                .rentPrice(BigDecimal.valueOf(50000))
-                .rentState(BookRentalStateType.AVAILABLE)
-                .sellPrice(BigDecimal.valueOf(100000))
-                .detail("detail")
-                .title("title")
-                .id(5L)
-                .build();
-
+    @Test
+    void updateUserBookNotExistsTest() {
+        BDDMockito.given(userBookRepository.findByUserIdAndId(1L, 2L)).willReturn(Optional.empty());
+        Assertions.assertThrows(
+                RuntimeExceptionWithCode.class,
+                () -> bookService.updateUserBook(UserBookRequest.builder().build(), 1L, 2L, new SearchAddressDto(), NaverBookItem.builder().build())
+        );
     }
+
+    @Test
+    void checkMainImageCountMultiMainImageTest() {
+        Assertions.assertFalse(
+                bookService.checkMainImageCount(
+                        new ArrayList<>() {{
+                            add(UserBookImageDto.builder().mainImage(true)
+                                    .imageUrl("a")
+                                    .imageOrder(1)
+                                    .build()
+                            );
+                            add(UserBookImageDto.builder().mainImage(true)
+                                    .imageUrl("a")
+                                    .imageOrder(2)
+                                    .build()
+                            );
+                        }}
+                )
+        );
+    }
+
 }

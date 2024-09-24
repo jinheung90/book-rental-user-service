@@ -1,9 +1,7 @@
-package com.example.project.user.v1.dto;
+package com.example.project.user.dto;
 
 
 
-import com.example.project.user.dto.UserAddressDto;
-import com.example.project.user.dto.UserDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -11,7 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Getter
@@ -39,7 +39,7 @@ public class LoginResponse {
                 .email(userDto.getEmail())
                 .profileImageUrl(userDto.getProfileImageUrl())
                 .nickName(userDto.getNickName())
-                .addresses(userDto.getAddresses())
+                .addresses(Objects.requireNonNullElse(userDto.getAddresses(), new ArrayList<>()))
                 .authorities(userDto.getAuthorities())
                 .createdAt(userDto.getCreatedAt())
                 .updatedAt(userDto.getUpdatedAt())

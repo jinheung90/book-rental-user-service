@@ -147,7 +147,7 @@ public class BookService {
         return this.saveUserBookImages(userBookImages, userBook);
     }
 
-    public void checkMainImageCount(List<UserBookImageDto> userBookImages) {
+    public boolean checkMainImageCount(List<UserBookImageDto> userBookImages) {
         int count = 0;
         for (UserBookImageDto image : userBookImages) {
             if(image.getMainImage()) {
@@ -156,7 +156,9 @@ public class BookService {
         }
         if(count != 1) {
             log.warn(String.format("main image is not 1, count: %d", count));
+            return false;
         }
+        return true;
     }
 
     @Transactional

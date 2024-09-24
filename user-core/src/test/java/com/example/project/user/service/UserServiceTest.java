@@ -33,6 +33,7 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
     @Mock
     private UserProfileRepository userProfileRepository;
 
@@ -69,5 +70,10 @@ class UserServiceTest {
                 RuntimeExceptionWithCode.class,
                 () -> userService.updateUserProfile(userProfileDto, null)
         );
+    }
+
+    @Test
+    void signInByEmailTest() {
+
     }
 }

@@ -62,8 +62,6 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeExceptionWithCode(GlobalErrorCode.NOT_EXISTS_USER, " not exists user from phone and email"));
     }
 
-
-
     @Transactional
     public UserSecurity passwordReset(String phone, String password) {
         CommonFunction.matchPasswordRegex(password);

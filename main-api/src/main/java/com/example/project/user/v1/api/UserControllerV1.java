@@ -15,7 +15,7 @@ import com.example.project.address.dto.KakaoAddressSearchDto;
 import com.example.project.user.client.dto.KakaoProfile;
 import com.example.project.user.client.dto.KakaoToken;
 import com.example.project.user.entity.UserAddress;
-import com.example.project.user.v1.dto.LoginResponse;
+import com.example.project.user.dto.LoginResponse;
 import com.example.project.user.dto.*;
 
 import com.example.project.user.entity.User;
