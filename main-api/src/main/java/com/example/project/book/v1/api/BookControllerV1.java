@@ -142,7 +142,7 @@ public class BookControllerV1 {
 
     @PostMapping("/v1/book")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<UserBookDto> uploadUserBook(
+    public ResponseEntity<SearchBookDto> uploadUserBook(
             @RequestBody UserBookRequest request,
             @AuthenticationPrincipal CustomUserDetail customUserDetail
     ) {
@@ -153,12 +153,12 @@ public class BookControllerV1 {
         final NaverDetailBookDto bookDto = naverBookSearchClient.searchBookByIsbn(request.getBookIsbn());
         final UserBook userBook = bookService.registerUserBook(request, bookDto.getChannel().getItem(), customUserDetail.getPK(), addressDto);
         bookSearchService.saveUserBook(request, userBook.getUserId(), bookDto.getChannel().getItem(), customUserDetail.getPK(), SearchAddressDto.fromEntity(userBook.getUserBookAddress()));
-        return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
+        return ResponseEntity.ok(SearchBookDto.toDtoWithoutProfile(UserBookDto.fromEntity(userBook)));
     }
 
     @PutMapping("/v1/book/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<UserBookDto> updateUserBook(
+    public ResponseEntity<SearchBookDto> updateUserBook(
             @RequestBody UserBookRequest request,
             @AuthenticationPrincipal CustomUserDetail customUserDetail,
             @PathVariable(name = "id") Long userBookId
@@ -175,7 +175,7 @@ public class BookControllerV1 {
         }
         final UserBook userBook = bookService.updateUserBook(request, customUserDetail.getPK(), userBookId, addressDto, naverBookItem);
         bookSearchService.updateUserBook(userBookId, request, SearchAddressDto.fromEntity(userBook.getUserBookAddress()), NaverBookItem.fromBook(userBook.getBook()));
-        return ResponseEntity.ok(UserBookDto.fromEntity(userBook));
+        return ResponseEntity.ok(SearchBookDto.toDtoWithoutProfile(UserBookDto.fromEntity(userBook)));
     }
 
     @GetMapping("/v1/book/search/naver")

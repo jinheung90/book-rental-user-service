@@ -80,4 +80,32 @@ public class SearchBookDto {
                 .profileNickName(userProfile.getNickName())
                 .build();
     }
+
+    public static SearchBookDto toDtoWithoutProfile(UserBookDto userBook) {
+        final SearchAddressDto userBookAddress = userBook.getAddress();
+        return SearchBookDto.builder()
+                .userBookId(userBook.getId())
+                .userId(userBook.getUserId())
+                .userBookDetail(userBook.getDetail())
+                .userBookTitle(userBook.getTitle())
+                .userBookImage(userBook.getImages())
+                .addressName(userBookAddress.getAddressName())
+                .addressLatitude(userBookAddress.getLatitude())
+                .addressLongitude(userBookAddress.getLongitude())
+                .addressZoneNo(userBookAddress.getZoneNo())
+                .userBookRentPrice(userBook.getRentPrice())
+                .userBookSellPrice(userBook.getSellPrice())
+                .userBookBookSellType(userBook.getBookSellType())
+                .userBookRentState(userBook.getRentState())
+                .userBookLikeState(false)
+                .naverBookImage(userBook.getBookInfo().getImage())
+                .naverBookAuthor(userBook.getBookInfo().getAuthor())
+                .naverBookDescription(userBook.getBookInfo().getDescription())
+                .naverBookIsbn(userBook.getBookInfo().getIsbn())
+                .naverBookTitle(userBook.getBookInfo().getTitle())
+                .naverBookPublisher(userBook.getBookInfo().getPublisher())
+                .profileImageUrl("")
+                .profileNickName("")
+                .build();
+    }
 }
