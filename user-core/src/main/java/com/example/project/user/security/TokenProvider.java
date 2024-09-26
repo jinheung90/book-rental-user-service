@@ -54,31 +54,17 @@ public class TokenProvider {
     }
 
     public ParsedJwtInfo getUserIdAndAuthorityByJwtAccessToken(String token) {
-        try {
-            Claims claims = Jwts
-                    .parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+        Claims claims = Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
 
-            Collection<? extends GrantedAuthority> authorities =
-                    Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                            .map(SimpleGrantedAuthority::new)
-                            .toList();
-            return new ParsedJwtInfo(Long.valueOf(claims.getSubject()), new ArrayList<>(authorities), claims.getExpiration());
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.warn("잘못된 JWT 서명입니다.");
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.warn("지원되지 않는 JWT 토큰입니다.");
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.warn("JWT 토큰이 잘못되었습니다.");
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, e.getMessage());
-        } catch (ExpiredJwtException e) {
-            log.warn("JWT 토큰이 만료.");
-            throw new RuntimeExceptionWithCode(GlobalErrorCode.BAD_REQUEST, e.getMessage());
-        }
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+        return new ParsedJwtInfo(Long.valueOf(claims.getSubject()), new ArrayList<>(authorities), claims.getExpiration());
     }
 }

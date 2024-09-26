@@ -18,7 +18,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -70,21 +74,18 @@ public class SecurityConfig {
         return http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exceptionHandling -> {
-                    exceptionHandling.authenticationEntryPoint(jwtAuthenticationEntryPoint);
-                    exceptionHandling.accessDeniedHandler(jwtAccessDeniedHandler);
-                })
-                .authorizeHttpRequests(request-> request
+                .sessionManagement(it -> it.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
+                ).authorizeHttpRequests(request-> request
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers("/v1/user/**").permitAll()
-                        .requestMatchers("/v1/auth/**").permitAll()
-                        .requestMatchers("/v1/book/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers(whiteList).permitAll()
-                        .anyRequest().permitAll()
-                )
-                .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(new JwtFilter(tokenProvider),  UsernamePasswordAuthenticationFilter.class)
+                        .anyRequest().authenticated()
+                ).sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(new JwtFilter(tokenProvider),  ExceptionTranslationFilter.class)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())).build();
     }
 
@@ -106,4 +107,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
+
 }

@@ -45,6 +45,4 @@ public class ExceptWithErrorCodeAdvice {
         }};
         return new ResponseEntity<>(responseMap, HttpStatus.BAD_REQUEST);
     }
-    //멀티 파트 파일 관련해서
-
 }

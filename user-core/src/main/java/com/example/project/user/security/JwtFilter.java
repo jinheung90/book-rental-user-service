@@ -2,11 +2,13 @@ package com.example.project.user.security;
 
 import com.example.project.user.dao.ParsedJwtInfo;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,10 +36,16 @@ public class JwtFilter extends GenericFilterBean {
         String jwt = resolveToken(httpServletRequest);
 
         if(StringUtils.hasText(jwt)) {
-            ParsedJwtInfo parsedJwtInfo = tokenProvider.getUserIdAndAuthorityByJwtAccessToken(jwt);
-            setAuthentication(parsedJwtInfo, jwt);
+            try {
+                ParsedJwtInfo parsedJwtInfo = tokenProvider.getUserIdAndAuthorityByJwtAccessToken(jwt);
+                setAuthentication(parsedJwtInfo, jwt);
+            } catch (ExpiredJwtException e) {
+                HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
+                httpServletResponse.setHeader("jwt-Expired", "true");
+            } catch (Exception e) {
+                log.warn(e.getMessage());
+            }
         }
-
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
