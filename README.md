@@ -29,18 +29,10 @@ rds, elasticache, opensearch, ecs, ecr, parameter store, nat gateway, fargate, r
   - controller, scheduler를 모아놓은 모듈
 
 
-    설명
-    MSA 및 서비스 분리를 목적으로 설계 했음, 초기에 트래픽 적을 때는 애플리케이션을 한 개만 두고 쓰다가
-    나중에 트래픽이 몰리는 서비스를 분산할 때 쉽게 분리할 수 있도록 설계
-    ex) main-api대신 user-api, book-api, book-scheduler를 생성 후 해당 core를 붙이고 
-    각각을 애플리케이션으로 생성 시키면 됨
-    
-    book-core같은 경우에 es같은 경우 book-es-core모듈을 따로 분리하려고 생각했지만 dto등이 겹쳐서 한 곳에 묶음
-
 ### 테스트 코드 설정
-    @Tag로 제어 unit, integration으로 분리 하였음
+@Tag로 제어 unit, integration으로 분리 하였음
 
-### 배포
+### 아키텍쳐 및 배포
 https://jinheung90.tistory.com/41
 
 ### 유저 서비스 README
