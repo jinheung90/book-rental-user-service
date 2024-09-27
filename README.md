@@ -33,6 +33,8 @@ rds, elasticache, opensearch, ecs, ecr, parameter store, nat gateway, fargate, r
 @Tag로 제어 unit, integration으로 분리 하였음
 
 ### 아키텍쳐 및 배포
+![img.png](img.png)
+
 https://jinheung90.tistory.com/41
 
 ### 유저 서비스 README
