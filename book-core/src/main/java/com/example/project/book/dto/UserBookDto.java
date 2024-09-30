@@ -84,8 +84,9 @@ public class UserBookDto {
                 .detail(userBook.getDetail())
                 .title(userBook.getTitle())
                 .address(
-                        SearchAddressDto.fromEntity(userBookAddress)
-                ).images(new ArrayList<>())
+                        SearchAddressDto.fromEntity(Objects.requireNonNullElse(userBookAddress, new UserBookAddress()))
+                ).images(userBook.getImages() != null ?
+                        userBook.getImages().stream().map(UserBookImageDto::fromEntity).toList() : new ArrayList<>())
                 .bookInfo(NaverBookItem.fromBook(userBook.getBook()))
                 .rentPrice(userBook.getRentPrice())
                 .sellPrice(userBook.getSellPrice())
