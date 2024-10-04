@@ -1,8 +1,11 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [ develop ]
+  workflow_dispatch:
+    inputs:
+      tags:
+        description:
+        required: true
 jobs:
   build:
     name: DEPLOY
