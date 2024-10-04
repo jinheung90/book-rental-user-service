@@ -3,7 +3,7 @@ os: linux
 
 files:
   - source: /
-    destination: /opt/app/user
+    destination: /opt/
 permissions:
   - object: /opt/
     pattern: "**"
