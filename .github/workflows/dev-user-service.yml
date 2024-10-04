@@ -42,7 +42,7 @@ jobs:
       - name: Copy appspec.yml
         run: cp $MODULE_DEPLOY_PATH/dev-appspec.yml appspec.yml
 
-      - name: Copy deploy-sh.yml
+      - name: Copy deploy
         run: cp $MODULE_DEPLOY_PATH/dev-deploy.sh deploy.sh
 
       - name: Make zip file
