@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
 
-if [ ! -d "/var/log/app" ]; then
-  sudo mkdir /app
-fi
 
 
 sudo fuser -k 8080/tcp
