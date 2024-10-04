@@ -6,7 +6,7 @@ import com.example.project.book.dto.SearchAddressDto;
 import com.example.project.book.dto.UserBookDto;
 import com.example.project.book.dto.UserBookImageDto;
 import com.example.project.book.dto.UserBookRequest;
-import com.example.project.book.store.entity.UserBookTest;
+
 import com.example.project.book.store.repository.BookRepository;
 import com.example.project.book.store.repository.UserBookImageRepository;
 import com.example.project.book.store.repository.UserBookRepository;
@@ -29,13 +29,10 @@ import java.util.Optional;
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
 @ActiveProfiles("local")
-public class BookServiceTest {
+class BookServiceTest {
 
     private UserBookDto userBookDto;
     private UserBookDto userBookDtoEmpty;
-    private UserBookTest userBook;
-
-    private UserBookTest result;
 
     @Mock
     private S3Uploader s3Uploader;
