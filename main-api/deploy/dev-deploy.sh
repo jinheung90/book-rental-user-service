@@ -4,6 +4,6 @@
 
 
 sudo fuser -k 8080/tcp
-STDOUT=/var/log/app/stdout.log
-STDERR=/var/log/app/stderr.log
-sudo nohup  java -jar -Dspring.profiles.active=prod /opt/deploy.jar 2>&1
+STDOUT=/home/ec2-user/stdout.log
+STDERR=/home/ec2-user/stderr.log
+sudo nohup  java -jar -Dspring.profiles.active=prod /opt/deploy.jar 1>>$STDOUT 2>>$STDERR &
