@@ -43,7 +43,7 @@ jobs:
         run: cp $MODULE_DEPLOY_PATH/dev-appspec.yml appspec.yml
 
       - name: Copy deploy-sh.yml
-        run: cp $MODULE_DEPLOY_PATH/dev-deploy.sh deploy.yml
+        run: cp $MODULE_DEPLOY_PATH/dev-deploy.sh deploy.sh
 
       - name: Make zip file
         run: zip -qq -r ./$GITHUB_SHA.zip .
