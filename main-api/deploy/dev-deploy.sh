@@ -5,9 +5,8 @@ if [ ! -d "/var/log/app" ]; then
   sudo mkdir /app
 fi
 
-sudo cd /home/ec2-user
 
 sudo fuser -k 8080/tcp
 STDOUT=/var/log/app/stdout.log
 STDERR=/var/log/app/stderr.log
-nohup java -jar -Dspring.profiles.active=prod deploy.jar 2>&1
+sudo nohup  java -jar -Dspring.profiles.active=prod /opt/deploy.jar 2>&1
