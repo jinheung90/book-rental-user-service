@@ -42,6 +42,8 @@ public class UserBookESQuery {
 
     private final ElasticsearchOperations elasticsearchOperations;
 
+
+    //TODO 검색 쿼리 작성 현재 GeoDistance 조건절 에러
     public SearchHits<UserBook> searchUserBookQuery(
             String keyword,
             BookSortType sortType,
