@@ -26,7 +26,7 @@ rds, elasticache, opensearch, ecs, ecr, parameter store, nat gateway, fargate, r
 - book-cache-core
   - 책 서비스와 관련된 Redis 모듈
 - main-api
-  - controller, scheduler를 모아놓은 모듈
+  - controller, scheduler를  모아놓은 모듈
 
 
 ### 테스트 코드 설정

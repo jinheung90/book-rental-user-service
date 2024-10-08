@@ -1,4 +1,4 @@
-package com.example.project.book;
+package com.example.project.book.service;
 
 
 
@@ -39,6 +39,4 @@ public class BookClickService {
         }
         return clickCountMap;
     }
-
-
 }

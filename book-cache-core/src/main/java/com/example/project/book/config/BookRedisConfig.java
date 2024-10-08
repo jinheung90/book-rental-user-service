@@ -1,4 +1,4 @@
-package com.example.project.config;
+package com.example.project.book.config;
 
 
 import org.springframework.context.annotation.Bean;
@@ -11,7 +11,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class BookRedisConfig {
-
     @Bean
     public RedisTemplate<String, Long> redisTemplateForLong(LettuceConnectionFactory connectionFactory) {
         RedisTemplate<String, Long> redisTemplate = new RedisTemplate<>();

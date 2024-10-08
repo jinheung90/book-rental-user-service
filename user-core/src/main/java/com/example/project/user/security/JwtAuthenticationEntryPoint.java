@@ -25,6 +25,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper;
 
+
     private void sendErrorMessage(HttpServletResponse res) throws IOException {
         res.setStatus(GlobalErrorCode.NOT_VALID_TOKEN.getStatus()); // 인가 부족 401
         res.setContentType(MediaType.APPLICATION_JSON.toString());
@@ -39,6 +40,5 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         sendErrorMessage(response);
-
     }
 }
