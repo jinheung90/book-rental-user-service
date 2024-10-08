@@ -88,7 +88,7 @@ public class BookControllerV1 {
 
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<UserBookDto> searchResult;
-
+// Todo es 검색 쿼리 추가
 //        try {
 //            searchResult = bookSearchService.searchUserBooks(name, sortKey, userId, bookSellType, longitude, latitude, pageRequest);
 //        } catch (Exception e) {
